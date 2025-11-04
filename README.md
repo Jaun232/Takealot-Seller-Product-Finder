@@ -27,22 +27,22 @@ npm install
    ```
 3. In a second terminal run the Vite dev server (port 5173) which proxies `/api/*` to the Vercel instance:  
    ```bash
-   npm run dev
+- `npm run dev` - start the Vite dev server (expects `vercel dev` in another terminal).
    ```
 4. Open the UI at [http://localhost:5173](http://localhost:5173).
 
 ## Available Scripts
 
-- `npm run dev` – start the Vite dev server (expects `vercel dev` in another terminal).
-- `npm run build` – production build (used by Vercel during deployment).
-- `npm run preview` – preview the production build locally.
+- `npm run dev` - start the Vite dev server (expects `vercel dev` in another terminal).
+- `npm run build` - production build (used by Vercel during deployment).
+- `npm run preview` - preview the production build locally.
 
 ## Deploying to Vercel
 
 The repository is ready for a [Vercel](https://vercel.com/) deployment:
 
 1. Push the project to your Git provider and import it via the Vercel dashboard **or** run `vercel deploy --prod`.
-2. No extra configuration is required – Vercel detects Vite, builds the project, and exposes the serverless function at `/api/seller-products`.
+2. No extra configuration is required - Vercel detects Vite, builds the project, and exposes the serverless function at `/api/seller-products`.
 3. Optional: set `VITE_API_BASE_URL` in the Vercel dashboard if you want the client to call a different origin. Leaving it empty uses the same origin as the deployed site.
 
 ## Environment Variables
@@ -50,3 +50,7 @@ The repository is ready for a [Vercel](https://vercel.com/) deployment:
 | Name                | Description                                                                                              | Default |
 |---------------------|----------------------------------------------------------------------------------------------------------|---------|
 | `VITE_API_BASE_URL` | Optional absolute origin for API calls (e.g. `https://takealot-seller-product-finder.vercel.app`). When unset the client uses relative `/api` calls and relies on the Vite proxy in development. | _(empty)_ |
+
+## Styling
+
+Tailwind CSS is compiled locally via PostCSS (see `index.css`, `tailwind.config.ts`, and `postcss.config.cjs`). No CDN assets are required in production builds.
