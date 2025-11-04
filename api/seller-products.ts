@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { chromium, Browser } from 'playwright';
+import { chromium as playwrightChromium, Browser } from 'playwright-core';
+import awsChromium from '@sparticuz/chromium';
 
 type ScrapedProduct = {
   id: string;
@@ -35,9 +36,13 @@ async function scrapeSellerCatalogue(sellerId: string): Promise<ScrapedProduct[]
   let browser: Browser | null = null;
 
   try {
-    browser = await chromium.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    const executablePath = await awsChromium.executablePath();
+
+    browser = await playwrightChromium.launch({
+      args: awsChromium.args,
+      executablePath,
+      headless: awsChromium.headless !== undefined ? awsChromium.headless : true,
+      chromiumSandbox: false,
     });
 
     const context = await browser.newContext({
