@@ -63,45 +63,67 @@ export default async function handler(request: VercelRequest, response: VercelRe
     return response.status(400).json({ error: 'sellerId is required' });
   }
 
-  const searchParams = new URLSearchParams({
-    filter: `SellerId:${sellerId.trim()}`,
-    sort: 'Relevance',
-    rows: typeof rows === 'string' && rows ? rows : '36',
-    start: typeof start === 'string' && start ? start : '0',
-  });
+  const trimmedSellerId = sellerId.trim();
+  const rowsParam = typeof rows === 'string' && rows ? rows : '36';
+  const startParam = typeof start === 'string' && start ? start : '0';
+  const queryParam = typeof query === 'string' && query.trim().length > 0 ? query.trim() : '';
 
-  if (typeof query === 'string' && query.trim().length > 0) {
-    searchParams.set('q', query.trim());
+  const attempts = [
+    new URLSearchParams({
+      filter: `SellerId:${trimmedSellerId}`,
+      rows: rowsParam,
+      start: startParam,
+      sort: 'Relevance',
+      ...(queryParam ? { q: queryParam } : {}),
+    }),
+    new URLSearchParams({
+      sellers: trimmedSellerId,
+      rows: rowsParam,
+      start: startParam,
+      sort: 'Relevance',
+      ...(queryParam ? { q: queryParam } : {}),
+    }),
+  ];
+
+  let payload: TakealotSearchResponse | null = null;
+  let lastError: { status?: number; body?: string } | null = null;
+
+  for (const params of attempts) {
+    try {
+      const res = await fetch(`${TAKEALOT_SEARCH_URL}?${params.toString()}`, {
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'takealot-seller-product-finder/1.0 (+https://vercel.com/)',
+        },
+      });
+
+      if (!res.ok) {
+        lastError = { status: res.status, body: await res.text() };
+        continue;
+      }
+
+      const json = (await res.json()) as TakealotSearchResponse;
+      const results = json.sections?.products?.results ?? [];
+
+      if (results.length === 0) {
+        // keep last response but continue to the fallback attempt
+        payload = json;
+        continue;
+      }
+
+      payload = json;
+      break;
+    } catch (error) {
+      console.error('Error contacting Takealot API', error);
+      lastError = { status: 502, body: (error as Error).message };
+    }
   }
 
-  let takealotResponse: Response;
-  try {
-    takealotResponse = await fetch(`${TAKEALOT_SEARCH_URL}?${searchParams.toString()}`, {
-      headers: {
-        Accept: 'application/json',
-        'User-Agent': 'takealot-seller-product-finder/1.0 (+https://vercel.com/)',
-      },
+  if (!payload) {
+    return response.status(lastError?.status ?? 502).json({
+      error: 'Unable to reach Takealot search API',
+      debug: lastError,
     });
-  } catch (error) {
-    console.error('Network error contacting Takealot API', error);
-    return response.status(502).json({ error: 'Unable to reach Takealot search API' });
-  }
-
-  if (!takealotResponse.ok) {
-    const errorBody = await takealotResponse.text();
-    console.error('Takealot API responded with error', takealotResponse.status, errorBody);
-    return response.status(takealotResponse.status).json({
-      error: 'Takealot API returned an error',
-      status: takealotResponse.status,
-    });
-  }
-
-  let payload: TakealotSearchResponse;
-  try {
-    payload = (await takealotResponse.json()) as TakealotSearchResponse;
-  } catch (error) {
-    console.error('Failed to parse Takealot response', error);
-    return response.status(500).json({ error: 'Invalid response from Takealot API' });
   }
 
   const results = payload.sections?.products?.results ?? [];
