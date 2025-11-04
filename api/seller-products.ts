@@ -36,7 +36,7 @@ async function scrapeSellerCatalogue(sellerId: string): Promise<ScrapedProduct[]
   let browser: Browser | null = null;
 
   try {
-    const executablePath = await chromium.executablePath;
+    const executablePath = await chromium.executablePath();
 
     browser = await playwrightChromium.launch({
       args: chromium.args,
