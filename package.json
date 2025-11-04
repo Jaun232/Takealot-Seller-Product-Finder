@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:api": "tsx dev-api.ts"
   },
   "dependencies": {
     "@sparticuz/chromium": "^119.0.2",
@@ -19,6 +20,7 @@
     "@vercel/node": "^3.2.25",
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.20",
+    "tsx": "^4.19.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.8.2",

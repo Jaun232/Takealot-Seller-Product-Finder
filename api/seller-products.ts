@@ -88,14 +88,14 @@ async function scrapeSellerCatalogue(sellerId: string): Promise<ScrapedProduct[]
           const brandEl = card.querySelector<HTMLElement>('.product-card-module_product-title-wrapper_JD-kc span');
 
           const priceText = priceEl?.textContent ?? '';
-          const match = priceText.match(/R\\s*([\\d\\s.,]+)/i);
+          const match = priceText.match(/R\s*([\d\s.,]+)/i);
           const currency = match ? 'R' : '';
 
           seen.set(href, {
             id: href.split('/PLID')[1] ? `PLID${href.split('/PLID')[1]}` : href,
             name: titleEl?.textContent?.trim() ?? 'Unnamed product',
             description: '',
-            price: match ? Number(match[1].replace(/[\\s,]/g, '')) : NaN,
+            price: match ? Number(match[1].replace(/[\s,]/g, '')) : NaN,
             currency,
             imageUrl: imageEl?.src ?? '',
             productUrl: href,
