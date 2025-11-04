@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Product } from './types';
 import { fetchSellerProducts } from './services/takealotService';
 import SellerSearchForm from './components/SellerSearchForm';
@@ -12,6 +12,7 @@ const App: React.FC = () => {
   const [isSearchingProducts, setIsSearchingProducts] = useState<boolean>(false);
   const [productSearchError, setProductSearchError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
+  const [catalogQuery, setCatalogQuery] = useState<string>('');
 
   const handleSellerSearch = useCallback(async (sellerId: string) => {
     if (!sellerId) return;
@@ -20,6 +21,7 @@ const App: React.FC = () => {
     setIsSearchingProducts(true);
     setProducts([]);
     setProductSearchError(null);
+    setCatalogQuery('');
 
     try {
       const fetchedProducts = await fetchSellerProducts(sellerId);
@@ -36,6 +38,18 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const filteredProducts = useMemo(() => {
+    if (!catalogQuery.trim()) return products;
+    const needle = catalogQuery.trim().toLowerCase();
+    return products.filter((product) => {
+      return (
+        product.name.toLowerCase().includes(needle) ||
+        product.description.toLowerCase().includes(needle) ||
+        (product.brand ? product.brand.toLowerCase().includes(needle) : false)
+      );
+    });
+  }, [catalogQuery, products]);
+
   const renderContent = () => {
     if (isSearchingProducts) {
       return <div className="mt-20 flex justify-center"><Spinner /></div>;
@@ -49,7 +63,33 @@ const App: React.FC = () => {
       );
     }
     if (products.length > 0) {
-      return <ProductGrid products={products} />;
+      return (
+        <>
+          <div className="mb-6">
+            <label htmlFor="catalog-filter" className="block text-sm font-medium text-gray-300 mb-2">
+              Filter results
+            </label>
+            <input
+              id="catalog-filter"
+              type="text"
+              value={catalogQuery}
+              onChange={(event) => setCatalogQuery(event.target.value)}
+              placeholder="Search within this seller's catalogue..."
+              className="w-full bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-cyan rounded-md px-3 py-2"
+            />
+            <p className="mt-2 text-xs text-gray-400">
+              Showing {filteredProducts.length} of {products.length} items.
+            </p>
+          </div>
+          {filteredProducts.length > 0 ? (
+            <ProductGrid products={filteredProducts} />
+          ) : (
+            <p className="mt-10 text-center text-gray-400">
+              No products match "{catalogQuery}". Try another keyword.
+            </p>
+          )}
+        </>
+      );
     }
     if (hasSearched) {
        return <SearchGuide />;
