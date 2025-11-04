@@ -40,8 +40,9 @@ async function scrapeSellerCatalogue(sellerId: string): Promise<ScrapedProduct[]
 
     if (useServerlessChromium) {
       const executablePath = await chromium.executablePath();
+      const headlessSetting = chromium.headless;
       const headless =
-        typeof chromium.headless === 'string' ? chromium.headless !== 'false' : (chromium.headless ?? true);
+        typeof headlessSetting === 'string' ? headlessSetting : (headlessSetting ?? true);
 
       browser = await playwrightChromium.launch({
         args: chromium.args,
