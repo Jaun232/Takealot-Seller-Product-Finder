@@ -1,0 +1,5 @@
+{
+  "name": "Takealot Seller Product Finder",
+  "description": "An application to find products sold by a specific seller on Takealot.co.za and discover where else to buy them.",
+  "requestFramePermissions": []
+}
