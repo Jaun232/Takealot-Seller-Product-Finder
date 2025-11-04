@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Product } from '../types';
 
 interface ProductCardProps {
@@ -8,6 +8,37 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const formattedPrice = `${product.currency} ${product.price.toFixed(2)}`;
+  const [showComparisons, setShowComparisons] = useState<boolean>(false);
+
+  const comparisonLinks = useMemo(() => {
+    const encodedName = encodeURIComponent(product.name);
+    return [
+      {
+        label: 'Google Shopping',
+        url: `https://www.google.com/search?tbm=shop&q=${encodedName}`,
+      },
+      {
+        label: 'Google Search',
+        url: `https://www.google.com/search?q=${encodedName}+best+price`,
+      },
+      {
+        label: 'Amazon',
+        url: `https://www.amazon.com/s?k=${encodedName}`,
+      },
+      {
+        label: 'Temu',
+        url: `https://www.temu.com/search_result.html?search_key=${encodedName}`,
+      },
+      {
+        label: 'Shein',
+        url: `https://www.shein.com/search/${encodedName}.html`,
+      },
+      {
+        label: 'Alibaba',
+        url: `https://www.alibaba.com/trade/search?fsb=y&IndexArea=product_en&SearchText=${encodedName}`,
+      },
+    ];
+  }, [product.name]);
 
   return (
     <article className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 transform hover:-translate-y-1">
@@ -39,6 +70,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           >
             View on Takealot
           </a>
+          <button
+            type="button"
+            onClick={() => setShowComparisons((prev) => !prev)}
+            className="w-full mt-2 text-center border border-brand-cyan/60 text-brand-light hover:bg-brand-cyan/20 font-semibold py-2 rounded-md transition-colors duration-300"
+          >
+            {showComparisons ? 'Hide price comparison' : 'Compare prices'}
+          </button>
+          {showComparisons && (
+            <div className="mt-3 space-y-2 bg-gray-900/60 border border-gray-700 rounded-md p-3">
+              <p className="text-xs text-gray-400">Search this product on:</p>
+              <div className="grid gap-2">
+                {comparisonLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full text-center bg-brand-cyan/20 hover:bg-brand-cyan/40 text-brand-light text-sm font-medium py-2 rounded-md transition-colors duration-300"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </article>
