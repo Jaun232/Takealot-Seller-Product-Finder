@@ -13,8 +13,8 @@ const App: React.FC = () => {
   const [productSearchError, setProductSearchError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
 
-  const handleSellerSearch = useCallback(async (sellerId: string, productName: string) => {
-    if (!sellerId || !productName) return;
+  const handleSellerSearch = useCallback(async (sellerId: string) => {
+    if (!sellerId) return;
     
     setHasSearched(true);
     setIsSearchingProducts(true);
@@ -22,7 +22,7 @@ const App: React.FC = () => {
     setProductSearchError(null);
 
     try {
-      const fetchedProducts = await fetchSellerProducts(sellerId, productName);
+      const fetchedProducts = await fetchSellerProducts(sellerId);
       if (fetchedProducts.length === 0) {
         setProductSearchError("No products found for this seller. Please check the details and try again.");
       } else {
@@ -57,7 +57,7 @@ const App: React.FC = () => {
     return (
       <div className="mt-20 text-center text-gray-300">
         <h2 className="text-2xl font-bold">Welcome!</h2>
-        <p className="mt-2">Enter a Takealot Seller ID and an example product they sell to begin.</p>
+        <p className="mt-2">Enter a Takealot Seller ID to list their catalogue.</p>
       </div>
     );
   };

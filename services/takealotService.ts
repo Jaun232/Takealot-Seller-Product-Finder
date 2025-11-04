@@ -22,10 +22,10 @@ function buildQueryString(params: Record<string, string | number | undefined>): 
   return searchString ? `?${searchString}` : '';
 }
 
-export async function fetchSellerProducts(sellerId: string, productName: string): Promise<Product[]> {
+export async function fetchSellerProducts(sellerId: string, productName?: string): Promise<Product[]> {
   const url = `${API_PREFIX}/seller-products${buildQueryString({
     sellerId: sellerId.trim(),
-    query: productName.trim(),
+    query: productName?.trim(),
   })}`;
 
   const response = await fetch(url, { headers: { Accept: 'application/json' } });

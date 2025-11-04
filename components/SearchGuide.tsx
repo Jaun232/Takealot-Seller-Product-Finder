@@ -11,10 +11,10 @@ const SearchGuide: React.FC = () => {
           <strong>Find the Seller ID:</strong> On a Takealot product page, look for the "Sold by" section. Click on the seller's name. The URL of the page you land on will contain their numeric ID (e.g. <code>seller_id=25539226</code>). Copy the number after <code>seller_id=</code>.
         </li>
         <li>
-          <strong>Use the Exact Product Name:</strong> Copy and paste the full, exact product title from the Takealot page into the search field.
+          <strong>Refresh the Seller Page:</strong> If the API still returns nothing, confirm the seller has public listings by loading their Takealot storefront directly.
         </li>
         <li>
-          <strong>Try Another Product:</strong> If nothing comes up, search with another item you know the seller stocks. The Takealot search API sometimes needs a highly specific match.
+          <strong>Retry Later:</strong> Newly listed products can take a few minutes to propagate to the public API. Give it another shot if the catalogue recently changed.
         </li>
       </ol>
     </div>

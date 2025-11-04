@@ -4,7 +4,7 @@
 
 # Takealot Seller Product Finder
 
-React + Vite application that looks up the live catalogue for a Takealot seller. Provide a seller ID and a keyword that matches one of their listings and the app will return the top matches directly from Takealot's public search API. A Vercel serverless function (`api/seller-products.ts`) handles the API call so the browser never talks to Takealot directly (avoiding CORS issues).
+React + Vite application that looks up the live catalogue for a Takealot seller. Provide a seller ID and the app will return their top listings directly from Takealot's public search API. A Vercel serverless function (`api/seller-products.ts`) handles the API call so the browser never talks to Takealot directly (avoiding CORS issues).
 
 ## Local Development
 
