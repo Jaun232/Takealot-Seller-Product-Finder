@@ -36,14 +36,24 @@ async function scrapeSellerCatalogue(sellerId: string): Promise<ScrapedProduct[]
   let browser: Browser | null = null;
 
   try {
-    const executablePath = await chromium.executablePath();
+    const useServerlessChromium = Boolean(process.env.AWS_REGION || process.env.VERCEL);
 
-    browser = await playwrightChromium.launch({
-      args: chromium.args,
-      executablePath,
-      headless: chromium.headless,
-      ignoreDefaultArgs: ['--disable-extensions'],
-    });
+    if (useServerlessChromium) {
+      const executablePath = await chromium.executablePath();
+      const headless =
+        typeof chromium.headless === 'string' ? chromium.headless !== 'false' : (chromium.headless ?? true);
+
+      browser = await playwrightChromium.launch({
+        args: chromium.args,
+        executablePath,
+        headless,
+        ignoreDefaultArgs: ['--disable-extensions'],
+      });
+    } else {
+      browser = await playwrightChromium.launch({
+        headless: true,
+      });
+    }
 
     const context = await browser.newContext({
       userAgent:
