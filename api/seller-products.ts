@@ -1,38 +1,19 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { chromium, Browser } from 'playwright';
 
-type TakealotProductView = {
-  product_views?: {
-    core?: {
-      id?: number;
-      title?: string;
-      subtitle?: string;
-      slug?: string;
-      brand?: string;
-    };
-    gallery?: {
-      images?: string[];
-    };
-    buybox_summary?: {
-      prices?: number[];
-      pretty_price?: string;
-      product_id?: number;
-      tsin?: number | string;
-    };
-  };
+type ScrapedProduct = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  imageUrl: string;
+  productUrl: string;
+  sellerId: string;
+  brand?: string;
 };
 
-type TakealotSearchResponse = {
-  sections?: {
-    products?: {
-      results?: TakealotProductView[];
-      paging?: {
-        total_num_found?: number;
-      };
-    };
-  };
-};
-
-const TAKEALOT_SEARCH_URL = 'https://api.takealot.com/rest/v-1-9-0/searches/products';
+const TAKEALOT_SELLER_BASE = 'https://www.takealot.com/seller?sellers=';
 
 function withCors(response: VercelResponse): VercelResponse {
   response.setHeader('Access-Control-Allow-Origin', '*');
@@ -41,9 +22,90 @@ function withCors(response: VercelResponse): VercelResponse {
   return response;
 }
 
-function buildProductUrl(slug?: string, plid?: number): string | null {
-  if (!slug || !plid) return null;
-  return `https://www.takealot.com/${slug}/PLID${plid}`;
+function parsePrice(priceText: string | null | undefined): number | null {
+  if (!priceText) return null;
+  const match = priceText.match(/R\s*([\d\s.,]+)/i);
+  if (!match) return null;
+  const normalized = match[1].replace(/[\s,]/g, '');
+  const value = Number(normalized);
+  return Number.isFinite(value) ? value : null;
+}
+
+async function scrapeSellerCatalogue(sellerId: string): Promise<ScrapedProduct[]> {
+  let browser: Browser | null = null;
+
+  try {
+    browser = await chromium.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+
+    const context = await browser.newContext({
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118 Safari/537.36',
+      viewport: { width: 1280, height: 720 },
+    });
+
+    const page = await context.newPage();
+    await page.goto(`${TAKEALOT_SELLER_BASE}${sellerId}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 15000,
+    });
+
+    // Wait for product cards to hydrate (if they exist)
+    await page.waitForSelector('.product-card', { timeout: 10000 }).catch(() => undefined);
+
+    const scraped = await page.evaluate(
+      ({ sellerId: sId }) => {
+        const cards = Array.from(document.querySelectorAll<HTMLElement>('.product-card'));
+        const seen = new Map<string, ScrapedProduct>();
+
+        for (const card of cards) {
+          const linkEl = card.querySelector<HTMLAnchorElement>('a[href*="/PLID"]');
+          if (!linkEl) continue;
+
+          const href = linkEl.href;
+          if (seen.has(href)) continue;
+
+          const titleEl = card.querySelector<HTMLElement>('.product-card-module_product-title_16xh8');
+          const priceEl = card.querySelector<HTMLElement>('.product-card-price-module_price_westP');
+          const imageEl = card.querySelector<HTMLImageElement>('img');
+          const brandEl = card.querySelector<HTMLElement>('.product-card-module_product-title-wrapper_JD-kc span');
+
+          const priceText = priceEl?.textContent ?? '';
+          const match = priceText.match(/R\\s*([\\d\\s.,]+)/i);
+          const currency = match ? 'R' : '';
+
+          seen.set(href, {
+            id: href.split('/PLID')[1] ? `PLID${href.split('/PLID')[1]}` : href,
+            name: titleEl?.textContent?.trim() ?? 'Unnamed product',
+            description: '',
+            price: match ? Number(match[1].replace(/[\\s,]/g, '')) : NaN,
+            currency,
+            imageUrl: imageEl?.src ?? '',
+            productUrl: href,
+            sellerId: sId,
+            brand: brandEl?.textContent?.trim() || undefined,
+          });
+        }
+
+        return Array.from(seen.values());
+      },
+      { sellerId }
+    );
+
+    return scraped
+      .filter((item) => Number.isFinite(item.price))
+      .map((item) => ({
+        ...item,
+        price: Number(item.price),
+        imageUrl: item.imageUrl.replace('{size}', '400'),
+      }));
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
 }
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
@@ -57,114 +119,39 @@ export default async function handler(request: VercelRequest, response: VercelRe
     return response.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { sellerId, query, rows, start } = request.query;
+  const { sellerId } = request.query;
 
   if (typeof sellerId !== 'string' || sellerId.trim().length === 0) {
     return response.status(400).json({ error: 'sellerId is required' });
   }
 
-  const trimmedSellerId = sellerId.trim();
-  const rowsParam = typeof rows === 'string' && rows ? rows : '36';
-  const startParam = typeof start === 'string' && start ? start : '0';
-  const queryParam = typeof query === 'string' && query.trim().length > 0 ? query.trim() : '';
+  try {
+    const products = await scrapeSellerCatalogue(sellerId.trim());
 
-  const attempts = [
-    new URLSearchParams({
-      filter: `SellerId:${trimmedSellerId}`,
-      rows: rowsParam,
-      start: startParam,
-      sort: 'Relevance',
-      ...(queryParam ? { q: queryParam } : {}),
-    }),
-    new URLSearchParams({
-      sellers: trimmedSellerId,
-      rows: rowsParam,
-      start: startParam,
-      sort: 'Relevance',
-      ...(queryParam ? { q: queryParam } : {}),
-    }),
-  ];
-
-  let payload: TakealotSearchResponse | null = null;
-  let lastError: { status?: number; body?: string } | null = null;
-
-  for (const params of attempts) {
-    try {
-      const res = await fetch(`${TAKEALOT_SEARCH_URL}?${params.toString()}`, {
-        headers: {
-          Accept: 'application/json',
-          'User-Agent': 'takealot-seller-product-finder/1.0 (+https://vercel.com/)',
+    if (products.length === 0) {
+      return response.status(200).json({
+        products: [],
+        meta: {
+          sellerId: sellerId.trim(),
+          total: 0,
+          note: 'No visible products found on the seller storefront.',
         },
       });
-
-      if (!res.ok) {
-        lastError = { status: res.status, body: await res.text() };
-        continue;
-      }
-
-      const json = (await res.json()) as TakealotSearchResponse;
-      const results = json.sections?.products?.results ?? [];
-
-      if (results.length === 0) {
-        // keep last response but continue to the fallback attempt
-        payload = json;
-        continue;
-      }
-
-      payload = json;
-      break;
-    } catch (error) {
-      console.error('Error contacting Takealot API', error);
-      lastError = { status: 502, body: (error as Error).message };
     }
-  }
 
-  if (!payload) {
-    return response.status(lastError?.status ?? 502).json({
-      error: 'Unable to reach Takealot search API',
-      debug: lastError,
+    return response.status(200).json({
+      products,
+      meta: {
+        sellerId: sellerId.trim(),
+        total: products.length,
+        source: 'scrape',
+      },
+    });
+  } catch (error) {
+    console.error('Failed to scrape seller catalogue:', error);
+    return response.status(500).json({
+      error: 'Failed to scrape seller catalogue.',
+      details: error instanceof Error ? error.message : String(error),
     });
   }
-
-  const results = payload.sections?.products?.results ?? [];
-  const products = results
-    .map((entry, index) => {
-      const view = entry.product_views;
-      if (!view) return null;
-
-      const core = view.core ?? {};
-      const gallery = view.gallery ?? {};
-      const buybox = view.buybox_summary ?? {};
-
-      const price = Array.isArray(buybox.prices) && buybox.prices.length > 0 ? buybox.prices[0] : null;
-      const imageUrl =
-        Array.isArray(gallery.images) && gallery.images.length > 0 ? gallery.images[0].replace('{size}', '400') : null;
-      const productUrl = buildProductUrl(core.slug, core.id);
-
-      if (!core.title || price === null || !imageUrl || !productUrl) {
-        return null;
-      }
-
-      return {
-        id: `PLID${core.id ?? index}`,
-        name: core.title,
-        description: core.subtitle ?? `Listed on Takealot by seller ${sellerId}`,
-        price,
-        currency: 'R',
-        imageUrl,
-        productUrl,
-        sellerId: sellerId.trim(),
-        brand: core.brand ?? undefined,
-      };
-    })
-    .filter((product): product is NonNullable<typeof product> => product !== null);
-
-  return response.status(200).json({
-    products,
-    meta: {
-      total: payload.sections?.products?.paging?.total_num_found ?? products.length,
-      sellerId: sellerId.trim(),
-      query: typeof query === 'string' ? query.trim() : '',
-    },
-  });
 }
