@@ -50,7 +50,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>
-      <div className="p-4 flex flex-col h-48">
+      <div className="p-4 flex flex-col gap-3">
         <div className="flex-1">
           {product.brand && (
             <p className="text-xs uppercase tracking-wide text-brand-cyan/80 mb-1">{product.brand}</p>
