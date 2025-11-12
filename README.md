@@ -10,30 +10,46 @@ React + Vite application that looks up the live catalogue for a Takealot seller.
 
 **Prerequisites**
 - Node.js 20+
-- [Vercel CLI](https://vercel.com/docs/cli) (for running the serverless function locally)
+- Tailwind CLI (already part of the repo)
+
+### One-time setup
 
 ```bash
 npm install
+npx playwright install chromium
 ```
 
-1. Duplicate `.env.local` if you want to pin a different API host (optional):  
-   ```
-   VITE_API_BASE_URL=http://localhost:3000
-   ```
-   Without this value the app defaults to `/api`, which works with the proxy configuration described below.
-2. In one terminal run the Vercel dev server so the serverless API is available on port 3000:  
+### Every time you want to work locally
+
+Use separate terminals for each command.
+
+#### Terminal 1 – local API (port 3000)
+```bash
+npm run dev:api
+```
+
+#### Terminal 2 – Vite front-end (port 5173)
+```bash
+npm run dev
+```
+
+Visit [http://localhost:5173](http://localhost:5173) to use the UI.
+
+### Optional: expose your local API via Tailscale Funnel
+If you want the Vercel deployment to use your local scraper:
+
+1. Keep `npm run dev:api` running.
+2. In another terminal, run:
    ```bash
-   vercel dev
+   tailscale funnel 3000
    ```
-3. In a second terminal run the Vite dev server (port 5173) which proxies `/api/*` to the Vercel instance:  
-   ```bash
-- `npm run dev` - start the Vite dev server (expects `vercel dev` in another terminal).
-   ```
-4. Open the UI at [http://localhost:5173](http://localhost:5173).
+   Copy the public URL that Funnel prints (e.g. `https://yourdevice-yourtailnet.ts.net`).
+3. In your Vercel project, set `VITE_API_BASE_URL` to that URL and redeploy.
 
 ## Available Scripts
 
-- `npm run dev` - start the Vite dev server (expects `vercel dev` in another terminal).
+- `npm run dev:api` - start the local serverless API (Playwright scraper) on port 3000.
+- `npm run dev` - start the Vite dev server (connects to the API running at port 3000).
 - `npm run build` - production build (used by Vercel during deployment).
 - `npm run preview` - preview the production build locally.
 
