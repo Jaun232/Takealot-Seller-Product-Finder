@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { chromium as playwrightChromium, Browser } from 'playwright-core';
-import chromium from '@sparticuz/chromium';
+import type { Browser } from 'playwright-core';
+import { launchBrowser } from './_lib/browser';
+import { withCors } from './_lib/http';
 
 type ScrapedProduct = {
   id: string;
@@ -16,13 +17,6 @@ type ScrapedProduct = {
 
 const TAKEALOT_SELLER_BASE = 'https://www.takealot.com/seller?sellers=';
 
-function withCors(response: VercelResponse): VercelResponse {
-  response.setHeader('Access-Control-Allow-Origin', '*');
-  response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  return response;
-}
-
 function parsePrice(priceText: string | null | undefined): number | null {
   if (!priceText) return null;
   const match = priceText.match(/R\s*([\d\s.,]+)/i);
@@ -36,25 +30,7 @@ async function scrapeSellerCatalogue(sellerId: string): Promise<ScrapedProduct[]
   let browser: Browser | null = null;
 
   try {
-    const useServerlessChromium = Boolean(process.env.AWS_REGION || process.env.VERCEL);
-
-    if (useServerlessChromium) {
-      const executablePath = await chromium.executablePath();
-      const headlessSetting = chromium.headless;
-      const headless =
-        typeof headlessSetting === 'string' ? headlessSetting : (headlessSetting ?? true);
-
-      browser = await playwrightChromium.launch({
-        args: chromium.args,
-        executablePath,
-        headless,
-        ignoreDefaultArgs: ['--disable-extensions'],
-      });
-    } else {
-      browser = await playwrightChromium.launch({
-        headless: true,
-      });
-    }
+    browser = await launchBrowser();
 
     const context = await browser.newContext({
       userAgent:

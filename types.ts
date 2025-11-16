@@ -10,3 +10,35 @@ export interface Product {
   sellerId: string;
   brand?: string;
 }
+
+export type OfferKind = 'best-price' | 'fastest-delivery' | 'other';
+
+export interface OfferHighlight {
+  kind: OfferKind;
+  label: string;
+  priceText?: string;
+  listPriceText?: string;
+  currency?: string | null;
+  price?: number | null;
+  listPrice?: number | null;
+  deliveryPromise?: string;
+  locationCodes: string[];
+  locationDetails: string[];
+}
+
+export interface ProductOfferSummary {
+  product: {
+    id: string;
+    name: string;
+    productUrl: string;
+    imageUrl?: string | null;
+  };
+  offers: OfferHighlight[];
+  meta: {
+    query: string;
+    productUrl: string;
+    searchUrl: string;
+    extractedAt: string;
+  };
+  message?: string;
+}

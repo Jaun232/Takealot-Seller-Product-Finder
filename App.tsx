@@ -1,23 +1,30 @@
-
 import React, { useState, useCallback, useMemo } from 'react';
-import { Product } from './types';
-import { fetchSellerProducts } from './services/takealotService';
-import SellerSearchForm from './components/SellerSearchForm';
+import { Product, ProductOfferSummary } from './types';
+import { fetchSellerProducts, fetchProductOffers } from './services/takealotService';
+import SearchForm, { SearchMode } from './components/SearchForm';
 import ProductGrid from './components/ProductGrid';
 import Spinner from './components/Spinner';
 import SearchGuide from './components/SearchGuide';
+import ProductOfferHighlights from './components/ProductOfferHighlights';
 
 const App: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isSearchingProducts, setIsSearchingProducts] = useState<boolean>(false);
   const [productSearchError, setProductSearchError] = useState<string | null>(null);
-  const [hasSearched, setHasSearched] = useState<boolean>(false);
+  const [hasSearchedSeller, setHasSearchedSeller] = useState<boolean>(false);
   const [catalogQuery, setCatalogQuery] = useState<string>('');
+
+  const [productOffers, setProductOffers] = useState<ProductOfferSummary | null>(null);
+  const [productOfferError, setProductOfferError] = useState<string | null>(null);
+  const [isSearchingOffers, setIsSearchingOffers] = useState<boolean>(false);
+  const [hasSearchedOffers, setHasSearchedOffers] = useState<boolean>(false);
+
+  const [searchMode, setSearchMode] = useState<SearchMode>('seller');
 
   const handleSellerSearch = useCallback(async (sellerId: string) => {
     if (!sellerId) return;
-    
-    setHasSearched(true);
+
+    setHasSearchedSeller(true);
     setIsSearchingProducts(true);
     setProducts([]);
     setProductSearchError(null);
@@ -26,7 +33,7 @@ const App: React.FC = () => {
     try {
       const fetchedProducts = await fetchSellerProducts(sellerId);
       if (fetchedProducts.length === 0) {
-        setProductSearchError("No products found for this seller. Please check the details and try again.");
+        setProductSearchError('No products found for this seller. Please check the details and try again.');
       } else {
         setProducts(fetchedProducts);
       }
@@ -35,6 +42,25 @@ const App: React.FC = () => {
       setProductSearchError('An error occurred while searching for products. Please try again.');
     } finally {
       setIsSearchingProducts(false);
+    }
+  }, []);
+
+  const handleProductSearch = useCallback(async (description: string) => {
+    if (!description) return;
+
+    setHasSearchedOffers(true);
+    setIsSearchingOffers(true);
+    setProductOffers(null);
+    setProductOfferError(null);
+
+    try {
+      const summary = await fetchProductOffers(description);
+      setProductOffers(summary);
+    } catch (error) {
+      console.error('Error fetching product offers:', error);
+      setProductOfferError("Unable to load the product's Best Price / Fastest Delivery info.");
+    } finally {
+      setIsSearchingOffers(false);
     }
   }, []);
 
@@ -50,9 +76,13 @@ const App: React.FC = () => {
     });
   }, [catalogQuery, products]);
 
-  const renderContent = () => {
+  const renderSellerContent = () => {
     if (isSearchingProducts) {
-      return <div className="mt-20 flex justify-center"><Spinner /></div>;
+      return (
+        <div className="mt-20 flex justify-center">
+          <Spinner />
+        </div>
+      );
     }
     if (productSearchError) {
       return (
@@ -85,14 +115,14 @@ const App: React.FC = () => {
             <ProductGrid products={filteredProducts} />
           ) : (
             <p className="mt-10 text-center text-gray-400">
-              No products match "{catalogQuery}". Try another keyword.
+              No products match &quot;{catalogQuery}&quot;. Try another keyword.
             </p>
           )}
         </>
       );
     }
-    if (hasSearched) {
-       return <SearchGuide />;
+    if (hasSearchedSeller) {
+      return <SearchGuide />;
     }
     return (
       <div className="mt-20 text-center text-gray-300">
@@ -102,22 +132,84 @@ const App: React.FC = () => {
     );
   };
 
+  const renderProductContent = () => {
+    if (isSearchingOffers) {
+      return (
+        <div className="mt-20 flex justify-center">
+          <Spinner />
+        </div>
+      );
+    }
+    if (productOfferError) {
+      return (
+        <div className="mt-8 text-center text-red-400">
+          {productOfferError}
+          <p className="text-sm text-gray-400 mt-2">
+            Make sure the description matches a product that is available on Takealot.
+          </p>
+        </div>
+      );
+    }
+    if (productOffers && productOffers.offers.length > 0) {
+      return (
+        <div className="mt-8">
+          <ProductOfferHighlights summary={productOffers} />
+        </div>
+      );
+    }
+    if (hasSearchedOffers) {
+      return (
+        <div className="mt-12 max-w-xl mx-auto text-center text-gray-300">
+          <h2 className="text-xl font-semibold">No highlighted offers were found.</h2>
+          <p className="mt-2 text-sm text-gray-400">
+            Try another description or a more specific product title to surface Takealot's Best Price
+            and Fastest Delivery sections.
+          </p>
+        </div>
+      );
+    }
+    return (
+      <div className="mt-20 text-center text-gray-300">
+        <h2 className="text-2xl font-bold">Compare Takealot offers</h2>
+        <p className="mt-2 text-sm text-gray-400">
+          Describe a product and we will fetch the Best Price and Fastest Delivery cards from the Takealot
+          listing page.
+        </p>
+      </div>
+    );
+  };
+
+  const renderContent = () => {
+    if (searchMode === 'product') {
+      return renderProductContent();
+    }
+    return renderSellerContent();
+  };
+
   return (
     <div className="min-h-screen bg-brand-dark text-brand-light font-sans">
       <header className="bg-brand-blue/20 backdrop-blur-sm shadow-lg sticky top-0 z-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-brand-cyan tracking-wider">Takealot Seller Product Finder</h1>
-          <p className="text-sm text-gray-400 mt-1">Search Takealot directly by seller ID to surface their current catalogue.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-brand-cyan tracking-wider">
+            Takealot Seller Product Finder
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Search Takealot directly by seller ID or describe a product to surface the best offers.
+          </p>
         </div>
       </header>
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-2xl mx-auto">
-          <SellerSearchForm onSearch={handleSellerSearch} isLoading={isSearchingProducts} />
+          <SearchForm
+            mode={searchMode}
+            onModeChange={setSearchMode}
+            onSellerSearch={handleSellerSearch}
+            onProductSearch={handleProductSearch}
+            isLoading={isSearchingProducts || isSearchingOffers}
+          />
         </div>
-        <div className="mt-8">
-          {renderContent()}
-        </div>
+        <div className="mt-8">{renderContent()}</div>
       </main>
     </div>
   );

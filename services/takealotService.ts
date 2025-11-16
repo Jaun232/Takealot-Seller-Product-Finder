@@ -1,4 +1,4 @@
-import { Product } from '../types';
+import { Product, ProductOfferSummary } from '../types';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/+$/, '');
 const API_PREFIX = API_BASE_URL ? `${API_BASE_URL}/api` : '/api';
@@ -11,6 +11,8 @@ interface SellerProductsResponse {
     query?: string;
   };
 }
+
+type ProductOffersResponse = ProductOfferSummary;
 
 function buildQueryString(params: Record<string, string | number | undefined>): string {
   const search = new URLSearchParams();
@@ -36,4 +38,19 @@ export async function fetchSellerProducts(sellerId: string, productName?: string
 
   const data: SellerProductsResponse = await response.json();
   return Array.isArray(data.products) ? data.products : [];
+}
+
+export async function fetchProductOffers(description: string): Promise<ProductOfferSummary> {
+  const url = `${API_PREFIX}/product-offers${buildQueryString({
+    query: description.trim(),
+  })}`;
+
+  const response = await fetch(url, { headers: { Accept: 'application/json' } });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const data: ProductOffersResponse = await response.json();
+  return data;
 }
