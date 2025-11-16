@@ -48,6 +48,8 @@ type OfferHighlight = {
   deliveryPromise?: string;
   locationCodes: string[];
   locationDetails: string[];
+  sellerName?: string | null;
+  sellerLink?: string | null;
 };
 
 type ProductOfferResponse = {
@@ -450,18 +452,14 @@ function normalizeProductUrl(value?: string | null): string | null {
 
 async function selectOfferByIndex(page: Page, index: number): Promise<void> {
   await page.evaluate((idx) => {
+    if (idx === 0) return;
     const nodes = document.querySelectorAll<HTMLElement>('[data-ref="offer-link"]');
     nodes[idx]?.click();
   }, index);
 
-  await page.waitForFunction(
-    (idx) => {
-      const nodes = document.querySelectorAll<HTMLElement>('[data-ref="offer-link"]');
-      return nodes[idx]?.querySelector('.buybox-offer-module_active_3I1Yj');
-    },
-    { timeout: 5000 },
-    index
-  );
+  if (index > 0) {
+    await page.waitForTimeout(500);
+  }
 }
 
 async function readActiveSeller(
