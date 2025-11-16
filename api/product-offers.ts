@@ -4,6 +4,8 @@ import { launchBrowser } from './_lib/browser';
 import { withCors } from './_lib/http';
 
 const TAKEALOT_SEARCH_BASE = 'https://www.takealot.com/search?query=';
+const SEARCH_RESULTS_PER_PAGE = 24;
+const MAX_SEARCH_PAGES = 6;
 
 type OfferKind = 'best-price' | 'fastest-delivery' | 'other';
 
@@ -78,30 +80,46 @@ async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductO
     let searchUrl: string | null = null;
 
     if (!productUrl) {
-      searchUrl = `${TAKEALOT_SEARCH_BASE}${encodeURIComponent(normalizedQuery ?? '')}`;
-      await page.goto(searchUrl, {
-        waitUntil: 'domcontentloaded',
-        timeout: 20000,
-      });
+      const baseSearchUrl = `${TAKEALOT_SEARCH_BASE}${encodeURIComponent(normalizedQuery ?? '')}`;
+      let pageIndex = 0;
 
-      await page.waitForSelector('.product-card', { timeout: 15000 });
+      while (!productUrl && pageIndex < MAX_SEARCH_PAGES) {
+        const startParam = pageIndex * SEARCH_RESULTS_PER_PAGE;
+        const pagedUrl =
+          pageIndex === 0 ? baseSearchUrl : `${baseSearchUrl}&start=${startParam}`;
+        searchUrl = pagedUrl;
 
-      const candidates = await page.evaluate(() => {
-        const cards = Array.from(document.querySelectorAll<HTMLElement>('.product-card'));
-        return cards
-          .map((card) => {
-            const title = card.querySelector<HTMLElement>('.product-card-module_product-title_16xh8');
-            const link = card.querySelector<HTMLAnchorElement>('a[href*="/PLID"]');
-            return {
-              title: title?.textContent?.trim() ?? '',
-              url: link?.href ?? '',
-            };
-          })
-          .filter((item) => item.url && item.title);
-      });
+        await page.goto(pagedUrl, {
+          waitUntil: 'domcontentloaded',
+          timeout: 20000,
+        });
 
-      const selected = pickBestMatch(candidates, normalizedQuery ?? '');
-      productUrl = selected ?? candidates[0]?.url ?? '';
+        await page.waitForSelector('.product-card', { timeout: 15000 });
+
+        const candidates = await page.evaluate(() => {
+          const cards = Array.from(document.querySelectorAll<HTMLElement>('.product-card'));
+          return cards
+            .map((card) => {
+              const title =
+                card.querySelector<HTMLElement>('.product-card-module_product-title_16xh8');
+              const link = card.querySelector<HTMLAnchorElement>('a[href*="/PLID"]');
+              return {
+                title: title?.textContent?.trim() ?? '',
+                url: link?.href ?? '',
+                slug: link?.pathname ?? '',
+              };
+            })
+            .filter((item) => item.url && item.title);
+        });
+
+        const selected = pickBestMatch(candidates, normalizedQuery ?? '');
+        productUrl = selected ?? '';
+        if (!productUrl && candidates.length > 0 && pageIndex === 0) {
+          productUrl = candidates[0]?.url ?? '';
+        }
+
+        pageIndex += 1;
+      }
     }
 
     if (!productUrl) {
@@ -266,7 +284,7 @@ function parsePrice(value?: string | null): { currency: string | null; amount: n
 }
 
 function pickBestMatch(
-  candidates: Array<{ title: string; url: string }>,
+  candidates: Array<{ title: string; url: string; slug?: string }>,
   query: string
 ): string | null {
   if (!query) {
@@ -274,8 +292,18 @@ function pickBestMatch(
   }
 
   const normalizedQuery = normalizeForMatch(query);
+  const normalizedSlugQuery = normalizeSlug(query);
   if (!normalizedQuery) {
     return null;
+  }
+
+  if (normalizedSlugQuery) {
+    for (const candidate of candidates) {
+      const candidateSlug = normalizeSlug(candidate.slug ?? candidate.url);
+      if (candidateSlug.includes(normalizedSlugQuery)) {
+        return candidate.url;
+      }
+    }
   }
 
   for (const candidate of candidates) {
@@ -295,6 +323,14 @@ function pickBestMatch(
 
 function normalizeForMatch(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function normalizeSlug(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/https?:\/\//g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
