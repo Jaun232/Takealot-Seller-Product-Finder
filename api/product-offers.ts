@@ -1,11 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { Browser, Page } from 'playwright-core';
-import { launchBrowser } from './_lib/browser';
+import type { Page } from 'playwright-core';
+import { getBrowser } from './_lib/browser';
 import { withCors } from './_lib/http';
 
 const TAKEALOT_SEARCH_BASE = 'https://www.takealot.com/search?query=';
 const SEARCH_RESULTS_PER_PAGE = 24;
 const MAX_SEARCH_PAGES = 6;
+const OFFER_CACHE_TTL_MS = 60_000;
+const OFFER_CACHE_MAX_ENTRIES = 32;
+const offerCache = new Map<string, { value: ProductOfferResponse; expiresAt: number }>();
 
 type OfferKind = 'best-price' | 'fastest-delivery' | 'other';
 
@@ -64,16 +67,14 @@ type ProductOfferParams = {
 };
 
 async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductOfferResponse> {
-  let browser: Browser | null = null;
+  const browser = await getBrowser();
+  const context = await browser.newContext({
+    userAgent:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118 Safari/537.36',
+    viewport: { width: 1280, height: 720 },
+  });
 
   try {
-    browser = await launchBrowser();
-    const context = await browser.newContext({
-      userAgent:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118 Safari/537.36',
-      viewport: { width: 1280, height: 720 },
-    });
-
     const page = await context.newPage();
     const normalizedQuery = params.query?.trim();
     const normalizedProductUrl = normalizeProductUrl(params.productUrl);
@@ -271,9 +272,7 @@ async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductO
       },
     };
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await context.close();
   }
 }
 
@@ -396,6 +395,12 @@ export default async function handler(request: VercelRequest, response: VercelRe
 
   const searchTerm = typeof rawQuery === 'string' ? rawQuery.trim() : '';
   const productUrlParam = typeof rawProductUrl === 'string' ? rawProductUrl.trim() : '';
+  const normalizedProductUrl = productUrlParam ? normalizeProductUrl(productUrlParam) : null;
+  const cacheKey = normalizedProductUrl
+    ? `url:${normalizedProductUrl}`
+    : searchTerm
+      ? `query:${searchTerm.toLowerCase()}`
+      : null;
 
   if (!searchTerm && !productUrlParam) {
     return response
@@ -403,10 +408,17 @@ export default async function handler(request: VercelRequest, response: VercelRe
       .json({ error: 'Provide a description or a Takealot product URL to continue.' });
   }
 
+  if (cacheKey) {
+    const cached = getCachedOffers(cacheKey);
+    if (cached) {
+      return response.status(200).json(cached);
+    }
+  }
+
   try {
     const payload = await scrapeProductOffers({
-      query: searchTerm || undefined,
-      productUrl: productUrlParam || undefined,
+      query: normalizedProductUrl ? undefined : searchTerm || undefined,
+      productUrl: normalizedProductUrl ?? productUrlParam || undefined,
     });
 
     if (payload.offers.length === 0) {
@@ -415,6 +427,10 @@ export default async function handler(request: VercelRequest, response: VercelRe
         message:
           'No Best Price or Fastest Delivery blocks were visible for the selected product. Try another item.',
       });
+    }
+
+    if (cacheKey) {
+      setCachedOffers(cacheKey, payload);
     }
 
     return response.status(200).json(payload);
@@ -477,4 +493,26 @@ async function readActiveSeller(
       link: anchor ? new URL(anchor.href, window.location.origin).toString() : null,
     };
   });
+}
+
+function getCachedOffers(key: string): ProductOfferResponse | null {
+  const record = offerCache.get(key);
+  if (!record) {
+    return null;
+  }
+  if (record.expiresAt < Date.now()) {
+    offerCache.delete(key);
+    return null;
+  }
+  return record.value;
+}
+
+function setCachedOffers(key: string, value: ProductOfferResponse): void {
+  offerCache.set(key, { value, expiresAt: Date.now() + OFFER_CACHE_TTL_MS });
+  if (offerCache.size > OFFER_CACHE_MAX_ENTRIES) {
+    const firstKey = offerCache.keys().next().value;
+    if (firstKey) {
+      offerCache.delete(firstKey);
+    }
+  }
 }

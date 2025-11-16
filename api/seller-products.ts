@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { Browser } from 'playwright-core';
-import { launchBrowser } from './_lib/browser';
+import { getBrowser } from './_lib/browser';
 import { withCors } from './_lib/http';
 
 type ScrapedProduct = {
@@ -27,17 +26,14 @@ function parsePrice(priceText: string | null | undefined): number | null {
 }
 
 async function scrapeSellerCatalogue(sellerId: string): Promise<ScrapedProduct[]> {
-  let browser: Browser | null = null;
+  const browser = await getBrowser();
+  const context = await browser.newContext({
+    userAgent:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118 Safari/537.36',
+    viewport: { width: 1280, height: 720 },
+  });
 
   try {
-    browser = await launchBrowser();
-
-    const context = await browser.newContext({
-      userAgent:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118 Safari/537.36',
-      viewport: { width: 1280, height: 720 },
-    });
-
     const page = await context.newPage();
     await page.goto(`${TAKEALOT_SELLER_BASE}${sellerId}`, {
       waitUntil: 'domcontentloaded',
@@ -94,9 +90,7 @@ async function scrapeSellerCatalogue(sellerId: string): Promise<ScrapedProduct[]
         imageUrl: item.imageUrl.replace('{size}', '400'),
       }));
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await context.close();
   }
 }
 

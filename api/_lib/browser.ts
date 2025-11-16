@@ -1,7 +1,10 @@
 import { chromium as playwrightChromium, Browser } from 'playwright-core';
 import chromium from '@sparticuz/chromium';
 
-export async function launchBrowser(): Promise<Browser> {
+let browserInstance: Browser | null = null;
+let launchPromise: Promise<Browser> | null = null;
+
+async function createBrowser(): Promise<Browser> {
   const useServerlessChromium = Boolean(process.env.AWS_REGION || process.env.VERCEL);
 
   if (useServerlessChromium) {
@@ -23,4 +26,26 @@ export async function launchBrowser(): Promise<Browser> {
   return playwrightChromium.launch({
     headless: true,
   });
+}
+
+export async function getBrowser(): Promise<Browser> {
+  if (browserInstance && browserInstance.isConnected()) {
+    return browserInstance;
+  }
+
+  if (!launchPromise) {
+    launchPromise = createBrowser()
+      .then((browser) => {
+        browserInstance = browser;
+        browser.once('disconnected', () => {
+          browserInstance = null;
+        });
+        return browserInstance;
+      })
+      .finally(() => {
+        launchPromise = null;
+      });
+  }
+
+  return launchPromise;
 }
