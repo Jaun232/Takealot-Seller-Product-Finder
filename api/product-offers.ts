@@ -16,6 +16,8 @@ type RawOffer = {
   deliveryPromise?: string | null;
   locationCodes: string[];
   locationDetails: string[];
+  sellerName?: string | null;
+  sellerLink?: string | null;
 };
 
 type RawProductOfferPayload = {
@@ -176,6 +178,14 @@ async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductO
             ?.textContent?.replace(/\s+/g, ' ')
             .replace(/!T&Cs/, '! T&Cs')
             .trim();
+          const sellerAnchor = wrapper.querySelector<HTMLAnchorElement>('a[href*="/seller/"]');
+          const sellerNameCandidate =
+            sellerAnchor?.textContent?.trim() ??
+            wrapper
+              .querySelector<HTMLElement>('[class*="seller"]')
+              ?.textContent?.replace(/Sold by/i, '')
+              .trim() ??
+            null;
           const locationCodes = Array.from(
             wrapper.querySelectorAll<HTMLElement>('.stock-pill-text')
           )
@@ -194,6 +204,8 @@ async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductO
             deliveryPromise,
             locationCodes,
             locationDetails,
+            sellerName: sellerNameCandidate,
+            sellerLink: sellerAnchor?.href ?? null,
           };
         });
 
@@ -275,6 +287,8 @@ function mapOfferHighlight(raw: RawOffer): OfferHighlight | null {
     deliveryPromise: raw.deliveryPromise ?? undefined,
     locationCodes: raw.locationCodes ?? [],
     locationDetails: raw.locationDetails ?? [],
+    sellerName: raw.sellerName ?? undefined,
+    sellerLink: raw.sellerLink ?? undefined,
   };
 }
 

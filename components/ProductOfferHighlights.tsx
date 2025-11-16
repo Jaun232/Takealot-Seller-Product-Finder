@@ -23,7 +23,24 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
           <div>
             <p className="text-sm uppercase tracking-wide text-gray-400">Matched product</p>
             <h2 className="text-xl font-semibold text-brand-light">{product.name}</h2>
-            <p className="text-xs text-gray-500 mt-1">Query: “{meta.query}”</p>
+            <p className="text-xs text-gray-500 mt-1">Query: "{meta.query}"</p>
+            {product.sellerName && (
+              <p className="text-xs text-gray-400 mt-1">
+                Sold by{' '}
+                {product.sellerLink ? (
+                  <a
+                    href={product.sellerLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-brand-cyan hover:underline"
+                  >
+                    {product.sellerName}
+                  </a>
+                ) : (
+                  product.sellerName
+                )}
+              </p>
+            )}
           </div>
         </div>
         <div className="flex gap-2">
@@ -100,6 +117,23 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
       )}
       {offer.deliveryPromise && (
         <p className="mt-3 text-sm text-gray-300">{offer.deliveryPromise}</p>
+      )}
+      {offer.sellerName && (
+        <p className="mt-3 text-sm text-gray-300">
+          Sold by{' '}
+          {offer.sellerLink ? (
+            <a
+              href={offer.sellerLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-cyan hover:underline"
+            >
+              {offer.sellerName}
+            </a>
+          ) : (
+            offer.sellerName
+          )}
+        </p>
       )}
       {offer.locationCodes.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
