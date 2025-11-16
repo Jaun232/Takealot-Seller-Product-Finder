@@ -417,8 +417,8 @@ export default async function handler(request: VercelRequest, response: VercelRe
 
   try {
     const payload = await scrapeProductOffers({
-      query: normalizedProductUrl ? undefined : searchTerm || undefined,
-      productUrl: normalizedProductUrl ?? productUrlParam || undefined,
+      query: normalizedProductUrl ? undefined : (searchTerm || undefined),
+      productUrl: normalizedProductUrl ?? (productUrlParam || undefined),
     });
 
     if (payload.offers.length === 0) {
