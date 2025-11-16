@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { Browser } from 'playwright-core';
+import type { Browser, Page } from 'playwright-core';
 import { launchBrowser } from './_lib/browser';
 import { withCors } from './_lib/http';
 
@@ -235,6 +235,17 @@ async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductO
       }
     );
 
+    const offerCount = await page.$$eval('[data-ref="offer-link"]', (nodes) => nodes.length);
+    const offerSellers: Array<{ name: string | null; link: string | null }> = [];
+
+    for (let index = 0; index < offerCount; index++) {
+      if (index > 0) {
+        await selectOfferByIndex(page, index);
+      }
+      const sellerInfo = await readActiveSeller(page);
+      offerSellers.push(sellerInfo);
+    }
+
     await context.close();
 
     const offers = rawPayload.offers
@@ -242,7 +253,12 @@ async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductO
       .filter(
         (offer): offer is OfferHighlight =>
           Boolean(offer) && offer.kind !== 'other' && Boolean(offer.label)
-      );
+      )
+      .map((offer, index) => ({
+        ...offer,
+        sellerName: offerSellers[index]?.name ?? offer.sellerName,
+        sellerLink: offerSellers[index]?.link ?? offer.sellerLink,
+      }));
 
     return {
       product: rawPayload.product,
@@ -430,4 +446,37 @@ function normalizeProductUrl(value?: string | null): string | null {
   }
 
   return url.toString();
+}
+
+async function selectOfferByIndex(page: Page, index: number): Promise<void> {
+  await page.evaluate((idx) => {
+    const nodes = document.querySelectorAll<HTMLElement>('[data-ref="offer-link"]');
+    nodes[idx]?.click();
+  }, index);
+
+  await page.waitForFunction(
+    (idx) => {
+      const nodes = document.querySelectorAll<HTMLElement>('[data-ref="offer-link"]');
+      return nodes[idx]?.querySelector('.buybox-offer-module_active_3I1Yj');
+    },
+    { timeout: 5000 },
+    index
+  );
+}
+
+async function readActiveSeller(
+  page: Page
+): Promise<{ name: string | null; link: string | null }> {
+  return page.evaluate(() => {
+    const container = document.querySelector<HTMLElement>('.pdp-core-module_main-seller_20BMu');
+    if (!container) {
+      return { name: null, link: null };
+    }
+    const anchor = container.querySelector<HTMLAnchorElement>('a[href*="/seller/"]');
+    const fallback = container.textContent?.replace(/Sold by/i, '').trim() ?? null;
+    return {
+      name: anchor?.textContent?.trim() ?? fallback,
+      link: anchor ? new URL(anchor.href, window.location.origin).toString() : null,
+    };
+  });
 }
