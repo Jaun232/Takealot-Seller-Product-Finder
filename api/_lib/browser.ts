@@ -8,7 +8,9 @@ export async function launchBrowser(): Promise<Browser> {
     const executablePath = await chromium.executablePath();
     const headlessSetting = chromium.headless;
     const headless =
-      typeof headlessSetting === 'string' ? headlessSetting : (headlessSetting ?? true);
+      typeof headlessSetting === 'string'
+        ? headlessSetting.toLowerCase() !== 'false'
+        : headlessSetting ?? true;
 
     return playwrightChromium.launch({
       args: chromium.args,
