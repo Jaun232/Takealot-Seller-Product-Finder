@@ -84,12 +84,24 @@ async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductO
         timeout: 20000,
       });
 
-      await page.waitForSelector('.product-card a[href*="/PLID"]', { timeout: 15000 });
+      await page.waitForSelector('.product-card', { timeout: 15000 });
 
-      productUrl = await page.evaluate(() => {
-        const anchor = document.querySelector<HTMLAnchorElement>('.product-card a[href*="/PLID"]');
-        return anchor?.href ?? null;
-      }) ?? '';
+      const candidates = await page.evaluate(() => {
+        const cards = Array.from(document.querySelectorAll<HTMLElement>('.product-card'));
+        return cards
+          .map((card) => {
+            const title = card.querySelector<HTMLElement>('.product-card-module_product-title_16xh8');
+            const link = card.querySelector<HTMLAnchorElement>('a[href*="/PLID"]');
+            return {
+              title: title?.textContent?.trim() ?? '',
+              url: link?.href ?? '',
+            };
+          })
+          .filter((item) => item.url && item.title);
+      });
+
+      const selected = pickBestMatch(candidates, normalizedQuery ?? '');
+      productUrl = selected ?? candidates[0]?.url ?? '';
     }
 
     if (!productUrl) {
@@ -251,6 +263,38 @@ function parsePrice(value?: string | null): { currency: string | null; amount: n
     currency,
     amount: Number.isFinite(amount) ? amount : null,
   };
+}
+
+function pickBestMatch(
+  candidates: Array<{ title: string; url: string }>,
+  query: string
+): string | null {
+  if (!query) {
+    return null;
+  }
+
+  const normalizedQuery = normalizeForMatch(query);
+  if (!normalizedQuery) {
+    return null;
+  }
+
+  for (const candidate of candidates) {
+    if (normalizeForMatch(candidate.title) === normalizedQuery) {
+      return candidate.url;
+    }
+  }
+
+  for (const candidate of candidates) {
+    if (normalizeForMatch(candidate.title).includes(normalizedQuery)) {
+      return candidate.url;
+    }
+  }
+
+  return null;
+}
+
+function normalizeForMatch(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
