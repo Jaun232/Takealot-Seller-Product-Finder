@@ -41,8 +41,8 @@ const SearchForm: React.FC<SearchFormProps> = ({
   const disableSubmit = isLoading || (isSellerMode ? !sellerId.trim() : !productDescription.trim());
   const placeholder = isSellerMode
     ? 'Seller ID (numeric, e.g., 25539226)'
-    : "Describe a product (e.g. '8L air fryer with double basket')";
-  const label = isSellerMode ? 'Seller ID' : 'Product description';
+    : "Paste a Takealot product URL or describe the item";
+  const label = isSellerMode ? 'Seller ID' : 'Product URL or description';
 
   return (
     <form
@@ -66,7 +66,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
             !isSellerMode ? 'bg-brand-cyan/20 text-brand-light' : 'bg-gray-900 text-gray-400'
           }`}
         >
-          Product description
+          Product details
         </button>
       </div>
 
@@ -105,7 +105,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
       <p className="text-xs text-gray-400">
         {isSellerMode
           ? 'Search an entire seller catalogue by their Takealot seller ID.'
-          : "Paste or describe a product and we will surface Takealot's Best Price / Fastest Delivery blocks."}
+          : "Paste a Takealot product link or describe the item to fetch its Best Price / Fastest Delivery blocks."}
       </p>
     </form>
   );

@@ -7,6 +7,29 @@ import Spinner from './components/Spinner';
 import SearchGuide from './components/SearchGuide';
 import ProductOfferHighlights from './components/ProductOfferHighlights';
 
+const TAKEALOT_HOST_SNIPPET = 'takealot.com';
+
+function buildProductOfferParams(value: string): {
+  description?: string;
+  productUrl?: string;
+} {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return {};
+  }
+
+  try {
+    const url = trimmed.startsWith('http') ? new URL(trimmed) : new URL(`https://${trimmed}`);
+    if (url.hostname.includes(TAKEALOT_HOST_SNIPPET)) {
+      return { productUrl: url.toString() };
+    }
+  } catch {
+    // Not a valid URL, fall back to description.
+  }
+
+  return { description: trimmed };
+}
+
 const App: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isSearchingProducts, setIsSearchingProducts] = useState<boolean>(false);
@@ -45,8 +68,14 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleProductSearch = useCallback(async (description: string) => {
-    if (!description) return;
+  const handleProductSearch = useCallback(async (input: string) => {
+    if (!input) return;
+
+    const params = buildProductOfferParams(input);
+    if (!params.description && !params.productUrl) {
+      setProductOfferError('Please provide a product description or a valid Takealot product URL.');
+      return;
+    }
 
     setHasSearchedOffers(true);
     setIsSearchingOffers(true);
@@ -54,7 +83,7 @@ const App: React.FC = () => {
     setProductOfferError(null);
 
     try {
-      const summary = await fetchProductOffers(description);
+      const summary = await fetchProductOffers(params);
       setProductOffers(summary);
     } catch (error) {
       console.error('Error fetching product offers:', error);
@@ -172,8 +201,8 @@ const App: React.FC = () => {
       <div className="mt-20 text-center text-gray-300">
         <h2 className="text-2xl font-bold">Compare Takealot offers</h2>
         <p className="mt-2 text-sm text-gray-400">
-          Describe a product and we will fetch the Best Price and Fastest Delivery cards from the Takealot
-          listing page.
+          Paste a Takealot product URL or describe the item and we will fetch the Best Price and Fastest
+          Delivery cards from that listing.
         </p>
       </div>
     );

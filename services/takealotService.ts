@@ -40,9 +40,15 @@ export async function fetchSellerProducts(sellerId: string, productName?: string
   return Array.isArray(data.products) ? data.products : [];
 }
 
-export async function fetchProductOffers(description: string): Promise<ProductOfferSummary> {
+interface ProductOfferParams {
+  description?: string;
+  productUrl?: string;
+}
+
+export async function fetchProductOffers(params: ProductOfferParams): Promise<ProductOfferSummary> {
   const url = `${API_PREFIX}/product-offers${buildQueryString({
-    query: description.trim(),
+    query: params.description?.trim(),
+    productUrl: params.productUrl?.trim(),
   })}`;
 
   const response = await fetch(url, { headers: { Accept: 'application/json' } });

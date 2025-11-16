@@ -50,7 +50,12 @@ type ProductOfferResponse = {
   meta: RawProductOfferPayload['meta'] & { extractedAt: string };
 };
 
-async function scrapeProductOffers(query: string): Promise<ProductOfferResponse> {
+type ProductOfferParams = {
+  query?: string;
+  productUrl?: string;
+};
+
+async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductOfferResponse> {
   let browser: Browser | null = null;
 
   try {
@@ -62,22 +67,37 @@ async function scrapeProductOffers(query: string): Promise<ProductOfferResponse>
     });
 
     const page = await context.newPage();
-    const searchUrl = `${TAKEALOT_SEARCH_BASE}${encodeURIComponent(query)}`;
+    const normalizedQuery = params.query?.trim();
+    const normalizedProductUrl = normalizeProductUrl(params.productUrl);
 
-    await page.goto(searchUrl, {
-      waitUntil: 'domcontentloaded',
-      timeout: 20000,
-    });
+    if (!normalizedQuery && !normalizedProductUrl) {
+      throw new Error('Provide either a product description or a Takealot product URL.');
+    }
 
-    await page.waitForSelector('.product-card a[href*="/PLID"]', { timeout: 15000 });
+    let productUrl = normalizedProductUrl ?? '';
+    let searchUrl: string | null = null;
 
-    const productUrl = await page.evaluate(() => {
-      const anchor = document.querySelector<HTMLAnchorElement>('.product-card a[href*="/PLID"]');
-      return anchor?.href ?? null;
-    });
+    if (!productUrl) {
+      searchUrl = `${TAKEALOT_SEARCH_BASE}${encodeURIComponent(normalizedQuery ?? '')}`;
+      await page.goto(searchUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: 20000,
+      });
+
+      await page.waitForSelector('.product-card a[href*="/PLID"]', { timeout: 15000 });
+
+      productUrl = await page.evaluate(() => {
+        const anchor = document.querySelector<HTMLAnchorElement>('.product-card a[href*="/PLID"]');
+        return anchor?.href ?? null;
+      }) ?? '';
+    }
 
     if (!productUrl) {
       throw new Error('No products found that match this description.');
+    }
+
+    if (!searchUrl) {
+      searchUrl = productUrl;
     }
 
     await page.goto(productUrl, {
@@ -155,7 +175,11 @@ async function scrapeProductOffers(query: string): Promise<ProductOfferResponse>
           },
         };
       },
-      { productUrl, query, searchUrl }
+      {
+        productUrl,
+        query: normalizedQuery ?? normalizedProductUrl ?? '',
+        searchUrl,
+      }
     );
 
     await context.close();
@@ -243,14 +267,24 @@ export default async function handler(request: VercelRequest, response: VercelRe
   const rawQuery = Array.isArray(request.query.query)
     ? request.query.query[0]
     : request.query.query;
-  const searchTerm = typeof rawQuery === 'string' ? rawQuery.trim() : '';
+  const rawProductUrl = Array.isArray(request.query.productUrl)
+    ? request.query.productUrl[0]
+    : request.query.productUrl;
 
-  if (!searchTerm) {
-    return response.status(400).json({ error: 'A product description or keyword is required.' });
+  const searchTerm = typeof rawQuery === 'string' ? rawQuery.trim() : '';
+  const productUrlParam = typeof rawProductUrl === 'string' ? rawProductUrl.trim() : '';
+
+  if (!searchTerm && !productUrlParam) {
+    return response
+      .status(400)
+      .json({ error: 'Provide a description or a Takealot product URL to continue.' });
   }
 
   try {
-    const payload = await scrapeProductOffers(searchTerm);
+    const payload = await scrapeProductOffers({
+      query: searchTerm || undefined,
+      productUrl: productUrlParam || undefined,
+    });
 
     if (payload.offers.length === 0) {
       return response.status(200).json({
@@ -268,4 +302,27 @@ export default async function handler(request: VercelRequest, response: VercelRe
       details: error instanceof Error ? error.message : String(error),
     });
   }
+}
+
+function normalizeProductUrl(value?: string | null): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  let url: URL;
+  try {
+    url = trimmed.startsWith('http') ? new URL(trimmed) : new URL(`https://${trimmed}`);
+  } catch {
+    return null;
+  }
+
+  if (!url.hostname.includes('takealot.com')) {
+    return null;
+  }
+
+  if (!url.pathname.includes('PLID')) {
+    return url.toString();
+  }
+
+  return url.toString();
 }
