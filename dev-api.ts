@@ -1,12 +1,21 @@
 import http from 'http';
 import url from 'url';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import handler from './api/seller-products';
+import sellerHandler from './api/seller-products';
+import productOffersHandler from './api/product-offers';
 
 const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url ?? '', true);
 
-  if (!parsedUrl.pathname?.startsWith('/api/seller-products')) {
+  let routeHandler: typeof sellerHandler | typeof productOffersHandler | null = null;
+
+  if (parsedUrl.pathname?.startsWith('/api/seller-products')) {
+    routeHandler = sellerHandler;
+  } else if (parsedUrl.pathname?.startsWith('/api/product-offers')) {
+    routeHandler = productOffersHandler;
+  }
+
+  if (!routeHandler) {
     res.statusCode = 404;
     res.end('Not Found');
     return;
@@ -35,7 +44,7 @@ const server = http.createServer(async (req, res) => {
   } as unknown as VercelResponse;
 
   try {
-    await handler(vercelReq, vercelRes);
+    await routeHandler(vercelReq, vercelRes);
   } catch (error) {
     console.error('Local API error:', error);
     res.statusCode = 500;
