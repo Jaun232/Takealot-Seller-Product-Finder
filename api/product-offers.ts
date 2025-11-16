@@ -24,6 +24,8 @@ type RawProductOfferPayload = {
     name: string;
     productUrl: string;
     imageUrl?: string | null;
+    sellerName?: string | null;
+    sellerLink?: string | null;
   };
   offers: RawOffer[];
   meta: {
@@ -150,6 +152,13 @@ async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductO
           document.querySelector<HTMLImageElement>('.image-gallery img')?.getAttribute('src') ??
           null;
 
+        const sellerInfo = document.querySelector<HTMLElement>('.pdp-core-module_main-seller_20BMu');
+        const sellerName =
+          sellerInfo?.querySelector('a')?.textContent?.trim() ??
+          sellerInfo?.textContent?.replace('Sold by', '').trim() ??
+          null;
+        const sellerLink = sellerInfo?.querySelector('a')?.getAttribute('href') ?? null;
+
         const offers = Array.from(
           document.querySelectorAll<HTMLElement>('[data-ref="offer-link"]')
         ).map((wrapper) => {
@@ -196,6 +205,8 @@ async function scrapeProductOffers(params: ProductOfferParams): Promise<ProductO
             name: productName,
             productUrl: details.productUrl,
             imageUrl: heroImage,
+            sellerName,
+            sellerLink: sellerLink ? new URL(sellerLink, window.location.origin).toString() : null,
           },
           offers,
           meta: {
