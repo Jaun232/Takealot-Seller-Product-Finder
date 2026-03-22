@@ -51,9 +51,12 @@ const App: React.FC = () => {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [lastProductQuery, setLastProductQuery] = useState<string>('');
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
-  const [discoveryProducts, setDiscoveryProducts] = useState<Product[]>([]);
+  const [productResultPages, setProductResultPages] = useState<Product[][]>([]);
   const [productResultsNextAfter, setProductResultsNextAfter] = useState<string | null>(null);
-  const [discoveryPage, setDiscoveryPage] = useState<number>(0);
+  const [currentProductResultsPage, setCurrentProductResultsPage] = useState<number>(0);
+  const [discoveryPages, setDiscoveryPages] = useState<Product[][]>([]);
+  const [currentDiscoveryPage, setCurrentDiscoveryPage] = useState<number>(0);
+  const [nextDiscoveryPageToFetch, setNextDiscoveryPageToFetch] = useState<number>(0);
   const [hasMoreDiscoveryProducts, setHasMoreDiscoveryProducts] = useState<boolean>(false);
 
   const [searchMode, setSearchMode] = useState<SearchMode>('seller');
@@ -83,23 +86,27 @@ const App: React.FC = () => {
       return;
     }
 
+    if (currentDiscoveryPage < discoveryPages.length - 1) {
+      setCurrentDiscoveryPage((current) => current + 1);
+      return;
+    }
+
     setIsLoadingProductDiscovery(true);
     setProductDiscoveryError(null);
 
     try {
-      const featured = await fetchProductOpportunities(discoveryPage);
-      setDiscoveryProducts((current) =>
-        discoveryPage === 0 ? featured.products : [...current, ...featured.products]
-      );
+      const featured = await fetchProductOpportunities(nextDiscoveryPageToFetch);
+      setDiscoveryPages((current) => [...current, featured.products]);
+      setCurrentDiscoveryPage(discoveryPages.length);
       setHasMoreDiscoveryProducts(Boolean(featured.meta?.hasMore));
-      setDiscoveryPage((current) => current + 1);
+      setNextDiscoveryPageToFetch((current) => current + 1);
     } catch (error) {
       console.error('Error loading product opportunities:', error);
       setProductDiscoveryError('Recommended products took too long to load. You can still search manually.');
     } finally {
       setIsLoadingProductDiscovery(false);
     }
-  }, [isLoadingProductDiscovery]);
+  }, [currentDiscoveryPage, discoveryPages.length, isLoadingProductDiscovery, nextDiscoveryPageToFetch]);
 
   const handleSellerSearch = useCallback(async (sellerId: string) => {
     if (!sellerId) return;
@@ -138,12 +145,14 @@ const App: React.FC = () => {
     setIsSearchingProductResults(true);
     setLastProductQuery(input.trim());
     setProductResults([]);
+    setProductResultPages([]);
     setSelectedProductId(null);
     setIsProductModalOpen(false);
     setProductOffers(null);
     setProductOfferError(null);
     setProductResultsError(null);
     setProductResultsNextAfter(null);
+    setCurrentProductResultsPage(0);
 
     try {
       if (params.productUrl) {
@@ -151,7 +160,7 @@ const App: React.FC = () => {
         setProductOffers(summary);
         setSelectedProductId(summary.product.id);
         setIsProductModalOpen(true);
-        setProductResults([
+        const directResult = [
           {
             id: summary.product.id,
             name: summary.product.name,
@@ -162,13 +171,16 @@ const App: React.FC = () => {
             productUrl: summary.product.productUrl,
             sellerId: '',
           },
-        ]);
+        ];
+        setProductResults(directResult);
+        setProductResultPages([directResult]);
       } else {
         const results = await fetchProductSearchResults(params.description ?? '');
         if (results.products.length === 0) {
           setProductResultsError('No products matched that search. Try a more specific product name.');
         } else {
           setProductResults(results.products);
+          setProductResultPages([results.products]);
           setProductResultsNextAfter(results.meta?.nextAfter ?? null);
         }
       }
@@ -199,6 +211,13 @@ const App: React.FC = () => {
   }, []);
 
   const handleLoadMoreProductResults = useCallback(async () => {
+    if (currentProductResultsPage < productResultPages.length - 1) {
+      const nextPage = currentProductResultsPage + 1;
+      setCurrentProductResultsPage(nextPage);
+      setProductResults(productResultPages[nextPage]);
+      return;
+    }
+
     if (!lastProductQuery || !productResultsNextAfter || isLoadingMoreProductResults) {
       return;
     }
@@ -208,7 +227,9 @@ const App: React.FC = () => {
 
     try {
       const results = await fetchProductSearchResults(lastProductQuery, productResultsNextAfter);
-      setProductResults((current) => [...current, ...results.products]);
+      setProductResultPages((current) => [...current, results.products]);
+      setCurrentProductResultsPage((current) => current + 1);
+      setProductResults(results.products);
       setProductResultsNextAfter(results.meta?.nextAfter ?? null);
     } catch (error) {
       console.error('Error loading more product results:', error);
@@ -216,7 +237,29 @@ const App: React.FC = () => {
     } finally {
       setIsLoadingMoreProductResults(false);
     }
-  }, [isLoadingMoreProductResults, lastProductQuery, productResultsNextAfter]);
+  }, [
+    currentProductResultsPage,
+    isLoadingMoreProductResults,
+    lastProductQuery,
+    productResultPages,
+    productResultsNextAfter,
+  ]);
+
+  const handlePreviousProductResultsPage = useCallback(() => {
+    if (currentProductResultsPage === 0) {
+      return;
+    }
+    const previousPage = currentProductResultsPage - 1;
+    setCurrentProductResultsPage(previousPage);
+    setProductResults(productResultPages[previousPage]);
+  }, [currentProductResultsPage, productResultPages]);
+
+  const handlePreviousDiscoveryPage = useCallback(() => {
+    if (currentDiscoveryPage === 0) {
+      return;
+    }
+    setCurrentDiscoveryPage((current) => current - 1);
+  }, [currentDiscoveryPage]);
 
   const filteredProducts = useMemo(() => {
     if (!catalogQuery.trim()) return products;
@@ -230,26 +273,33 @@ const App: React.FC = () => {
     });
   }, [catalogQuery, products]);
 
-  const renderMoreProductsCta = (options: {
-    label: string;
-    onClick: () => void;
-    isLoading?: boolean;
+  const renderPager = (options: {
+    currentPage: number;
+    onPrevious: () => void;
+    onNext: () => void;
+    hasPrevious: boolean;
+    hasNext: boolean;
+    isLoadingNext?: boolean;
   }) => (
-    <div className="mt-8 flex justify-center">
+    <div className="mt-8 flex items-center justify-center gap-4">
       <button
         type="button"
-        onClick={options.onClick}
-        disabled={options.isLoading}
-        className="inline-flex items-center justify-center rounded-full border border-brand-cyan/60 px-5 py-3 text-sm font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
+        onClick={options.onPrevious}
+        disabled={!options.hasPrevious}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-cyan/60 text-lg font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
       >
-        {options.isLoading ? (
-          <>
-            <Spinner />
-            <span className="ml-3">Loading more products...</span>
-          </>
-        ) : (
-          options.label
-        )}
+        ←
+      </button>
+      <div className="rounded-full border border-gray-700 bg-gray-800/80 px-4 py-2 text-sm font-semibold text-brand-light">
+        Page {options.currentPage}
+      </div>
+      <button
+        type="button"
+        onClick={options.onNext}
+        disabled={!options.hasNext || options.isLoadingNext}
+        className="inline-flex h-10 min-w-10 items-center justify-center rounded-full border border-brand-cyan/60 px-3 text-lg font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
+      >
+        {options.isLoadingNext ? <Spinner /> : '→'}
       </button>
     </div>
   );
@@ -351,16 +401,20 @@ const App: React.FC = () => {
               inspectLabel="Open analysis"
               selectedProductId={selectedProductId}
             />
-            {productResultsNextAfter &&
-              renderMoreProductsCta({
-                label: 'Click to see more products...',
-                onClick: handleLoadMoreProductResults,
-                isLoading: isLoadingMoreProductResults,
+            {(productResultPages.length > 1 || productResultsNextAfter) &&
+              renderPager({
+                currentPage: currentProductResultsPage + 1,
+                onPrevious: handlePreviousProductResultsPage,
+                onNext: handleLoadMoreProductResults,
+                hasPrevious: currentProductResultsPage > 0,
+                hasNext: currentProductResultsPage < productResultPages.length - 1 || Boolean(productResultsNextAfter),
+                isLoadingNext: isLoadingMoreProductResults,
               })}
           </section>
         </div>
       );
     }
+    const discoveryProducts = discoveryPages[currentDiscoveryPage] ?? [];
     if (discoveryProducts.length > 0) {
       return (
         <div className="space-y-8">
@@ -374,7 +428,7 @@ const App: React.FC = () => {
                   its full sourcing analysis.
                 </p>
               </div>
-              <p className="text-xs text-brand-cyan">Shortlist loaded: {discoveryProducts.length} products</p>
+              <p className="text-xs text-brand-cyan">Shortlist page {currentDiscoveryPage + 1}</p>
             </div>
             <ProductGrid
               products={discoveryProducts}
@@ -382,11 +436,14 @@ const App: React.FC = () => {
               inspectLabel="Open analysis"
               selectedProductId={selectedProductId}
             />
-            {hasMoreDiscoveryProducts &&
-              renderMoreProductsCta({
-                label: 'Click to see more products...',
-                onClick: handleLoadDiscoveryProducts,
-                isLoading: isLoadingProductDiscovery,
+            {(discoveryPages.length > 1 || hasMoreDiscoveryProducts) &&
+              renderPager({
+                currentPage: currentDiscoveryPage + 1,
+                onPrevious: handlePreviousDiscoveryPage,
+                onNext: handleLoadDiscoveryProducts,
+                hasPrevious: currentDiscoveryPage > 0,
+                hasNext: currentDiscoveryPage < discoveryPages.length - 1 || hasMoreDiscoveryProducts,
+                isLoadingNext: isLoadingProductDiscovery,
               })}
           </section>
         </div>
@@ -435,8 +492,6 @@ const App: React.FC = () => {
                   <Spinner />
                   <span className="ml-3">Loading shortlist</span>
                 </>
-              ) : discoveryProducts.length > 0 ? (
-                'Reload shortlist'
               ) : (
                 'Load shortlist'
               )}
