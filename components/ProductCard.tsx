@@ -38,10 +38,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {product.brand && (
             <p className="text-xs uppercase tracking-wide text-brand-cyan/80 mb-1">{product.brand}</p>
           )}
+          {typeof product.opportunityScore === 'number' && (
+            <p className="mb-2 inline-flex rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-300">
+              Opportunity Score {product.opportunityScore}/100
+            </p>
+          )}
           <h3 className="line-clamp-2 text-base font-semibold text-brand-light sm:text-lg" title={product.name}>
             {product.name}
           </h3>
           <p className="mt-2 min-h-10 line-clamp-2 text-sm text-gray-400">{product.description}</p>
+          {product.sourceQuery && (
+            <p className="mt-2 text-xs text-gray-500">Discovery theme: {product.sourceQuery}</p>
+          )}
         </div>
         <div className="mt-3">
           <p className="text-xl font-bold text-brand-cyan">{formattedPrice}</p>

@@ -9,6 +9,8 @@ export interface Product {
   productUrl: string;
   sellerId: string;
   brand?: string;
+  opportunityScore?: number;
+  sourceQuery?: string;
 }
 
 export type OfferKind = 'best-price' | 'fastest-delivery' | 'other';

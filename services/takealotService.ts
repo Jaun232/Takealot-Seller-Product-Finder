@@ -55,6 +55,19 @@ export async function fetchProductSearchResults(query: string): Promise<Product[
   return Array.isArray(data.products) ? data.products : [];
 }
 
+export async function fetchProductOpportunities(): Promise<Product[]> {
+  const url = `${API_PREFIX}/product-opportunities`;
+
+  const response = await fetch(url, { headers: { Accept: 'application/json' } });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const data: SellerProductsResponse = await response.json();
+  return Array.isArray(data.products) ? data.products : [];
+}
+
 interface ProductOfferParams {
   description?: string;
   productUrl?: string;

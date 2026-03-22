@@ -37,7 +37,7 @@ type OfferHighlight = {
   availabilityStatus?: string;
 };
 
-type ProductOfferResponse = {
+export type ProductOfferResponse = {
   product: {
     id: string;
     name: string;
@@ -163,7 +163,7 @@ type SellerDetail = {
   };
 };
 
-async function fetchProductOffers(params: ProductOfferParams): Promise<ProductOfferResponse> {
+export async function fetchProductOffers(params: ProductOfferParams): Promise<ProductOfferResponse> {
   const normalizedQuery = params.query?.trim();
   const normalizedProductUrl = normalizeProductUrl(params.productUrl);
 

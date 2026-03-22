@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Product, ProductOfferSummary } from './types';
-import { fetchSellerProducts, fetchProductOffers, fetchProductSearchResults } from './services/takealotService';
+import { fetchSellerProducts, fetchProductOffers, fetchProductOpportunities, fetchProductSearchResults } from './services/takealotService';
 import SearchForm, { SearchMode } from './components/SearchForm';
 import ProductGrid from './components/ProductGrid';
 import Spinner from './components/Spinner';
@@ -42,12 +42,15 @@ const App: React.FC = () => {
   const [productOffers, setProductOffers] = useState<ProductOfferSummary | null>(null);
   const [productOfferError, setProductOfferError] = useState<string | null>(null);
   const [productResultsError, setProductResultsError] = useState<string | null>(null);
+  const [productDiscoveryError, setProductDiscoveryError] = useState<string | null>(null);
   const [isSearchingProductResults, setIsSearchingProductResults] = useState<boolean>(false);
   const [isLoadingSelectedProduct, setIsLoadingSelectedProduct] = useState<boolean>(false);
+  const [isLoadingProductDiscovery, setIsLoadingProductDiscovery] = useState<boolean>(false);
   const [hasSearchedOffers, setHasSearchedOffers] = useState<boolean>(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [lastProductQuery, setLastProductQuery] = useState<string>('');
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
+  const [discoveryProducts, setDiscoveryProducts] = useState<Product[]>([]);
 
   const [searchMode, setSearchMode] = useState<SearchMode>('seller');
 
@@ -70,6 +73,41 @@ const App: React.FC = () => {
       window.removeEventListener('keydown', handleEscape);
     };
   }, [isProductModalOpen]);
+
+  useEffect(() => {
+    if (searchMode !== 'product' || hasSearchedOffers || discoveryProducts.length > 0 || isLoadingProductDiscovery) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    const loadOpportunities = async () => {
+      setIsLoadingProductDiscovery(true);
+      setProductDiscoveryError(null);
+
+      try {
+        const featured = await fetchProductOpportunities();
+        if (!isCancelled) {
+          setDiscoveryProducts(featured);
+        }
+      } catch (error) {
+        console.error('Error loading product opportunities:', error);
+        if (!isCancelled) {
+          setProductDiscoveryError('Unable to load a recommended product shortlist right now.');
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingProductDiscovery(false);
+        }
+      }
+    };
+
+    loadOpportunities();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [searchMode, hasSearchedOffers, discoveryProducts.length, isLoadingProductDiscovery]);
 
   const handleSellerSearch = useCallback(async (sellerId: string) => {
     if (!sellerId) return;
@@ -276,6 +314,49 @@ const App: React.FC = () => {
               selectedProductId={selectedProductId}
             />
           </section>
+        </div>
+      );
+    }
+    if (isLoadingProductDiscovery) {
+      return (
+        <div className="mt-20 flex justify-center">
+          <Spinner />
+        </div>
+      );
+    }
+    if (discoveryProducts.length > 0) {
+      return (
+        <div className="space-y-8">
+          <section className="rounded-lg border border-gray-700 bg-gray-800/60 p-4 sm:p-6">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-semibold text-brand-light">Recommended products to review</h2>
+                <p className="mt-1 text-sm text-gray-400">
+                  This shortlist surfaces 20 products with comparatively stronger public signals across
+                  rating, review depth, seller strength, and buybox structure. Open any product to inspect
+                  its full sourcing analysis.
+                </p>
+              </div>
+              <p className="text-xs text-brand-cyan">Auto-loaded shortlist: {discoveryProducts.length} products</p>
+            </div>
+            <ProductGrid
+              products={discoveryProducts}
+              onInspectProduct={handleInspectProduct}
+              inspectLabel="Open analysis"
+              selectedProductId={selectedProductId}
+            />
+          </section>
+        </div>
+      );
+    }
+    if (productDiscoveryError) {
+      return (
+        <div className="mx-auto mt-12 max-w-xl text-center text-gray-300">
+          <h2 className="text-xl font-semibold">Start with a product search</h2>
+          <p className="mt-2 text-sm text-gray-400">
+            {productDiscoveryError} Search by product name, keyword, PLID URL, or full Takealot URL to
+            begin manual analysis.
+          </p>
         </div>
       );
     }
