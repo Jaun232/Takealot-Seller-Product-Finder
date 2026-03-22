@@ -13,6 +13,7 @@ interface SellerProductsResponse {
 }
 
 type ProductOffersResponse = ProductOfferSummary;
+const DISCOVERY_REQUEST_TIMEOUT_MS = 8000;
 
 function buildQueryString(params: Record<string, string | number | undefined>): string {
   const search = new URLSearchParams();
@@ -57,15 +58,29 @@ export async function fetchProductSearchResults(query: string): Promise<Product[
 
 export async function fetchProductOpportunities(): Promise<Product[]> {
   const url = `${API_PREFIX}/product-opportunities`;
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), DISCOVERY_REQUEST_TIMEOUT_MS);
 
-  const response = await fetch(url, { headers: { Accept: 'application/json' } });
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
 
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    const data: SellerProductsResponse = await response.json();
+    return Array.isArray(data.products) ? data.products : [];
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error('Product shortlist request timed out.');
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
   }
-
-  const data: SellerProductsResponse = await response.json();
-  return Array.isArray(data.products) ? data.products : [];
 }
 
 interface ProductOfferParams {

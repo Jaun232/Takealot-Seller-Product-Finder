@@ -93,7 +93,7 @@ const App: React.FC = () => {
       } catch (error) {
         console.error('Error loading product opportunities:', error);
         if (!isCancelled) {
-          setProductDiscoveryError('Unable to load a recommended product shortlist right now.');
+          setProductDiscoveryError('Recommended products took too long to load. You can still search normally below.');
         }
       } finally {
         if (!isCancelled) {
@@ -317,13 +317,6 @@ const App: React.FC = () => {
         </div>
       );
     }
-    if (isLoadingProductDiscovery) {
-      return (
-        <div className="mt-20 flex justify-center">
-          <Spinner />
-        </div>
-      );
-    }
     if (discoveryProducts.length > 0) {
       return (
         <div className="space-y-8">
@@ -349,17 +342,6 @@ const App: React.FC = () => {
         </div>
       );
     }
-    if (productDiscoveryError) {
-      return (
-        <div className="mx-auto mt-12 max-w-xl text-center text-gray-300">
-          <h2 className="text-xl font-semibold">Start with a product search</h2>
-          <p className="mt-2 text-sm text-gray-400">
-            {productDiscoveryError} Search by product name, keyword, PLID URL, or full Takealot URL to
-            begin manual analysis.
-          </p>
-        </div>
-      );
-    }
     if (hasSearchedOffers) {
       return (
         <div className="mx-auto mt-12 max-w-xl text-center text-gray-300">
@@ -372,15 +354,40 @@ const App: React.FC = () => {
       );
     }
     return (
-      <div className="mt-20 text-center text-gray-300">
-        <h2 className="text-2xl font-bold">Analyse Products Before You Source Them</h2>
-        <p className="mt-2 text-sm text-gray-400">
-          1. Search by product name, keyword, or Takealot URL.
-          <br />
-          2. Review the matching listings.
-          <br />
-          3. Open one product to see its sourcing assessment, buybox signals, seller quality, and external comparison links.
-        </p>
+      <div className="space-y-6">
+        <section className="rounded-lg border border-gray-700 bg-gray-800/60 p-5 text-center text-gray-300 sm:p-6">
+          <h2 className="text-2xl font-bold">Analyse Products Before You Source Them</h2>
+          <p className="mt-2 text-sm text-gray-400">
+            1. Search by product name, keyword, or Takealot URL.
+            <br />
+            2. Review the matching listings.
+            <br />
+            3. Open one product to see its sourcing assessment, buybox signals, seller quality, and external comparison links.
+          </p>
+        </section>
+
+        <section className="rounded-lg border border-gray-700 bg-gray-800/40 p-5 text-gray-300 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-brand-light">Recommended products</h3>
+              <p className="mt-1 text-sm text-gray-400">
+                The app tries to load a shortlist of products with stronger public signals. If it does not load,
+                you can still search manually right away.
+              </p>
+            </div>
+            {isLoadingProductDiscovery && (
+              <div className="inline-flex items-center gap-3 text-sm text-brand-light">
+                <Spinner />
+                <span>Loading shortlist</span>
+              </div>
+            )}
+          </div>
+          {productDiscoveryError && (
+            <p className="mt-4 rounded-md border border-amber-700/60 bg-amber-900/20 px-3 py-2 text-sm text-amber-200">
+              {productDiscoveryError}
+            </p>
+          )}
+        </section>
       </div>
     );
   };
