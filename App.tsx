@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Product, ProductOfferSummary } from './types';
 import { fetchSellerProducts, fetchProductOffers, fetchProductSearchResults } from './services/takealotService';
 import SearchForm, { SearchMode } from './components/SearchForm';
@@ -6,6 +6,7 @@ import ProductGrid from './components/ProductGrid';
 import Spinner from './components/Spinner';
 import SearchGuide from './components/SearchGuide';
 import ProductOfferHighlights from './components/ProductOfferHighlights';
+import { CloseIcon } from './components/icons/CloseIcon';
 
 const TAKEALOT_HOST_SNIPPET = 'takealot.com';
 
@@ -46,9 +47,29 @@ const App: React.FC = () => {
   const [hasSearchedOffers, setHasSearchedOffers] = useState<boolean>(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [lastProductQuery, setLastProductQuery] = useState<string>('');
-  const productBreakdownRef = useRef<HTMLDivElement | null>(null);
+  const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
 
   const [searchMode, setSearchMode] = useState<SearchMode>('seller');
+
+  useEffect(() => {
+    if (!isProductModalOpen) {
+      document.body.style.overflow = '';
+      return;
+    }
+
+    document.body.style.overflow = 'hidden';
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsProductModalOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [isProductModalOpen]);
 
   const handleSellerSearch = useCallback(async (sellerId: string) => {
     if (!sellerId) return;
@@ -88,6 +109,7 @@ const App: React.FC = () => {
     setLastProductQuery(input.trim());
     setProductResults([]);
     setSelectedProductId(null);
+    setIsProductModalOpen(false);
     setProductOffers(null);
     setProductOfferError(null);
     setProductResultsError(null);
@@ -97,6 +119,7 @@ const App: React.FC = () => {
         const summary = await fetchProductOffers(params);
         setProductOffers(summary);
         setSelectedProductId(summary.product.id);
+        setIsProductModalOpen(true);
         setProductResults([
           {
             id: summary.product.id,
@@ -130,14 +153,11 @@ const App: React.FC = () => {
     setIsLoadingSelectedProduct(true);
     setProductOfferError(null);
     setProductOffers(null);
-    productBreakdownRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setIsProductModalOpen(true);
 
     try {
       const summary = await fetchProductOffers({ productUrl: product.productUrl });
       setProductOffers(summary);
-      setTimeout(() => {
-        productBreakdownRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 50);
     } catch (error) {
       console.error('Error fetching selected product offers:', error);
       setProductOfferError("Unable to load the selected product's offer breakdown.");
@@ -256,42 +276,6 @@ const App: React.FC = () => {
               selectedProductId={selectedProductId}
             />
           </section>
-
-          <div ref={productBreakdownRef}>
-            {isLoadingSelectedProduct && (
-              <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-8">
-                <div className="flex items-center gap-3 text-brand-light">
-                  <Spinner />
-                  <div>
-                    <p className="font-semibold">Loading product breakdown</p>
-                    <p className="text-sm text-gray-400 mt-1">
-                      Pulling buybox, delivery, seller, and sourcing signals for the selected listing.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {productOfferError && (
-              <div className="mt-4 text-center text-red-400">
-                {productOfferError}
-              </div>
-            )}
-
-            {productOffers && productOffers.offers.length > 0 && (
-              <ProductOfferHighlights summary={productOffers} />
-            )}
-
-            {productOffers && productOffers.offers.length === 0 && !isLoadingSelectedProduct && (
-              <div className="mt-12 max-w-xl mx-auto text-center text-gray-300">
-                <h2 className="text-xl font-semibold">No highlighted offers were found.</h2>
-                <p className="mt-2 text-sm text-gray-400">
-                  This product resolved correctly, but Takealot did not expose Best Price or Fastest
-                  Delivery cards for it.
-                </p>
-              </div>
-            )}
-          </div>
         </div>
       );
     }
@@ -349,6 +333,74 @@ const App: React.FC = () => {
         </div>
         <div className="mt-8">{renderContent()}</div>
       </main>
+
+      {isProductModalOpen && (
+        <div className="fixed inset-0 z-50">
+          <button
+            type="button"
+            aria-label="Close product breakdown"
+            onClick={() => setIsProductModalOpen(false)}
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+          />
+          <div className="absolute inset-0 overflow-y-auto p-4 sm:p-6 lg:p-10">
+            <div className="mx-auto max-w-6xl">
+              <div className="rounded-2xl border border-gray-700 bg-brand-dark shadow-2xl">
+                <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-gray-700 bg-brand-dark/95 px-5 py-4 backdrop-blur">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-gray-500">Product Breakdown</p>
+                    <h2 className="text-lg font-semibold text-brand-light">
+                      {productOffers?.product.name ?? (selectedProductId ? `Selected: ${selectedProductId}` : 'Loading')}
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsProductModalOpen(false)}
+                    className="inline-flex items-center justify-center rounded-full border border-gray-600 p-2 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                  >
+                    <CloseIcon className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="p-5 sm:p-6">
+                  {isLoadingSelectedProduct && (
+                    <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-8">
+                      <div className="flex items-center gap-3 text-brand-light">
+                        <Spinner />
+                        <div>
+                          <p className="font-semibold">Loading product breakdown</p>
+                          <p className="text-sm text-gray-400 mt-1">
+                            Pulling buybox, delivery, seller, and sourcing signals for the selected listing.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {productOfferError && !isLoadingSelectedProduct && (
+                    <div className="text-center text-red-400 py-10">
+                      {productOfferError}
+                    </div>
+                  )}
+
+                  {productOffers && productOffers.offers.length > 0 && !isLoadingSelectedProduct && (
+                    <ProductOfferHighlights summary={productOffers} />
+                  )}
+
+                  {productOffers && productOffers.offers.length === 0 && !isLoadingSelectedProduct && (
+                    <div className="max-w-xl mx-auto text-center text-gray-300 py-10">
+                      <h2 className="text-xl font-semibold">No highlighted offers were found.</h2>
+                      <p className="mt-2 text-sm text-gray-400">
+                        This product resolved correctly, but Takealot did not expose Best Price or Fastest
+                        Delivery cards for it.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
