@@ -149,6 +149,31 @@ export default async function handler(request: VercelRequest, response: VercelRe
 }
 
 function deriveQueryFromListingPath(pathname: string): string {
+  const normalizedPath = pathname.trim().toLowerCase();
+  const explicitMappings: Array<[string, string]> = [
+    ['/pool-garden/auto', 'auto parts'],
+    ['/pool-garden/diy_auto', 'diy auto'],
+    ['/pool-garden/car-care-and-cleaning-', 'car care cleaning'],
+    ['/pool-garden/diy-tools-and-machinery-', 'diy tools machinery'],
+    ['/pool-garden/industrial-power-tools-', 'industrial power tools'],
+    ['/pool-garden/measuring-tools-', 'measuring tools'],
+    ['/pool-garden/tool-organisers-', 'tool organisers'],
+    ['/pool-garden/workwear-and-ppe-', 'workwear ppe'],
+    ['/pool-garden/safety-and-security-', 'safety security'],
+    ['/home-kitchen/large-appliances', 'large appliances'],
+    ['/home-kitchen/small--appliances', 'small appliances'],
+    ['/baby/nappies_changing', 'nappies changing'],
+    ['/baby/changing_feeding', 'changing feeding'],
+    ['/baby/care_nursery', 'care nursery'],
+    ['/baby/baby_clothing', 'baby clothing'],
+    ['/baby/out_and_about', 'baby out and about'],
+  ];
+
+  const explicitMatch = explicitMappings.find(([fragment]) => normalizedPath.includes(fragment));
+  if (explicitMatch) {
+    return explicitMatch[1];
+  }
+
   const slug = pathname
     .split('/')
     .filter(Boolean)
