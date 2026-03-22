@@ -198,7 +198,7 @@ const App: React.FC = () => {
       return (
         <>
           <div className="mb-6">
-            <label htmlFor="catalog-filter" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="catalog-filter" className="mb-2 block text-sm font-medium text-gray-300">
               Filter results
             </label>
             <input
@@ -207,7 +207,7 @@ const App: React.FC = () => {
               value={catalogQuery}
               onChange={(event) => setCatalogQuery(event.target.value)}
               placeholder="Search within this seller's catalogue..."
-              className="w-full bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-cyan rounded-md px-3 py-2"
+              className="w-full rounded-md bg-gray-700 px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-cyan"
             />
             <p className="mt-2 text-xs text-gray-400">
               Showing {filteredProducts.length} of {products.length} items.
@@ -246,7 +246,7 @@ const App: React.FC = () => {
       return (
         <div className="mt-8 text-center text-red-400">
           {productResultsError}
-          <p className="text-sm text-gray-400 mt-2">
+          <p className="mt-2 text-sm text-gray-400">
             Use a more specific Takealot listing title or paste the full product URL.
           </p>
         </div>
@@ -255,18 +255,18 @@ const App: React.FC = () => {
     if (productResults.length > 0 || productOffers) {
       return (
         <div className="space-y-8">
-          <section className="bg-gray-800/60 border border-gray-700 rounded-lg p-6">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
+          <section className="rounded-lg border border-gray-700 bg-gray-800/60 p-4 sm:p-6">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2 className="text-2xl font-semibold text-brand-light">Matching products</h2>
-                <p className="text-sm text-gray-400 mt-1">
-                  Found {productResults.length} result{productResults.length === 1 ? '' : 's'} for
-                  {' '}“{lastProductQuery}”. Choose a listing to open its sourcing analysis, including
+                <p className="mt-1 text-sm text-gray-400">
+                  Found {productResults.length} result{productResults.length === 1 ? '' : 's'} for{' '}
+                  "{lastProductQuery}". Choose a listing to open its sourcing analysis, including
                   buybox position, delivery speed, seller strength, ratings, and comparison links.
                 </p>
               </div>
               {selectedProductId && (
-                <p className="text-xs text-brand-cyan">Ready to analyse: {selectedProductId}</p>
+                <p className="break-all text-xs text-brand-cyan">Ready to analyse: {selectedProductId}</p>
               )}
             </div>
             <ProductGrid
@@ -281,7 +281,7 @@ const App: React.FC = () => {
     }
     if (hasSearchedOffers) {
       return (
-        <div className="mt-12 max-w-xl mx-auto text-center text-gray-300">
+        <div className="mx-auto mt-12 max-w-xl text-center text-gray-300">
           <h2 className="text-xl font-semibold">No products were found.</h2>
           <p className="mt-2 text-sm text-gray-400">
             Try another description or a more specific product title to surface a list of matching
@@ -312,20 +312,20 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-dark text-brand-light font-sans">
-      <header className="bg-brand-blue/20 backdrop-blur-sm shadow-lg sticky top-0 z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-brand-cyan tracking-wider">
+    <div className="min-h-screen bg-brand-dark font-sans text-brand-light">
+      <header className="sticky top-0 z-10 bg-brand-blue/20 shadow-lg backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
+          <h1 className="text-2xl font-bold tracking-wider text-brand-cyan sm:text-3xl">
             Takealot Seller Product Finder
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="mt-1 text-sm text-gray-400">
             Search Takealot directly by seller ID or describe a product to surface the best offers.
           </p>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-2xl mx-auto">
+      <main className="container mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="mx-auto max-w-2xl">
           <SearchForm
             mode={searchMode}
             onModeChange={setSearchMode}
@@ -345,33 +345,33 @@ const App: React.FC = () => {
             onClick={() => setIsProductModalOpen(false)}
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
           />
-          <div className="absolute inset-0 overflow-y-auto p-4 sm:p-6 lg:p-10">
+          <div className="absolute inset-0 overflow-y-auto p-3 sm:p-6 lg:p-10">
             <div className="mx-auto max-w-6xl">
               <div className="rounded-2xl border border-gray-700 bg-brand-dark shadow-2xl">
-                <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-gray-700 bg-brand-dark/95 px-5 py-4 backdrop-blur">
-                  <div>
+                <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-gray-700 bg-brand-dark/95 px-4 py-4 backdrop-blur sm:px-5">
+                  <div className="min-w-0">
                     <p className="text-xs uppercase tracking-wide text-gray-500">Product Analysis</p>
-                    <h2 className="text-lg font-semibold text-brand-light">
+                    <h2 className="break-words text-base font-semibold text-brand-light sm:text-lg">
                       {productOffers?.product.name ?? (selectedProductId ? `Selected: ${selectedProductId}` : 'Loading')}
                     </h2>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsProductModalOpen(false)}
-                    className="inline-flex items-center justify-center rounded-full border border-gray-600 p-2 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                    className="inline-flex items-center justify-center rounded-full border border-gray-600 p-2 text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
                   >
                     <CloseIcon className="h-5 w-5" />
                   </button>
                 </div>
 
-                <div className="p-5 sm:p-6">
+                <div className="p-4 sm:p-6">
                   {isLoadingSelectedProduct && (
-                    <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-8">
-                      <div className="flex items-center gap-3 text-brand-light">
+                    <div className="rounded-lg border border-gray-700 bg-gray-800/60 p-5 sm:p-8">
+                      <div className="flex flex-col gap-3 text-brand-light sm:flex-row sm:items-center">
                         <Spinner />
                         <div>
                           <p className="font-semibold">Loading product analysis</p>
-                          <p className="text-sm text-gray-400 mt-1">
+                          <p className="mt-1 text-sm text-gray-400">
                             Pulling buybox, delivery, seller, product-quality, and sourcing signals for the selected listing.
                           </p>
                         </div>
@@ -380,7 +380,7 @@ const App: React.FC = () => {
                   )}
 
                   {productOfferError && !isLoadingSelectedProduct && (
-                    <div className="text-center text-red-400 py-10">
+                    <div className="py-10 text-center text-red-400">
                       {productOfferError}
                     </div>
                   )}
@@ -390,7 +390,7 @@ const App: React.FC = () => {
                   )}
 
                   {productOffers && productOffers.offers.length === 0 && !isLoadingSelectedProduct && (
-                    <div className="max-w-xl mx-auto text-center text-gray-300 py-10">
+                    <div className="mx-auto max-w-xl py-10 text-center text-gray-300">
                       <h2 className="text-xl font-semibold">No highlighted offers were found.</h2>
                       <p className="mt-2 text-sm text-gray-400">
                         This product resolved correctly, but Takealot did not expose Best Price or Fastest

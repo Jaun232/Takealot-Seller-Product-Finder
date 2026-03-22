@@ -38,10 +38,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {product.brand && (
             <p className="text-xs uppercase tracking-wide text-brand-cyan/80 mb-1">{product.brand}</p>
           )}
-          <h3 className="text-lg font-semibold text-brand-light truncate" title={product.name}>
+          <h3 className="line-clamp-2 text-base font-semibold text-brand-light sm:text-lg" title={product.name}>
             {product.name}
           </h3>
-          <p className="text-sm text-gray-400 mt-2 h-10 overflow-hidden">{product.description}</p>
+          <p className="mt-2 min-h-10 line-clamp-2 text-sm text-gray-400">{product.description}</p>
         </div>
         <div className="mt-3">
           <p className="text-xl font-bold text-brand-cyan">{formattedPrice}</p>
@@ -49,7 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={() => onInspect(product)}
-              className="block w-full mt-3 text-center bg-brand-cyan hover:bg-brand-cyan/80 text-white font-semibold py-2 rounded-md transition-colors duration-300"
+              className="mt-3 block w-full rounded-md bg-brand-cyan py-2 text-center font-semibold text-white whitespace-nowrap transition-colors duration-300 hover:bg-brand-cyan/80"
             >
               {inspectLabel}
             </button>
@@ -58,16 +58,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
             href={product.productUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`block w-full text-center ${
+            className={`block w-full rounded-md py-2 text-center font-semibold text-white whitespace-nowrap transition-colors duration-300 ${
               onInspect ? 'mt-2' : 'mt-3'
-            } bg-brand-blue hover:bg-brand-cyan text-white font-semibold py-2 rounded-md transition-colors duration-300`}
+            } bg-brand-blue hover:bg-brand-cyan`}
           >
             View on Takealot
           </a>
           <button
             type="button"
             onClick={() => setShowComparisons((prev) => !prev)}
-            className="w-full mt-2 text-center border border-brand-cyan/60 text-brand-light hover:bg-brand-cyan/20 font-semibold py-2 rounded-md transition-colors duration-300"
+            className="mt-2 w-full rounded-md border border-brand-cyan/60 py-2 text-center font-semibold text-brand-light whitespace-nowrap transition-colors duration-300 hover:bg-brand-cyan/20"
           >
             {showComparisons ? 'Hide price comparison' : 'Compare prices'}
           </button>

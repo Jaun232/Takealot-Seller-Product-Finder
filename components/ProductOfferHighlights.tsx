@@ -11,24 +11,24 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
   const sourcingAssessment = buildSourcingAssessment(summary);
 
   return (
-    <section className="bg-gray-800/70 border border-gray-700 rounded-lg p-6 shadow-lg">
+    <section className="rounded-lg border border-gray-700 bg-gray-800/70 p-4 shadow-lg sm:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex min-w-0 items-start gap-4">
           {product.imageUrl && (
             <img
               src={product.imageUrl.replace('{size}', '400')}
               alt={product.name}
-              className="w-20 h-20 rounded-lg object-cover border border-gray-700"
+              className="h-16 w-16 shrink-0 rounded-lg border border-gray-700 object-cover sm:h-20 sm:w-20"
               loading="lazy"
             />
           )}
-          <div>
+          <div className="min-w-0">
             <p className="text-sm uppercase tracking-wide text-gray-400">Matched product</p>
-            <h2 className="text-xl font-semibold text-brand-light">{product.name}</h2>
+            <h2 className="break-words text-lg font-semibold text-brand-light sm:text-xl">{product.name}</h2>
             {product.subtitle && (
-              <p className="text-sm text-gray-400 mt-1 max-w-2xl">{product.subtitle}</p>
+              <p className="mt-1 max-w-2xl break-words text-sm text-gray-400">{product.subtitle}</p>
             )}
-            <p className="text-xs text-gray-500 mt-1">Query: "{meta.query}"</p>
+            <p className="mt-1 break-words text-xs text-gray-500">Query: "{meta.query}"</p>
             {(product.brand || typeof product.starRating === 'number' || typeof product.reviewCount === 'number') && (
               <p className="text-xs text-gray-400 mt-1">
                 {product.brand ? `Brand: ${product.brand}` : 'Brand unavailable'}
@@ -71,12 +71,12 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
             )}
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-2">
           <a
             href={product.productUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-4 py-2 rounded-md border border-brand-cyan/60 text-brand-light hover:bg-brand-cyan/20 transition-colors text-sm font-medium"
+            className="inline-flex items-center justify-center rounded-md border border-brand-cyan/60 px-4 py-2 text-sm font-medium text-brand-light whitespace-nowrap transition-colors hover:bg-brand-cyan/20"
           >
             View on Takealot
           </a>
@@ -84,7 +84,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
             href={meta.searchUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-4 py-2 rounded-md border border-gray-600 text-gray-300 hover:bg-gray-700 transition-colors text-sm font-medium"
+            className="inline-flex items-center justify-center rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-gray-300 whitespace-nowrap transition-colors hover:bg-gray-700"
           >
             View search page
           </a>

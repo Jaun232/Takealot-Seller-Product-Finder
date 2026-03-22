@@ -1,11 +1,10 @@
-
 import React from 'react';
 
 const SearchGuide: React.FC = () => {
   return (
-    <div className="mt-12 max-w-lg mx-auto bg-gray-800/50 p-6 rounded-lg border border-gray-700 text-gray-300">
-      <h3 className="text-xl font-bold text-brand-cyan mb-4">How To Use Seller Lookup</h3>
-      <p className="mb-4">Use seller mode when you want to inspect one seller’s full Takealot catalogue.</p>
+    <div className="mt-12 mx-auto max-w-lg rounded-lg border border-gray-700 bg-gray-800/50 p-5 text-gray-300 sm:p-6">
+      <h3 className="mb-4 text-xl font-bold text-brand-cyan">How To Use Seller Lookup</h3>
+      <p className="mb-4">Use seller mode when you want to inspect one seller's full Takealot catalogue.</p>
       <ol className="list-decimal list-inside space-y-3">
         <li>
           <strong>Find the seller ID:</strong> Open any product sold by that seller, click the seller name, then copy the numeric ID from the seller URL.
