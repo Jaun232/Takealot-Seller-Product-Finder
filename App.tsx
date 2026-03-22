@@ -175,6 +175,226 @@ const FEATURED_LISTS = [
     label: 'Gift Ideas',
     listingUrl: 'https://www.takealot.com/all?custom=gift-ideas',
   },
+  {
+    label: 'New To Takealot Beauty',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-beauty&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Sun Shop',
+    listingUrl: 'https://www.takealot.com/sun-shop',
+  },
+  {
+    label: 'Dermatological Skincare',
+    listingUrl: 'https://www.takealot.com/beauty/dermatological-skincare',
+  },
+  {
+    label: 'Korean Beauty',
+    listingUrl: 'https://www.takealot.com/beauty/korean-beauty',
+  },
+  {
+    label: 'Trending Makeup Looks',
+    listingUrl: 'https://www.takealot.com/beauty/trending-makeup-looks',
+  },
+  {
+    label: 'Beauty',
+    listingUrl: 'https://www.takealot.com/beauty',
+  },
+  {
+    label: 'Luxury Beauty',
+    listingUrl: 'https://www.takealot.com/beauty/luxbeauty',
+  },
+  {
+    label: 'Luxury Beauty Fragrances',
+    listingUrl: 'https://www.takealot.com/beauty/luxury_beauty_fragrances',
+  },
+  {
+    label: 'Fragrance',
+    listingUrl: 'https://www.takealot.com/beauty/fragrance',
+  },
+  {
+    label: 'Makeup',
+    listingUrl: 'https://www.takealot.com/beauty/makeup',
+  },
+  {
+    label: 'Skin Care',
+    listingUrl: 'https://www.takealot.com/beauty/skin-care',
+  },
+  {
+    label: 'Salon Hair',
+    listingUrl: 'https://www.takealot.com/salonhair',
+  },
+  {
+    label: 'Haircare',
+    listingUrl: 'https://www.takealot.com/beauty/haircare',
+  },
+  {
+    label: 'Clean Beauty',
+    listingUrl: 'https://www.takealot.com/beauty/cleanbeauty',
+  },
+  {
+    label: 'Grooming',
+    listingUrl: 'https://www.takealot.com/beauty/grooming',
+  },
+  {
+    label: 'New To Takealot Books',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-book&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Trending Reads',
+    listingUrl: 'https://www.takealot.com/books/trending-reads',
+  },
+  {
+    label: 'Books',
+    listingUrl: 'https://www.takealot.com/books',
+  },
+  {
+    label: 'Fiction',
+    listingUrl: 'https://www.takealot.com/books/fiction',
+  },
+  {
+    label: 'Children Books',
+    listingUrl: 'https://www.takealot.com/books/children',
+  },
+  {
+    label: 'Nonfiction',
+    listingUrl: 'https://www.takealot.com/books/nonfiction',
+  },
+  {
+    label: 'Cookbooks',
+    listingUrl: 'https://www.takealot.com/books/cookbooks',
+  },
+  {
+    label: 'Top Rated Book Boxsets',
+    listingUrl: 'https://www.takealot.com/all?custom=books-boxsets&sort=Rating%20Descending',
+  },
+  {
+    label: 'Christian Books',
+    listingUrl: 'https://www.takealot.com/books/books_christian',
+  },
+  {
+    label: 'Bestsellers',
+    listingUrl: 'https://www.takealot.com/all?custom=bestsellers&sort=Rating%20Descending',
+  },
+  {
+    label: 'Top YA',
+    listingUrl: 'https://www.takealot.com/all?custom=top-ya-&sort=Rating%20Descending',
+  },
+  {
+    label: 'Academic Books',
+    listingUrl: 'https://www.takealot.com/books/academic',
+  },
+  {
+    label: 'New To Takealot Camping',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-camping&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Camping and Outdoor',
+    listingUrl: 'https://www.takealot.com/camping-outdoor',
+  },
+  {
+    label: 'Tents',
+    listingUrl: 'https://www.takealot.com/camping-outdoor/tents-25681',
+  },
+  {
+    label: 'Camping Furniture',
+    listingUrl: 'https://www.takealot.com/camping-outdoor/camping-furniture-25614',
+  },
+  {
+    label: 'Lighting',
+    listingUrl: 'https://www.takealot.com/camping-outdoor/lighting-25624',
+  },
+  {
+    label: 'Sleeping Gear',
+    listingUrl: 'https://www.takealot.com/camping-outdoor/sleeping-gear-25661',
+  },
+  {
+    label: 'Coolers and Refrigeration',
+    listingUrl: 'https://www.takealot.com/camping-outdoor/coolers-and-refrigeration-25641',
+  },
+  {
+    label: 'Top Rated Beach and Water Activities',
+    listingUrl: 'https://www.takealot.com/camping-outdoor/beach-and-water-activities-25711?filter=Available:true&sort=Rating%20Descending',
+  },
+  {
+    label: 'Fishing',
+    listingUrl: 'https://www.takealot.com/camping-outdoor/fishing-25712',
+  },
+  {
+    label: 'Top Rated Hiking',
+    listingUrl: 'https://www.takealot.com/camping-outdoor/hiking-25719?filter=Available:true&sort=Rating%20Descending',
+  },
+  {
+    label: 'New Hunting',
+    listingUrl: 'https://www.takealot.com/camping-outdoor/hunting-25718?filter=Available:true&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'New To Takealot Fashion',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-fashion&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Denim World',
+    listingUrl: 'https://www.takealot.com/denim-world',
+  },
+  {
+    label: 'Fresh Fashion',
+    listingUrl: 'https://www.takealot.com/fresh-fashion',
+  },
+  {
+    label: 'Fashion Outlet',
+    listingUrl: 'https://www.takealot.com/fashion/outletstore',
+  },
+  {
+    label: 'Fashion',
+    listingUrl: 'https://www.takealot.com/fashion',
+  },
+  {
+    label: 'Women Fashion',
+    listingUrl: 'https://www.takealot.com/fashion/women',
+  },
+  {
+    label: 'Men Fashion',
+    listingUrl: 'https://www.takealot.com/fashion/men',
+  },
+  {
+    label: 'Kids Fashion',
+    listingUrl: 'https://www.takealot.com/fashion/kids',
+  },
+  {
+    label: 'New Watches',
+    listingUrl: 'https://www.takealot.com/fashion/watches-33009?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'New Jewellery',
+    listingUrl: 'https://www.takealot.com/fashion/jewellery-32909?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'New Footwear',
+    listingUrl: 'https://www.takealot.com/fashion/footwear-32868?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'New To Takealot Luggage',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-luggage&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Luggage and Travel',
+    listingUrl: 'https://www.takealot.com/luggage-travel',
+  },
+  {
+    label: 'Best Selling Suitcases',
+    listingUrl: 'https://www.takealot.com/luggage-travel/suitcases-25494?filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Business Bags',
+    listingUrl: 'https://www.takealot.com/luggage-travel/business-bags-25508?sort=Relevance',
+  },
+  {
+    label: 'Backpacks and Duffels',
+    listingUrl: 'https://www.takealot.com/luggage-travel/backpacks-and-duffels-25495?sort=Relevance',
+  },
+  {
+    label: 'Wallets and Purses',
+    listingUrl: 'https://www.takealot.com/luggage-travel/walletsandpurses',
+  },
 ] as const;
 
 function buildProductOfferParams(value: string): {
