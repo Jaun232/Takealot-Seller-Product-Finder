@@ -54,6 +54,14 @@ const TAKEALOT_SEARCH_ENDPOINT =
   'https://api.takealot.com/rest/v-1-16-0/searches/products,filters,facets,sort_options,breadcrumbs,slots_audience,context,seo,layout';
 const TAKEALOT_ORIGIN = 'https://www.takealot.com';
 const MAX_PAGES = 20;
+const BROWSER_LIKE_HEADERS = {
+  Accept: 'application/json',
+  'Accept-Language': 'en-ZA,en;q=0.9',
+  Origin: TAKEALOT_ORIGIN,
+  Referer: `${TAKEALOT_ORIGIN}/`,
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+};
 
 export async function fetchSellerCatalogue(
   sellerId: string,
@@ -66,6 +74,7 @@ export async function fetchSellerCatalogue(
 
   do {
     const url = new URL(TAKEALOT_SEARCH_ENDPOINT);
+    url.searchParams.set('sellers', sellerId);
     url.searchParams.set('filter', `Sellers:${sellerId}`);
     if (after) {
       url.searchParams.set('after', after);
@@ -73,8 +82,8 @@ export async function fetchSellerCatalogue(
 
     const response = await fetch(url, {
       headers: {
-        Accept: 'application/json',
-        Origin: TAKEALOT_ORIGIN,
+        ...BROWSER_LIKE_HEADERS,
+        Referer: `${TAKEALOT_ORIGIN}/seller?sellers=${encodeURIComponent(sellerId)}`,
       },
     });
 
