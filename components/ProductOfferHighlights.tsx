@@ -120,9 +120,14 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
               tone={sourcingAssessment.confidenceTone}
             />
             <ScorePill
-              label="Competition"
-              value={sourcingAssessment.competition}
-              tone={sourcingAssessment.competitionTone}
+              label="Market"
+              value={sourcingAssessment.marketCompetition}
+              tone={sourcingAssessment.marketTone}
+            />
+            <ScorePill
+              label="Seller Strength"
+              value={sourcingAssessment.sellerStrength}
+              tone={sourcingAssessment.sellerStrengthTone}
             />
             <ScorePill
               label="Listing Maturity"
@@ -325,6 +330,12 @@ function buildSourcingAssessment(summary: ProductOfferSummary) {
   const reasons: string[] = [];
   const caveats: string[] = [];
   let score = 50;
+  const visibleSellerNames = new Set(
+    [product.sellerName, ...offers.map((offer) => offer.sellerName)]
+      .map((value) => value?.trim().toLowerCase())
+      .filter((value): value is string => Boolean(value))
+  );
+  const visibleSellerCount = visibleSellerNames.size;
 
   if (typeof product.starRating === 'number') {
     if (product.starRating >= 4.5) {
@@ -365,25 +376,41 @@ function buildSourcingAssessment(summary: ProductOfferSummary) {
     ...offers.map((offer) => offer.sellerRating ?? 0)
   );
 
-  if (primarySellerReviewCount >= 1000) {
+  if (visibleSellerCount <= 1) {
+    score += 8;
+    reasons.push('Only one visible seller is surfaced on the listing right now.');
+  } else if (visibleSellerCount === 2) {
+    score += 2;
+    reasons.push('Only two visible sellers are surfaced, so competition still looks manageable.');
+  } else if (visibleSellerCount >= 4) {
     score -= 8;
-    caveats.push(
-      `Current seller competition is established with ${primarySellerReviewCount.toLocaleString('en-ZA')} seller reviews.`
-    );
-  } else if (primarySellerReviewCount >= 250) {
+    caveats.push(`Multiple sellers are already visible on this listing (${visibleSellerCount} surfaced).`);
+  } else if (visibleSellerCount === 3) {
+    score -= 3;
+    caveats.push('Several sellers are already visible on this listing.');
+  } else {
+    caveats.push('Visible seller count is unclear from the public Takealot payload.');
+  }
+
+  if (primarySellerReviewCount >= 1000) {
     score -= 4;
     caveats.push(
-      `Current seller appears experienced with ${primarySellerReviewCount.toLocaleString('en-ZA')} seller reviews.`
+      `The current seller is very established with ${primarySellerReviewCount.toLocaleString('en-ZA')} seller reviews.`
+    );
+  } else if (primarySellerReviewCount >= 250) {
+    score -= 2;
+    caveats.push(
+      `The current seller appears experienced with ${primarySellerReviewCount.toLocaleString('en-ZA')} seller reviews.`
     );
   } else if (primarySellerReviewCount > 0 && primarySellerReviewCount < 50) {
     score += 4;
-    reasons.push('Incumbent seller footprint looks lighter, which may be easier to challenge.');
+    reasons.push('The current seller footprint looks lighter, which may be easier to challenge.');
   }
 
   if (primarySellerRating >= 4.6) {
-    caveats.push(`Competing seller quality is high at ${primarySellerRating.toFixed(1)} stars.`);
+    caveats.push(`The current seller quality signal is high at ${primarySellerRating.toFixed(1)} stars.`);
   } else if (primarySellerRating > 0 && primarySellerRating < 4.1) {
-    reasons.push(`Competing seller quality is not dominant at ${primarySellerRating.toFixed(1)} stars.`);
+    reasons.push(`The current seller quality signal is not dominant at ${primarySellerRating.toFixed(1)} stars.`);
     score += 5;
   }
 
@@ -439,13 +466,24 @@ function buildSourcingAssessment(summary: ProductOfferSummary) {
         ? 'Medium'
         : 'Low';
 
-  const competition =
+  const marketCompetition =
+    visibleSellerCount <= 1
+      ? 'Single seller'
+      : visibleSellerCount === 2
+        ? '2 sellers visible'
+        : visibleSellerCount === 3
+          ? '3 sellers visible'
+          : visibleSellerCount > 3
+            ? 'Crowded listing'
+            : 'Unclear';
+
+  const sellerStrength =
     primarySellerReviewCount >= 1000
       ? 'Strong incumbent'
       : primarySellerReviewCount >= 250
-        ? 'Established'
+        ? 'Established seller'
         : primarySellerReviewCount > 0
-          ? 'Moderate'
+          ? 'Moderate seller'
           : 'Unclear';
 
   const listingMaturity =
@@ -460,7 +498,7 @@ function buildSourcingAssessment(summary: ProductOfferSummary) {
       ? 'This listing shows strong buyer response without looking impossible to challenge. It is a candidate for active sourcing work.'
       : opportunityLabel === 'Worth Investigating'
         ? 'The listing has enough positive demand and offer structure to justify supplier research, but you should still validate competition and landed cost.'
-        : opportunityLabel === 'Mixed Signals'
+      : opportunityLabel === 'Mixed Signals'
           ? 'There is some useful signal here, but not enough to treat it as a clear winner without more manual validation.'
           : 'This listing does not currently show the combination of demand, weak competition, and strong signals that would make it a top sourcing priority.';
 
@@ -475,14 +513,31 @@ function buildSourcingAssessment(summary: ProductOfferSummary) {
     opportunityLabel,
     summary: summaryText,
     confidence,
-    competition,
+    marketCompetition,
+    sellerStrength,
     listingMaturity,
     reasons: reasons.slice(0, 6),
     caveats: caveats.slice(0, 6),
     opportunityTone: boundedScore >= 75 ? 'good' : boundedScore >= 60 ? 'warn' : boundedScore >= 45 ? 'neutral' : 'bad',
     confidenceTone: confidence === 'High' ? 'good' : confidence === 'Medium' ? 'warn' : 'neutral',
-    competitionTone:
-      competition === 'Strong incumbent' ? 'bad' : competition === 'Established' ? 'warn' : competition === 'Moderate' ? 'neutral' : 'neutral',
+    marketTone:
+      marketCompetition === 'Single seller'
+        ? 'good'
+        : marketCompetition === '2 sellers visible'
+          ? 'warn'
+          : marketCompetition === '3 sellers visible'
+            ? 'neutral'
+            : marketCompetition === 'Crowded listing'
+              ? 'bad'
+              : 'neutral',
+    sellerStrengthTone:
+      sellerStrength === 'Strong incumbent'
+        ? 'bad'
+        : sellerStrength === 'Established seller'
+          ? 'warn'
+          : sellerStrength === 'Moderate seller'
+            ? 'neutral'
+            : 'neutral',
     listingTone: listingMaturity === 'Mature' ? 'good' : listingMaturity === 'Emerging' ? 'warn' : 'neutral',
   };
 }
