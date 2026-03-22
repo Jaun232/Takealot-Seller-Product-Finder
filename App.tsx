@@ -261,18 +261,18 @@ const App: React.FC = () => {
                 <h2 className="text-2xl font-semibold text-brand-light">Matching products</h2>
                 <p className="text-sm text-gray-400 mt-1">
                   Found {productResults.length} result{productResults.length === 1 ? '' : 's'} for
-                  {' '}“{lastProductQuery}”. Select a product to break down the buybox, fastest-delivery
-                  offer, and seller signals.
+                  {' '}“{lastProductQuery}”. Choose a listing to open its sourcing analysis, including
+                  buybox position, delivery speed, seller strength, ratings, and comparison links.
                 </p>
               </div>
               {selectedProductId && (
-                <p className="text-xs text-brand-cyan">Selected: {selectedProductId}</p>
+                <p className="text-xs text-brand-cyan">Ready to analyse: {selectedProductId}</p>
               )}
             </div>
             <ProductGrid
               products={productResults}
               onInspectProduct={handleInspectProduct}
-              inspectLabel="Break down offers"
+              inspectLabel="Open analysis"
               selectedProductId={selectedProductId}
             />
           </section>
@@ -292,10 +292,13 @@ const App: React.FC = () => {
     }
     return (
       <div className="mt-20 text-center text-gray-300">
-        <h2 className="text-2xl font-bold">Compare Takealot offers</h2>
+        <h2 className="text-2xl font-bold">Analyse Products Before You Source Them</h2>
         <p className="mt-2 text-sm text-gray-400">
-          Search for a product first, then select the exact listing you want to break down by Best Price,
-          Fastest Delivery, seller, and sourcing signals.
+          1. Search by product name, keyword, or Takealot URL.
+          <br />
+          2. Review the matching listings.
+          <br />
+          3. Open one product to see its sourcing assessment, buybox signals, seller quality, and external comparison links.
         </p>
       </div>
     );
@@ -347,7 +350,7 @@ const App: React.FC = () => {
               <div className="rounded-2xl border border-gray-700 bg-brand-dark shadow-2xl">
                 <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-gray-700 bg-brand-dark/95 px-5 py-4 backdrop-blur">
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-gray-500">Product Breakdown</p>
+                    <p className="text-xs uppercase tracking-wide text-gray-500">Product Analysis</p>
                     <h2 className="text-lg font-semibold text-brand-light">
                       {productOffers?.product.name ?? (selectedProductId ? `Selected: ${selectedProductId}` : 'Loading')}
                     </h2>
@@ -367,9 +370,9 @@ const App: React.FC = () => {
                       <div className="flex items-center gap-3 text-brand-light">
                         <Spinner />
                         <div>
-                          <p className="font-semibold">Loading product breakdown</p>
+                          <p className="font-semibold">Loading product analysis</p>
                           <p className="text-sm text-gray-400 mt-1">
-                            Pulling buybox, delivery, seller, and sourcing signals for the selected listing.
+                            Pulling buybox, delivery, seller, product-quality, and sourcing signals for the selected listing.
                           </p>
                         </div>
                       </div>

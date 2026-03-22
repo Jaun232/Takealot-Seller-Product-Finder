@@ -13,7 +13,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onInspect,
-  inspectLabel = 'Inspect product',
+  inspectLabel = 'Open analysis',
   isSelected = false,
 }) => {
   const formattedPrice = `${product.currency} ${product.price.toFixed(2)}`;

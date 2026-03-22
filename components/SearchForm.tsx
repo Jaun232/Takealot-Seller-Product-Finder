@@ -41,8 +41,9 @@ const SearchForm: React.FC<SearchFormProps> = ({
   const disableSubmit = isLoading || (isSellerMode ? !sellerId.trim() : !productDescription.trim());
   const placeholder = isSellerMode
     ? 'Seller ID (numeric, e.g., 25539226)'
-    : 'Search a product title or paste a full Takealot product URL';
+    : 'Search a product title, keyword, PLID URL, or full Takealot product URL';
   const label = isSellerMode ? 'Seller ID' : 'Product search';
+  const submitLabel = isSellerMode ? 'Load catalogue' : 'Find products';
 
   return (
     <form
@@ -57,7 +58,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
             isSellerMode ? 'bg-brand-cyan/20 text-brand-light' : 'bg-gray-900 text-gray-400'
           }`}
         >
-          Seller catalogue
+          Seller Lookup
         </button>
         <button
           type="button"
@@ -66,7 +67,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
             !isSellerMode ? 'bg-brand-cyan/20 text-brand-light' : 'bg-gray-900 text-gray-400'
           }`}
         >
-          Product details
+          Product Analysis
         </button>
       </div>
 
@@ -97,15 +98,15 @@ const SearchForm: React.FC<SearchFormProps> = ({
           ) : (
             <>
               <SearchIcon className="w-5 h-5 mr-2" />
-              Search
+              {submitLabel}
             </>
           )}
         </button>
       </div>
       <p className="text-xs text-gray-400">
         {isSellerMode
-          ? 'Search an entire seller catalogue by their Takealot seller ID.'
-          : 'Search Takealot products first, then select the exact listing to inspect its offer breakdown.'}
+          ? 'Enter a Takealot seller ID to load that seller’s catalogue, then filter and compare products.'
+          : 'Search Takealot products first, then open the exact listing you want to analyse for sourcing, competition, and buybox signals.'}
       </p>
     </form>
   );

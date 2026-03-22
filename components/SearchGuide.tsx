@@ -4,17 +4,20 @@ import React from 'react';
 const SearchGuide: React.FC = () => {
   return (
     <div className="mt-12 max-w-lg mx-auto bg-gray-800/50 p-6 rounded-lg border border-gray-700 text-gray-300">
-      <h3 className="text-xl font-bold text-brand-cyan mb-4">Having Trouble Finding Products?</h3>
-      <p className="mb-4">Here are a few tips to improve your search:</p>
+      <h3 className="text-xl font-bold text-brand-cyan mb-4">How To Use Seller Lookup</h3>
+      <p className="mb-4">Use seller mode when you want to inspect one seller’s full Takealot catalogue.</p>
       <ol className="list-decimal list-inside space-y-3">
         <li>
-          <strong>Find the Seller ID:</strong> On a Takealot product page, look for the "Sold by" section. Click on the seller's name. The URL of the page you land on will contain their numeric ID (e.g. <code>seller_id=25539226</code>). Copy the number after <code>seller_id=</code>.
+          <strong>Find the seller ID:</strong> Open any product sold by that seller, click the seller name, then copy the numeric ID from the seller URL.
         </li>
         <li>
-          <strong>Refresh the Seller Page:</strong> If the API still returns nothing, confirm the seller has public listings by loading their Takealot storefront directly.
+          <strong>Load the catalogue:</strong> Paste the seller ID into the search box and click <code>Load catalogue</code>.
         </li>
         <li>
-          <strong>Retry Later:</strong> Newly listed products can take a few minutes to propagate to the public API. Give it another shot if the catalogue recently changed.
+          <strong>Filter inside the results:</strong> Once the catalogue loads, use the filter box to narrow the products you want to inspect.
+        </li>
+        <li>
+          <strong>If nothing appears:</strong> Confirm the seller storefront is public and has active listings, then try again later if the catalogue recently changed.
         </li>
       </ol>
     </div>
