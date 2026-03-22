@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { withCors } from './_lib/http';
-import { fetchSellerCatalogue } from './_lib/takealot-client';
+import { withCors } from './_lib/http.js';
+import { fetchSellerCatalogue } from './_lib/takealot-client.js';
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
   withCors(response);

@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { Page } from 'playwright-core';
-import { getBrowser } from './_lib/browser';
-import { withCors } from './_lib/http';
+import { getBrowser } from './_lib/browser.js';
+import { withCors } from './_lib/http.js';
 
 const TAKEALOT_SEARCH_BASE = 'https://www.takealot.com/search?query=';
 const SEARCH_RESULTS_PER_PAGE = 24;

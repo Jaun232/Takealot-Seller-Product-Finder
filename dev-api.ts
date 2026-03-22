@@ -1,8 +1,8 @@
 import http from 'http';
 import url from 'url';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import sellerHandler from './api/seller-products';
-import productOffersHandler from './api/product-offers';
+import sellerHandler from './api/seller-products.js';
+import productOffersHandler from './api/product-offers.js';
 
 const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url ?? '', true);
