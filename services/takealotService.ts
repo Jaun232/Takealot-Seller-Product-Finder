@@ -12,6 +12,7 @@ interface SellerProductsResponse {
     nextAfter?: string | null;
     hasMore?: boolean;
     page?: number;
+    listingUrl?: string;
   };
 }
 
@@ -47,6 +48,25 @@ export async function fetchSellerProducts(sellerId: string, productName?: string
 export async function fetchProductSearchResults(query: string, after?: string): Promise<SellerProductsResponse> {
   const url = `${API_PREFIX}/product-search${buildQueryString({
     query: query.trim(),
+    after: after?.trim(),
+  })}`;
+
+  const response = await fetch(url, { headers: { Accept: 'application/json' } });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const data: SellerProductsResponse = await response.json();
+  return {
+    products: Array.isArray(data.products) ? data.products : [],
+    meta: data.meta,
+  };
+}
+
+export async function fetchListingProducts(listingUrl: string, after?: string): Promise<SellerProductsResponse> {
+  const url = `${API_PREFIX}/product-search${buildQueryString({
+    listingUrl: listingUrl.trim(),
     after: after?.trim(),
   })}`;
 

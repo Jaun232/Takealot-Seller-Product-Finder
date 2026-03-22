@@ -24,6 +24,8 @@ type ProductSearchResponse = {
   };
 };
 
+type SearchMode = 'query' | 'listing';
+
 type SearchResult = {
   type?: string;
   product_views?: {
@@ -69,24 +71,51 @@ export default async function handler(request: VercelRequest, response: VercelRe
 
   const rawQuery = Array.isArray(request.query.query) ? request.query.query[0] : request.query.query;
   const rawAfter = Array.isArray(request.query.after) ? request.query.after[0] : request.query.after;
+  const rawListingUrl = Array.isArray(request.query.listingUrl)
+    ? request.query.listingUrl[0]
+    : request.query.listingUrl;
   const query = typeof rawQuery === 'string' ? rawQuery.trim() : '';
   const after = typeof rawAfter === 'string' ? rawAfter.trim() : '';
+  const listingUrl = typeof rawListingUrl === 'string' ? rawListingUrl.trim() : '';
 
-  if (!query) {
-    return response.status(400).json({ error: 'query is required' });
+  if (!query && !listingUrl) {
+    return response.status(400).json({ error: 'query or listingUrl is required' });
   }
 
   try {
     const url = new URL(TAKEALOT_SEARCH_ENDPOINT);
-    url.searchParams.set('qsearch', query);
+    const searchMode: SearchMode = listingUrl ? 'listing' : 'query';
+    if (listingUrl) {
+      const listing = new URL(listingUrl);
+      for (const [key, value] of listing.searchParams.entries()) {
+        if (['qsearch', 'custom', 'filter', 'sort'].includes(key)) {
+          url.searchParams.set(key, value);
+        }
+      }
+
+      if (![...url.searchParams.keys()].some((key) => key === 'qsearch' || key === 'custom' || key === 'filter')) {
+        const derivedQuery = deriveQueryFromListingPath(listing.pathname);
+        if (!derivedQuery) {
+          throw new Error('Unable to derive search parameters from listing URL.');
+        }
+        url.searchParams.set('qsearch', derivedQuery);
+      }
+    } else {
+      url.searchParams.set('qsearch', query);
+    }
     if (after) {
       url.searchParams.set('after', after);
     }
 
+    const referer =
+      searchMode === 'listing'
+        ? listingUrl
+        : `${TAKEALOT_ORIGIN}/all?qsearch=${encodeURIComponent(query)}`;
+
     const upstream = await fetch(url, {
       headers: {
         ...API_HEADERS,
-        Referer: `${TAKEALOT_ORIGIN}/all?qsearch=${encodeURIComponent(query)}`,
+        Referer: referer,
       },
     });
 
@@ -103,10 +132,11 @@ export default async function handler(request: VercelRequest, response: VercelRe
     return response.status(200).json({
       products,
       meta: {
-        query,
+        query: query || listingUrl,
         total: products.length,
         source: 'public-api',
         nextAfter,
+        listingUrl: listingUrl || undefined,
       },
     });
   } catch (error) {
@@ -116,6 +146,25 @@ export default async function handler(request: VercelRequest, response: VercelRe
       details: error instanceof Error ? error.message : String(error),
     });
   }
+}
+
+function deriveQueryFromListingPath(pathname: string): string {
+  const slug = pathname
+    .split('/')
+    .filter(Boolean)
+    .pop()
+    ?.trim()
+    .toLowerCase();
+
+  if (!slug) {
+    return '';
+  }
+
+  return slug
+    .replace(/-\d+$/, '')
+    .replace(/--+/g, '-')
+    .replace(/-/g, ' ')
+    .trim();
 }
 
 function mapSearchResultToProduct(result: SearchResult): SearchProduct | null {

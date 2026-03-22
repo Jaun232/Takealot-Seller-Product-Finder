@@ -2,8 +2,8 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Product, ProductOfferSummary } from './types';
 import {
   fetchSellerProducts,
+  fetchListingProducts,
   fetchProductOffers,
-  fetchProductOpportunities,
   fetchProductSearchResults,
 } from './services/takealotService';
 import SearchForm, { SearchMode } from './components/SearchForm';
@@ -14,6 +14,24 @@ import ProductOfferHighlights from './components/ProductOfferHighlights';
 import { CloseIcon } from './components/icons/CloseIcon';
 
 const TAKEALOT_HOST_SNIPPET = 'takealot.com';
+const FEATURED_LISTS = [
+  {
+    label: 'New To Takealot Appliances',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-appliances&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Small Appliances',
+    listingUrl: 'https://www.takealot.com/home-kitchen/small--appliances',
+  },
+  {
+    label: 'Airfryers',
+    listingUrl: 'https://www.takealot.com/airfryers',
+  },
+  {
+    label: 'Top Rated Kettles',
+    listingUrl: 'https://www.takealot.com/home-kitchen/kettles-25790?sort=Rating%20Descending',
+  },
+] as const;
 
 function buildProductOfferParams(value: string): {
   description?: string;
@@ -63,8 +81,9 @@ const App: React.FC = () => {
 
   const [discoveryPages, setDiscoveryPages] = useState<Product[][]>([]);
   const [currentDiscoveryPage, setCurrentDiscoveryPage] = useState<number>(0);
-  const [nextDiscoveryPageToFetch, setNextDiscoveryPageToFetch] = useState<number>(0);
   const [hasMoreDiscoveryProducts, setHasMoreDiscoveryProducts] = useState<boolean>(false);
+  const [selectedFeaturedList, setSelectedFeaturedList] = useState<string | null>(null);
+  const [featuredListNextAfter, setFeaturedListNextAfter] = useState<string | null>(null);
 
   const [searchMode, setSearchMode] = useState<SearchMode>('seller');
 
@@ -93,6 +112,11 @@ const App: React.FC = () => {
       return;
     }
 
+    const selectedListingUrl = selectedFeaturedList ?? FEATURED_LISTS[0]?.listingUrl;
+    if (!selectedListingUrl) {
+      return;
+    }
+
     if (currentDiscoveryPage < discoveryPages.length - 1) {
       setCurrentDiscoveryPage((current) => current + 1);
       return;
@@ -102,18 +126,49 @@ const App: React.FC = () => {
     setProductDiscoveryError(null);
 
     try {
-      const featured = await fetchProductOpportunities(nextDiscoveryPageToFetch);
+      const featured = await fetchListingProducts(
+        selectedListingUrl,
+        currentDiscoveryPage === 0 && discoveryPages.length === 0 ? undefined : featuredListNextAfter ?? undefined
+      );
       setDiscoveryPages((current) => [...current, featured.products]);
       setCurrentDiscoveryPage(discoveryPages.length);
-      setHasMoreDiscoveryProducts(Boolean(featured.meta?.hasMore));
-      setNextDiscoveryPageToFetch((current) => current + 1);
+      setHasMoreDiscoveryProducts(Boolean(featured.meta?.nextAfter));
+      setFeaturedListNextAfter(featured.meta?.nextAfter ?? null);
     } catch (error) {
       console.error('Error loading product opportunities:', error);
       setProductDiscoveryError('Recommended products took too long to load. You can still search manually.');
     } finally {
       setIsLoadingProductDiscovery(false);
     }
-  }, [currentDiscoveryPage, discoveryPages.length, isLoadingProductDiscovery, nextDiscoveryPageToFetch]);
+  }, [currentDiscoveryPage, discoveryPages.length, featuredListNextAfter, isLoadingProductDiscovery, selectedFeaturedList]);
+
+  const handleSelectFeaturedList = useCallback(async (listingUrl: string) => {
+    setSelectedFeaturedList(listingUrl);
+    setDiscoveryPages([]);
+    setCurrentDiscoveryPage(0);
+    setHasMoreDiscoveryProducts(false);
+    setFeaturedListNextAfter(null);
+
+    if (isLoadingProductDiscovery) {
+      return;
+    }
+
+    setIsLoadingProductDiscovery(true);
+    setProductDiscoveryError(null);
+
+    try {
+      const featured = await fetchListingProducts(listingUrl);
+      setDiscoveryPages([featured.products]);
+      setCurrentDiscoveryPage(0);
+      setHasMoreDiscoveryProducts(Boolean(featured.meta?.nextAfter));
+      setFeaturedListNextAfter(featured.meta?.nextAfter ?? null);
+    } catch (error) {
+      console.error('Error loading featured list:', error);
+      setProductDiscoveryError('Unable to load that featured list right now.');
+    } finally {
+      setIsLoadingProductDiscovery(false);
+    }
+  }, [isLoadingProductDiscovery]);
 
   const handleSellerSearch = useCallback(async (sellerId: string) => {
     if (!sellerId) return;
@@ -269,7 +324,8 @@ const App: React.FC = () => {
       return;
     }
 
-    setCurrentDiscoveryPage((current) => current - 1);
+    const previousPage = currentDiscoveryPage - 1;
+    setCurrentDiscoveryPage(previousPage);
   }, [currentDiscoveryPage]);
 
   const filteredProducts = useMemo(() => {
@@ -490,28 +546,50 @@ const App: React.FC = () => {
         </section>
 
         <section className="rounded-lg border border-gray-700 bg-gray-800/40 p-5 text-gray-300 sm:p-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-brand-light">Recommended products</h3>
+              <h3 className="text-lg font-semibold text-brand-light">Featured source lists</h3>
               <p className="mt-1 text-sm text-gray-400">
-                Load a shortlist of products with stronger public signals, or skip it and search manually right away.
+                Start from one of these curated listing pages, then page forward with the arrows.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={handleLoadDiscoveryProducts}
-              disabled={isLoadingProductDiscovery}
-              className="inline-flex items-center justify-center rounded-md border border-brand-cyan/60 px-4 py-2 text-sm font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
-            >
-              {isLoadingProductDiscovery ? (
-                <>
-                  <Spinner />
-                  <span className="ml-3">Loading shortlist</span>
-                </>
-              ) : (
-                'Load shortlist'
-              )}
-            </button>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {FEATURED_LISTS.map((item) => {
+                const isActive = (selectedFeaturedList ?? FEATURED_LISTS[0]?.listingUrl ?? null) === item.listingUrl;
+                return (
+                  <button
+                    key={item.listingUrl}
+                    type="button"
+                    onClick={() => void handleSelectFeaturedList(item.listingUrl)}
+                    disabled={isLoadingProductDiscovery && isActive}
+                    className={`rounded-md border px-4 py-3 text-left text-sm font-semibold transition-colors ${
+                      isActive
+                        ? 'border-brand-cyan bg-brand-cyan/20 text-brand-light'
+                        : 'border-gray-700 bg-gray-800/70 text-gray-300 hover:border-brand-cyan/50 hover:bg-gray-800'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+            {!selectedFeaturedList && (
+              <button
+                type="button"
+                onClick={() => void handleSelectFeaturedList(FEATURED_LISTS[0].listingUrl)}
+                disabled={isLoadingProductDiscovery}
+                className="inline-flex items-center justify-center rounded-md border border-brand-cyan/60 px-4 py-2 text-sm font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
+              >
+                {isLoadingProductDiscovery ? (
+                  <>
+                    <Spinner />
+                    <span className="ml-3">Loading list</span>
+                  </>
+                ) : (
+                  'Load first featured list'
+                )}
+              </button>
+            )}
           </div>
           {productDiscoveryError && (
             <p className="mt-4 rounded-md border border-amber-700/60 bg-amber-900/20 px-3 py-2 text-sm text-amber-200">
