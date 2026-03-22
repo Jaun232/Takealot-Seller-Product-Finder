@@ -51,6 +51,19 @@ export type ProductOfferResponse = {
     sellerLink?: string | null;
     sellerRating?: number | null;
     sellerReviewCount?: number | null;
+    variants: Array<{
+      label: string;
+      type: string;
+      selected?: string | null;
+      options: Array<{
+        name: string;
+        value: string;
+        isSelected: boolean;
+        isEnabled: boolean;
+        imageUrl?: string | null;
+        productUrl?: string | null;
+      }>;
+    }>;
     bulletHighlights: string[];
     insights: Array<{ label: string; value: string }>;
   };
