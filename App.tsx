@@ -1,6 +1,11 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Product, ProductOfferSummary } from './types';
-import { fetchSellerProducts, fetchProductOffers, fetchProductOpportunities, fetchProductSearchResults } from './services/takealotService';
+import {
+  fetchSellerProducts,
+  fetchProductOffers,
+  fetchProductOpportunities,
+  fetchProductSearchResults,
+} from './services/takealotService';
 import SearchForm, { SearchMode } from './components/SearchForm';
 import ProductGrid from './components/ProductGrid';
 import Spinner from './components/Spinner';
@@ -51,9 +56,11 @@ const App: React.FC = () => {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [lastProductQuery, setLastProductQuery] = useState<string>('');
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
+
   const [productResultPages, setProductResultPages] = useState<Product[][]>([]);
   const [productResultsNextAfter, setProductResultsNextAfter] = useState<string | null>(null);
   const [currentProductResultsPage, setCurrentProductResultsPage] = useState<number>(0);
+
   const [discoveryPages, setDiscoveryPages] = useState<Product[][]>([]);
   const [currentDiscoveryPage, setCurrentDiscoveryPage] = useState<number>(0);
   const [nextDiscoveryPageToFetch, setNextDiscoveryPageToFetch] = useState<number>(0);
@@ -160,6 +167,7 @@ const App: React.FC = () => {
         setProductOffers(summary);
         setSelectedProductId(summary.product.id);
         setIsProductModalOpen(true);
+
         const directResult = [
           {
             id: summary.product.id,
@@ -172,6 +180,7 @@ const App: React.FC = () => {
             sellerId: '',
           },
         ];
+
         setProductResults(directResult);
         setProductResultPages([directResult]);
       } else {
@@ -210,7 +219,7 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleLoadMoreProductResults = useCallback(async () => {
+  const handleNextProductResultsPage = useCallback(async () => {
     if (currentProductResultsPage < productResultPages.length - 1) {
       const nextPage = currentProductResultsPage + 1;
       setCurrentProductResultsPage(nextPage);
@@ -249,6 +258,7 @@ const App: React.FC = () => {
     if (currentProductResultsPage === 0) {
       return;
     }
+
     const previousPage = currentProductResultsPage - 1;
     setCurrentProductResultsPage(previousPage);
     setProductResults(productResultPages[previousPage]);
@@ -258,6 +268,7 @@ const App: React.FC = () => {
     if (currentDiscoveryPage === 0) {
       return;
     }
+
     setCurrentDiscoveryPage((current) => current - 1);
   }, [currentDiscoveryPage]);
 
@@ -288,7 +299,7 @@ const App: React.FC = () => {
         disabled={!options.hasPrevious}
         className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-cyan/60 text-lg font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
       >
-        ←
+        {'<'}
       </button>
       <div className="rounded-full border border-gray-700 bg-gray-800/80 px-4 py-2 text-sm font-semibold text-brand-light">
         Page {options.currentPage}
@@ -299,7 +310,7 @@ const App: React.FC = () => {
         disabled={!options.hasNext || options.isLoadingNext}
         className="inline-flex h-10 min-w-10 items-center justify-center rounded-full border border-brand-cyan/60 px-3 text-lg font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
       >
-        {options.isLoadingNext ? <Spinner /> : '→'}
+        {options.isLoadingNext ? <Spinner /> : '>'}
       </button>
     </div>
   );
@@ -405,15 +416,18 @@ const App: React.FC = () => {
               renderPager({
                 currentPage: currentProductResultsPage + 1,
                 onPrevious: handlePreviousProductResultsPage,
-                onNext: handleLoadMoreProductResults,
+                onNext: handleNextProductResultsPage,
                 hasPrevious: currentProductResultsPage > 0,
-                hasNext: currentProductResultsPage < productResultPages.length - 1 || Boolean(productResultsNextAfter),
+                hasNext:
+                  currentProductResultsPage < productResultPages.length - 1 ||
+                  Boolean(productResultsNextAfter),
                 isLoadingNext: isLoadingMoreProductResults,
               })}
           </section>
         </div>
       );
     }
+
     const discoveryProducts = discoveryPages[currentDiscoveryPage] ?? [];
     if (discoveryProducts.length > 0) {
       return (
@@ -449,6 +463,7 @@ const App: React.FC = () => {
         </div>
       );
     }
+
     if (hasSearchedOffers) {
       return (
         <div className="mx-auto mt-12 max-w-xl text-center text-gray-300">
@@ -460,6 +475,7 @@ const App: React.FC = () => {
         </div>
       );
     }
+
     return (
       <div className="space-y-6">
         <section className="rounded-lg border border-gray-700 bg-gray-800/60 p-5 text-center text-gray-300 sm:p-6">

@@ -33,6 +33,9 @@ type SearchResponse = {
   sections?: {
     products?: {
       results?: SearchResult[];
+      paging?: {
+        next_is_after?: string | null;
+      };
     };
   };
 };
@@ -77,6 +80,8 @@ type DiscoveryResponse = {
     total: number;
     source: string;
     generatedAt: string;
+    page: number;
+    hasMore: boolean;
   };
 };
 
@@ -100,8 +105,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
   }
 
   try {
-    const products = await buildDiscoveryFeed(page);
-    const hasMore = products.length === TARGET_RESULTS;
+    const { products, hasMore } = await buildDiscoveryFeed(page);
     const payload: DiscoveryResponse = {
       products,
       meta: {
@@ -125,20 +129,22 @@ export default async function handler(request: VercelRequest, response: VercelRe
   }
 }
 
-async function buildDiscoveryFeed(page: number): Promise<DiscoveryProduct[]> {
+async function buildDiscoveryFeed(page: number): Promise<{ products: DiscoveryProduct[]; hasMore: boolean }> {
   const searchPages = await Promise.all(
     DISCOVERY_QUERY_SEEDS.map(async (query) => ({
       query,
-      results: await searchProducts(query),
+      ...await searchProducts(query, page),
     }))
   );
 
   const candidates = new Map<string, Omit<DiscoveryProduct, 'opportunityScore'>>();
-
-  const sliceStart = page * RESULTS_PER_QUERY_SLICE;
-  const sliceEnd = sliceStart + RESULTS_PER_QUERY_SLICE;
+  let hasMore = false;
   for (const searchPage of searchPages) {
-    for (const product of searchPage.results.slice(sliceStart, sliceEnd)) {
+    if (searchPage.hasMore) {
+      hasMore = true;
+    }
+
+    for (const product of searchPage.results.slice(0, RESULTS_PER_QUERY_SLICE)) {
       if (!candidates.has(product.id)) {
         candidates.set(product.id, {
           ...product,
@@ -163,31 +169,61 @@ async function buildDiscoveryFeed(page: number): Promise<DiscoveryProduct[]> {
     })
   );
 
-  return detailedProducts
+  const products = detailedProducts
     .filter((product): product is DiscoveryProduct => Boolean(product))
     .sort((left, right) => right.opportunityScore - left.opportunityScore)
     .slice(0, TARGET_RESULTS);
+
+  return {
+    products,
+    hasMore,
+  };
 }
 
-async function searchProducts(query: string): Promise<Array<Omit<DiscoveryProduct, 'opportunityScore' | 'sourceQuery'>>> {
-  const url = new URL(TAKEALOT_SEARCH_ENDPOINT);
-  url.searchParams.set('qsearch', query);
+async function searchProducts(
+  query: string,
+  page: number
+): Promise<{
+  results: Array<Omit<DiscoveryProduct, 'opportunityScore' | 'sourceQuery'>>;
+  hasMore: boolean;
+}> {
+  let after: string | null = null;
+  let payload: SearchResponse | null = null;
 
-  const response = await fetch(url, {
-    headers: {
-      ...API_HEADERS,
-      Referer: `${TAKEALOT_ORIGIN}/all?qsearch=${encodeURIComponent(query)}`,
-    },
-  });
+  for (let currentPage = 0; currentPage <= page; currentPage += 1) {
+    const url = new URL(TAKEALOT_SEARCH_ENDPOINT);
+    url.searchParams.set('qsearch', query);
+    if (after) {
+      url.searchParams.set('after', after);
+    }
 
-  if (!response.ok) {
-    throw new Error(`Takealot discovery search failed with status ${response.status}`);
+    const response = await fetch(url, {
+      headers: {
+        ...API_HEADERS,
+        Referer: `${TAKEALOT_ORIGIN}/all?qsearch=${encodeURIComponent(query)}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Takealot discovery search failed with status ${response.status}`);
+    }
+
+    payload = (await response.json()) as SearchResponse;
+    after = payload.sections?.products?.paging?.next_is_after?.trim() || null;
+
+    if (!after && currentPage < page) {
+      return { results: [], hasMore: false };
+    }
   }
 
-  const payload = (await response.json()) as SearchResponse;
-  return (payload.sections?.products?.results ?? [])
+  const results = ((payload?.sections?.products?.results) ?? [])
     .map(mapSearchResultToProduct)
     .filter((product): product is Omit<DiscoveryProduct, 'opportunityScore' | 'sourceQuery'> => Boolean(product));
+
+  return {
+    results,
+    hasMore: Boolean(after),
+  };
 }
 
 function mapSearchResultToProduct(result: SearchResult): Omit<DiscoveryProduct, 'opportunityScore' | 'sourceQuery'> | null {
