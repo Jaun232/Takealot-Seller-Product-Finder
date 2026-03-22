@@ -200,6 +200,30 @@ const App: React.FC = () => {
     });
   }, [catalogQuery, products]);
 
+  const renderMoreProductsCta = (options: {
+    label: string;
+    onClick: () => void;
+    isLoading?: boolean;
+  }) => (
+    <div className="mt-8 flex justify-center">
+      <button
+        type="button"
+        onClick={options.onClick}
+        disabled={options.isLoading}
+        className="inline-flex items-center justify-center rounded-full border border-brand-cyan/60 px-5 py-3 text-sm font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
+      >
+        {options.isLoading ? (
+          <>
+            <Spinner />
+            <span className="ml-3">Loading more products...</span>
+          </>
+        ) : (
+          options.label
+        )}
+      </button>
+    </div>
+  );
+
   const renderSellerContent = () => {
     if (isSearchingProducts) {
       return (
@@ -297,6 +321,12 @@ const App: React.FC = () => {
               inspectLabel="Open analysis"
               selectedProductId={selectedProductId}
             />
+            {renderMoreProductsCta({
+              label: 'Click to see more products...',
+              onClick: () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              },
+            })}
           </section>
         </div>
       );
@@ -322,6 +352,11 @@ const App: React.FC = () => {
               inspectLabel="Open analysis"
               selectedProductId={selectedProductId}
             />
+            {renderMoreProductsCta({
+              label: 'Click to see more products...',
+              onClick: handleLoadDiscoveryProducts,
+              isLoading: isLoadingProductDiscovery,
+            })}
           </section>
         </div>
       );
