@@ -170,6 +170,16 @@ const App: React.FC = () => {
     }
   }, [isLoadingProductDiscovery]);
 
+  const handleClearFeaturedList = useCallback(() => {
+    setSelectedFeaturedList(null);
+    setDiscoveryPages([]);
+    setCurrentDiscoveryPage(0);
+    setHasMoreDiscoveryProducts(false);
+    setFeaturedListNextAfter(null);
+    setProductDiscoveryError(null);
+    setSelectedProductId(null);
+  }, []);
+
   const handleSellerSearch = useCallback(async (sellerId: string) => {
     if (!sellerId) return;
 
@@ -486,6 +496,7 @@ const App: React.FC = () => {
 
     const discoveryProducts = discoveryPages[currentDiscoveryPage] ?? [];
     if (discoveryProducts.length > 0) {
+      const activeFeaturedList = FEATURED_LISTS.find((item) => item.listingUrl === selectedFeaturedList);
       return (
         <div className="space-y-8">
           <section className="rounded-lg border border-gray-700 bg-gray-800/60 p-4 sm:p-6">
@@ -493,12 +504,21 @@ const App: React.FC = () => {
               <div>
                 <h2 className="text-2xl font-semibold text-brand-light">Recommended products to review</h2>
                 <p className="mt-1 text-sm text-gray-400">
-                  This shortlist surfaces 20 products with comparatively stronger public signals across
-                  rating, review depth, seller strength, and buybox structure. Open any product to inspect
-                  its full sourcing analysis.
+                  {activeFeaturedList
+                    ? `Browsing ${activeFeaturedList.label}. Open any product to inspect its sourcing analysis.`
+                    : 'This shortlist surfaces 20 products with comparatively stronger public signals across rating, review depth, seller strength, and buybox structure. Open any product to inspect its full sourcing analysis.'}
                 </p>
               </div>
-              <p className="text-xs text-brand-cyan">Shortlist page {currentDiscoveryPage + 1}</p>
+              <div className="flex items-center gap-3">
+                <p className="text-xs text-brand-cyan">Page {currentDiscoveryPage + 1}</p>
+                <button
+                  type="button"
+                  onClick={handleClearFeaturedList}
+                  className="inline-flex items-center rounded-md border border-gray-600 px-3 py-2 text-xs font-semibold text-gray-200 transition-colors hover:border-brand-cyan/60 hover:text-brand-light"
+                >
+                  Back to front page
+                </button>
+              </div>
             </div>
             <ProductGrid
               products={discoveryProducts}
@@ -555,7 +575,7 @@ const App: React.FC = () => {
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {FEATURED_LISTS.map((item) => {
-                const isActive = (selectedFeaturedList ?? FEATURED_LISTS[0]?.listingUrl ?? null) === item.listingUrl;
+                const isActive = selectedFeaturedList === item.listingUrl;
                 return (
                   <button
                     key={item.listingUrl}
@@ -573,23 +593,6 @@ const App: React.FC = () => {
                 );
               })}
             </div>
-            {!selectedFeaturedList && (
-              <button
-                type="button"
-                onClick={() => void handleSelectFeaturedList(FEATURED_LISTS[0].listingUrl)}
-                disabled={isLoadingProductDiscovery}
-                className="inline-flex items-center justify-center rounded-md border border-brand-cyan/60 px-4 py-2 text-sm font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
-              >
-                {isLoadingProductDiscovery ? (
-                  <>
-                    <Spinner />
-                    <span className="ml-3">Loading list</span>
-                  </>
-                ) : (
-                  'Load first featured list'
-                )}
-              </button>
-            )}
           </div>
           {productDiscoveryError && (
             <p className="mt-4 rounded-md border border-amber-700/60 bg-amber-900/20 px-3 py-2 text-sm text-amber-200">
