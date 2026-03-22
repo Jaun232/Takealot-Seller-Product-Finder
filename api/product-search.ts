@@ -17,6 +17,9 @@ type ProductSearchResponse = {
   sections?: {
     products?: {
       results?: SearchResult[];
+      paging?: {
+        next_is_after?: string | null;
+      };
     };
   };
 };
@@ -65,7 +68,9 @@ export default async function handler(request: VercelRequest, response: VercelRe
   }
 
   const rawQuery = Array.isArray(request.query.query) ? request.query.query[0] : request.query.query;
+  const rawAfter = Array.isArray(request.query.after) ? request.query.after[0] : request.query.after;
   const query = typeof rawQuery === 'string' ? rawQuery.trim() : '';
+  const after = typeof rawAfter === 'string' ? rawAfter.trim() : '';
 
   if (!query) {
     return response.status(400).json({ error: 'query is required' });
@@ -74,6 +79,9 @@ export default async function handler(request: VercelRequest, response: VercelRe
   try {
     const url = new URL(TAKEALOT_SEARCH_ENDPOINT);
     url.searchParams.set('qsearch', query);
+    if (after) {
+      url.searchParams.set('after', after);
+    }
 
     const upstream = await fetch(url, {
       headers: {
@@ -90,6 +98,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
     const products = (payload.sections?.products?.results ?? [])
       .map(mapSearchResultToProduct)
       .filter((product): product is SearchProduct => Boolean(product));
+    const nextAfter = payload.sections?.products?.paging?.next_is_after?.trim() || null;
 
     return response.status(200).json({
       products,
@@ -97,6 +106,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
         query,
         total: products.length,
         source: 'public-api',
+        nextAfter,
       },
     });
   } catch (error) {

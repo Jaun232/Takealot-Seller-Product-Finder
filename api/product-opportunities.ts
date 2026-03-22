@@ -23,12 +23,11 @@ const DISCOVERY_QUERY_SEEDS = [
   'resistance bands',
   'air fryer accessories',
 ];
-const MAX_RESULTS_PER_QUERY = 4;
+const RESULTS_PER_QUERY_SLICE = 4;
 const TARGET_RESULTS = 20;
 const DISCOVERY_CACHE_TTL_MS = 10 * 60_000;
 
-let cachedResponse: DiscoveryResponse | null = null;
-let cacheExpiresAt = 0;
+const discoveryCache = new Map<number, { payload: DiscoveryResponse; expiresAt: number }>();
 
 type SearchResponse = {
   sections?: {
@@ -92,23 +91,29 @@ export default async function handler(request: VercelRequest, response: VercelRe
     return response.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (cachedResponse && cacheExpiresAt > Date.now()) {
-    return response.status(200).json(cachedResponse);
+  const rawPage = Array.isArray(request.query.page) ? request.query.page[0] : request.query.page;
+  const page = Math.max(0, Number.parseInt(typeof rawPage === 'string' ? rawPage : '0', 10) || 0);
+
+  const cached = discoveryCache.get(page);
+  if (cached && cached.expiresAt > Date.now()) {
+    return response.status(200).json(cached.payload);
   }
 
   try {
-    const products = await buildDiscoveryFeed();
+    const products = await buildDiscoveryFeed(page);
+    const hasMore = products.length === TARGET_RESULTS;
     const payload: DiscoveryResponse = {
       products,
       meta: {
         total: products.length,
         source: 'public-api',
         generatedAt: new Date().toISOString(),
+        page,
+        hasMore,
       },
     };
 
-    cachedResponse = payload;
-    cacheExpiresAt = Date.now() + DISCOVERY_CACHE_TTL_MS;
+    discoveryCache.set(page, { payload, expiresAt: Date.now() + DISCOVERY_CACHE_TTL_MS });
 
     return response.status(200).json(payload);
   } catch (error) {
@@ -120,7 +125,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
   }
 }
 
-async function buildDiscoveryFeed(): Promise<DiscoveryProduct[]> {
+async function buildDiscoveryFeed(page: number): Promise<DiscoveryProduct[]> {
   const searchPages = await Promise.all(
     DISCOVERY_QUERY_SEEDS.map(async (query) => ({
       query,
@@ -130,12 +135,14 @@ async function buildDiscoveryFeed(): Promise<DiscoveryProduct[]> {
 
   const candidates = new Map<string, Omit<DiscoveryProduct, 'opportunityScore'>>();
 
-  for (const page of searchPages) {
-    for (const product of page.results.slice(0, MAX_RESULTS_PER_QUERY)) {
+  const sliceStart = page * RESULTS_PER_QUERY_SLICE;
+  const sliceEnd = sliceStart + RESULTS_PER_QUERY_SLICE;
+  for (const searchPage of searchPages) {
+    for (const product of searchPage.results.slice(sliceStart, sliceEnd)) {
       if (!candidates.has(product.id)) {
         candidates.set(product.id, {
           ...product,
-          sourceQuery: page.query,
+          sourceQuery: searchPage.query,
         });
       }
     }

@@ -46,11 +46,15 @@ const App: React.FC = () => {
   const [isSearchingProductResults, setIsSearchingProductResults] = useState<boolean>(false);
   const [isLoadingSelectedProduct, setIsLoadingSelectedProduct] = useState<boolean>(false);
   const [isLoadingProductDiscovery, setIsLoadingProductDiscovery] = useState<boolean>(false);
+  const [isLoadingMoreProductResults, setIsLoadingMoreProductResults] = useState<boolean>(false);
   const [hasSearchedOffers, setHasSearchedOffers] = useState<boolean>(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [lastProductQuery, setLastProductQuery] = useState<string>('');
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
   const [discoveryProducts, setDiscoveryProducts] = useState<Product[]>([]);
+  const [productResultsNextAfter, setProductResultsNextAfter] = useState<string | null>(null);
+  const [discoveryPage, setDiscoveryPage] = useState<number>(0);
+  const [hasMoreDiscoveryProducts, setHasMoreDiscoveryProducts] = useState<boolean>(false);
 
   const [searchMode, setSearchMode] = useState<SearchMode>('seller');
 
@@ -83,8 +87,12 @@ const App: React.FC = () => {
     setProductDiscoveryError(null);
 
     try {
-      const featured = await fetchProductOpportunities();
-      setDiscoveryProducts(featured);
+      const featured = await fetchProductOpportunities(discoveryPage);
+      setDiscoveryProducts((current) =>
+        discoveryPage === 0 ? featured.products : [...current, ...featured.products]
+      );
+      setHasMoreDiscoveryProducts(Boolean(featured.meta?.hasMore));
+      setDiscoveryPage((current) => current + 1);
     } catch (error) {
       console.error('Error loading product opportunities:', error);
       setProductDiscoveryError('Recommended products took too long to load. You can still search manually.');
@@ -135,6 +143,7 @@ const App: React.FC = () => {
     setProductOffers(null);
     setProductOfferError(null);
     setProductResultsError(null);
+    setProductResultsNextAfter(null);
 
     try {
       if (params.productUrl) {
@@ -156,10 +165,11 @@ const App: React.FC = () => {
         ]);
       } else {
         const results = await fetchProductSearchResults(params.description ?? '');
-        if (results.length === 0) {
+        if (results.products.length === 0) {
           setProductResultsError('No products matched that search. Try a more specific product name.');
         } else {
-          setProductResults(results);
+          setProductResults(results.products);
+          setProductResultsNextAfter(results.meta?.nextAfter ?? null);
         }
       }
     } catch (error) {
@@ -187,6 +197,26 @@ const App: React.FC = () => {
       setIsLoadingSelectedProduct(false);
     }
   }, []);
+
+  const handleLoadMoreProductResults = useCallback(async () => {
+    if (!lastProductQuery || !productResultsNextAfter || isLoadingMoreProductResults) {
+      return;
+    }
+
+    setIsLoadingMoreProductResults(true);
+    setProductResultsError(null);
+
+    try {
+      const results = await fetchProductSearchResults(lastProductQuery, productResultsNextAfter);
+      setProductResults((current) => [...current, ...results.products]);
+      setProductResultsNextAfter(results.meta?.nextAfter ?? null);
+    } catch (error) {
+      console.error('Error loading more product results:', error);
+      setProductResultsError('Unable to load more products right now.');
+    } finally {
+      setIsLoadingMoreProductResults(false);
+    }
+  }, [isLoadingMoreProductResults, lastProductQuery, productResultsNextAfter]);
 
   const filteredProducts = useMemo(() => {
     if (!catalogQuery.trim()) return products;
@@ -321,12 +351,12 @@ const App: React.FC = () => {
               inspectLabel="Open analysis"
               selectedProductId={selectedProductId}
             />
-            {renderMoreProductsCta({
-              label: 'Click to see more products...',
-              onClick: () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              },
-            })}
+            {productResultsNextAfter &&
+              renderMoreProductsCta({
+                label: 'Click to see more products...',
+                onClick: handleLoadMoreProductResults,
+                isLoading: isLoadingMoreProductResults,
+              })}
           </section>
         </div>
       );
@@ -352,11 +382,12 @@ const App: React.FC = () => {
               inspectLabel="Open analysis"
               selectedProductId={selectedProductId}
             />
-            {renderMoreProductsCta({
-              label: 'Click to see more products...',
-              onClick: handleLoadDiscoveryProducts,
-              isLoading: isLoadingProductDiscovery,
-            })}
+            {hasMoreDiscoveryProducts &&
+              renderMoreProductsCta({
+                label: 'Click to see more products...',
+                onClick: handleLoadDiscoveryProducts,
+                isLoading: isLoadingProductDiscovery,
+              })}
           </section>
         </div>
       );

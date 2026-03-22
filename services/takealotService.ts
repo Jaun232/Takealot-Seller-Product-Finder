@@ -9,6 +9,9 @@ interface SellerProductsResponse {
     total?: number;
     sellerId?: string;
     query?: string;
+    nextAfter?: string | null;
+    hasMore?: boolean;
+    page?: number;
   };
 }
 
@@ -41,9 +44,10 @@ export async function fetchSellerProducts(sellerId: string, productName?: string
   return Array.isArray(data.products) ? data.products : [];
 }
 
-export async function fetchProductSearchResults(query: string): Promise<Product[]> {
+export async function fetchProductSearchResults(query: string, after?: string): Promise<SellerProductsResponse> {
   const url = `${API_PREFIX}/product-search${buildQueryString({
     query: query.trim(),
+    after: after?.trim(),
   })}`;
 
   const response = await fetch(url, { headers: { Accept: 'application/json' } });
@@ -53,11 +57,14 @@ export async function fetchProductSearchResults(query: string): Promise<Product[
   }
 
   const data: SellerProductsResponse = await response.json();
-  return Array.isArray(data.products) ? data.products : [];
+  return {
+    products: Array.isArray(data.products) ? data.products : [],
+    meta: data.meta,
+  };
 }
 
-export async function fetchProductOpportunities(): Promise<Product[]> {
-  const url = `${API_PREFIX}/product-opportunities`;
+export async function fetchProductOpportunities(page = 0): Promise<SellerProductsResponse> {
+  const url = `${API_PREFIX}/product-opportunities${buildQueryString({ page })}`;
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), DISCOVERY_REQUEST_TIMEOUT_MS);
 
@@ -72,7 +79,10 @@ export async function fetchProductOpportunities(): Promise<Product[]> {
     }
 
     const data: SellerProductsResponse = await response.json();
-    return Array.isArray(data.products) ? data.products : [];
+    return {
+      products: Array.isArray(data.products) ? data.products : [],
+      meta: data.meta,
+    };
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw new Error('Product shortlist request timed out.');
