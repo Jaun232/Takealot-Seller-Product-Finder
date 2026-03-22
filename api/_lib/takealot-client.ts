@@ -158,7 +158,7 @@ function mapSearchResultToProduct(result: SearchResult, sellerId: string): Selle
 }
 
 function normalizeImageUrl(value: string): string {
-  return value.replace('{size}', '400');
+  return value.replace('{size}', 'list');
 }
 
 function parseCurrency(priceText?: string | null): string | null {
