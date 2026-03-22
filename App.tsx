@@ -648,6 +648,24 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const handleInspectVariant = useCallback(async (productUrl: string) => {
+    setIsLoadingSelectedProduct(true);
+    setProductOfferError(null);
+    setProductOffers(null);
+    setIsProductModalOpen(true);
+
+    try {
+      const summary = await fetchProductOffers({ productUrl });
+      setSelectedProductId(summary.product.id);
+      setProductOffers(summary);
+    } catch (error) {
+      console.error('Error fetching selected product variant offers:', error);
+      setProductOfferError("Unable to load the selected variation's offer breakdown.");
+    } finally {
+      setIsLoadingSelectedProduct(false);
+    }
+  }, []);
+
   const handleNextProductResultsPage = useCallback(async () => {
     if (currentProductResultsPage < productResultPages.length - 1) {
       const nextPage = currentProductResultsPage + 1;
@@ -1059,7 +1077,11 @@ const App: React.FC = () => {
                   )}
 
                   {productOffers && productOffers.offers.length > 0 && !isLoadingSelectedProduct && (
-                    <ProductOfferHighlights summary={productOffers} />
+                    <ProductOfferHighlights
+                      summary={productOffers}
+                      onSelectVariant={(productUrl) => void handleInspectVariant(productUrl)}
+                      isLoadingVariant={isLoadingSelectedProduct}
+                    />
                   )}
 
                   {productOffers && productOffers.offers.length === 0 && !isLoadingSelectedProduct && (

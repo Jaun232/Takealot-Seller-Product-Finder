@@ -4,9 +4,15 @@ import ProductComparisonLinks from './ProductComparisonLinks';
 
 interface ProductOfferHighlightsProps {
   summary: ProductOfferSummary;
+  onSelectVariant?: (productUrl: string) => void | Promise<void>;
+  isLoadingVariant?: boolean;
 }
 
-const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary }) => {
+const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
+  summary,
+  onSelectVariant,
+  isLoadingVariant = false,
+}) => {
   const { product, offers, message, meta } = summary;
   const sourcingAssessment = buildSourcingAssessment(summary);
 
@@ -209,6 +215,20 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
                           : 'border-gray-700 bg-gray-900 text-gray-500'
                     }`;
 
+                    if (option.productUrl && option.isEnabled && onSelectVariant) {
+                      return (
+                        <button
+                          key={`${variant.type}-${option.value}`}
+                          type="button"
+                          onClick={() => onSelectVariant(option.productUrl!)}
+                          disabled={isLoadingVariant}
+                          className={className}
+                        >
+                          {content}
+                        </button>
+                      );
+                    }
+
                     if (option.productUrl && option.isEnabled) {
                       return (
                         <a
@@ -236,6 +256,11 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
               </div>
             ))}
           </div>
+          {onSelectVariant && (
+            <p className="mt-3 text-xs text-gray-400">
+              Click a variation to load its own buybox, seller, pricing, and sourcing analysis.
+            </p>
+          )}
         </div>
       )}
 
