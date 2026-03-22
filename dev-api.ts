@@ -1,12 +1,11 @@
 import http from 'http';
-import url from 'url';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import productSearchHandler from './api/product-search.js';
 import sellerHandler from './api/seller-products.js';
 import productOffersHandler from './api/product-offers.js';
 
 const server = http.createServer(async (req, res) => {
-  const parsedUrl = url.parse(req.url ?? '', true);
+  const parsedUrl = new URL(req.url ?? '/', 'http://localhost');
 
   let routeHandler:
     | typeof sellerHandler
@@ -30,7 +29,7 @@ const server = http.createServer(async (req, res) => {
 
   const vercelReq = {
     method: req.method,
-    query: parsedUrl.query,
+    query: Object.fromEntries(parsedUrl.searchParams.entries()),
   } as unknown as VercelRequest;
 
   const vercelRes = {

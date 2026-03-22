@@ -24,7 +24,22 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
           <div>
             <p className="text-sm uppercase tracking-wide text-gray-400">Matched product</p>
             <h2 className="text-xl font-semibold text-brand-light">{product.name}</h2>
+            {product.subtitle && (
+              <p className="text-sm text-gray-400 mt-1 max-w-2xl">{product.subtitle}</p>
+            )}
             <p className="text-xs text-gray-500 mt-1">Query: "{meta.query}"</p>
+            {(product.brand || typeof product.starRating === 'number' || typeof product.reviewCount === 'number') && (
+              <p className="text-xs text-gray-400 mt-1">
+                {product.brand ? `Brand: ${product.brand}` : 'Brand unavailable'}
+                {(typeof product.starRating === 'number' || typeof product.reviewCount === 'number') && ' | '}
+                {typeof product.starRating === 'number'
+                  ? `${product.starRating.toFixed(1)} stars`
+                  : 'No product rating'}
+                {typeof product.reviewCount === 'number'
+                  ? ` from ${product.reviewCount.toLocaleString('en-ZA')} reviews`
+                  : ''}
+              </p>
+            )}
             {product.sellerName && (
               <p className="text-xs text-gray-400 mt-1">
                 Sold by{' '}
@@ -45,7 +60,9 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
             {(typeof product.sellerRating === 'number' || typeof product.sellerReviewCount === 'number') && (
               <p className="text-xs text-gray-400 mt-1">
                 Seller signal:{' '}
-                {typeof product.sellerRating === 'number' ? `${product.sellerRating.toFixed(1)}★` : 'No rating'}{' '}
+                {typeof product.sellerRating === 'number'
+                  ? `${product.sellerRating.toFixed(1)} stars`
+                  : 'No rating'}{' '}
                 {typeof product.sellerReviewCount === 'number'
                   ? `from ${product.sellerReviewCount.toLocaleString('en-ZA')} reviews`
                   : ''}
@@ -79,13 +96,46 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
         </p>
       )}
 
+      {product.bulletHighlights.length > 0 && (
+        <div className="mt-6 bg-gray-900/40 border border-gray-700 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-brand-light mb-3">Seller-Relevant Highlights</h3>
+          <div className="flex flex-wrap gap-2">
+            {product.bulletHighlights.map((item) => (
+              <span
+                key={item}
+                className="px-3 py-1 text-xs rounded-full border border-brand-cyan/40 text-brand-cyan bg-brand-cyan/10"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {product.insights.length > 0 && (
+        <div className="mt-6 bg-gray-900/40 border border-gray-700 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-brand-light mb-3">Key Product Information</h3>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {product.insights.map((item) => (
+              <div
+                key={`${item.label}-${item.value}`}
+                className="rounded-md border border-gray-700 bg-gray-950/40 p-3"
+              >
+                <p className="text-[11px] uppercase tracking-wide text-gray-500">{item.label}</p>
+                <p className="text-sm text-gray-200 mt-1">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="mt-6">
         <ProductComparisonLinks productName={product.name} expanded />
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         {offers.map((offer) => (
-          <OfferCard key={offer.kind} offer={offer} />
+          <OfferCard key={`${offer.kind}-${offer.label}`} offer={offer} />
         ))}
       </div>
     </section>
@@ -120,9 +170,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
   return (
     <article className="border border-gray-700 rounded-lg p-4 bg-gray-900/40">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs uppercase tracking-wide text-brand-cyan/80">
-          {offer.label}
-        </span>
+        <span className="text-xs uppercase tracking-wide text-brand-cyan/80">{offer.label}</span>
         <span className="text-[10px] text-gray-500">Takealot widget</span>
       </div>
       <p className="text-2xl font-bold text-brand-light">{formatPrice() ?? 'N/A'}</p>
@@ -155,7 +203,9 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
       {(typeof offer.sellerRating === 'number' || typeof offer.sellerReviewCount === 'number') && (
         <p className="mt-2 text-xs text-gray-400">
           Seller signal:{' '}
-          {typeof offer.sellerRating === 'number' ? `${offer.sellerRating.toFixed(1)}★` : 'No rating'}{' '}
+          {typeof offer.sellerRating === 'number'
+            ? `${offer.sellerRating.toFixed(1)} stars`
+            : 'No rating'}{' '}
           {typeof offer.sellerReviewCount === 'number'
             ? `from ${offer.sellerReviewCount.toLocaleString('en-ZA')} reviews`
             : ''}

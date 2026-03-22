@@ -41,12 +41,18 @@ type ProductOfferResponse = {
   product: {
     id: string;
     name: string;
+    subtitle?: string | null;
+    brand?: string | null;
     productUrl: string;
     imageUrl?: string | null;
+    starRating?: number | null;
+    reviewCount?: number | null;
     sellerName?: string | null;
     sellerLink?: string | null;
     sellerRating?: number | null;
     sellerReviewCount?: number | null;
+    bulletHighlights: string[];
+    insights: Array<{ label: string; value: string }>;
   };
   offers: OfferHighlight[];
   meta: {
@@ -86,13 +92,34 @@ type ProductDetailsResponse = {
   core?: {
     id?: number;
     title?: string | null;
+    subtitle?: string | null;
+    brand?: string | null;
     slug?: string | null;
+    star_rating?: number | null;
+    reviews?: number | null;
   };
   gallery?: {
     images?: Array<string | null>;
   };
+  reviews?: {
+    count?: number | null;
+    star_rating?: number | null;
+  };
   buybox?: {
+    buybox_items_type?: string;
     items?: BuyboxItem[];
+  };
+  product_information?: {
+    items?: Array<{
+      display_name?: string | null;
+      displayable_text?: string | null;
+      item_type?: string | null;
+    }>;
+  };
+  bullet_point_attributes?: {
+    items?: Array<{
+      text?: string | null;
+    }>;
   };
   seller_detail?: SellerDetail | null;
 };
@@ -187,20 +214,33 @@ async function fetchProductOffers(params: ProductOfferParams): Promise<ProductOf
   }
 
   const sellerLink = buildSellerLink(baseDetails.seller_detail);
+  const fallbackOffer = mapPreferredResponseToOffer(baseDetails, 'primary');
+  if (fallbackOffer && offers.length === 0) {
+    offers.push(fallbackOffer);
+  }
 
   return {
     product: {
       id: plid,
       name: baseDetails.core?.title?.trim() || baseDetails.title || 'Unknown product',
+      subtitle: baseDetails.core?.subtitle ?? null,
+      brand: baseDetails.core?.brand ?? null,
       productUrl:
         normalizeProductUrl(baseDetails.desktop_href) ??
         productUrl ??
         `${TAKEALOT_ORIGIN}/product/${plid}`,
       imageUrl: normalizeImageUrl(baseDetails.gallery?.images?.[0] ?? null),
+      starRating: baseDetails.reviews?.star_rating ?? baseDetails.core?.star_rating ?? null,
+      reviewCount: baseDetails.reviews?.count ?? baseDetails.core?.reviews ?? null,
       sellerName: baseDetails.seller_detail?.display_name ?? null,
       sellerLink,
       sellerRating: baseDetails.seller_detail?.seller_reviews?.average_star_rating ?? null,
       sellerReviewCount: baseDetails.seller_detail?.seller_reviews?.total_count_value ?? null,
+      bulletHighlights: (baseDetails.bullet_point_attributes?.items ?? [])
+        .map((item) => item.text?.trim())
+        .filter((value): value is string => Boolean(value))
+        .slice(0, 6),
+      insights: extractProductInsights(baseDetails),
     },
     offers,
     meta: {
@@ -296,7 +336,11 @@ function mapPreferredResponseToOffer(
 
   const label =
     selected.offer_detail?.display_text?.trim() ||
-    (preference === 'lowest_priced' ? 'Best Price' : preference === 'fastest' ? 'Fastest Delivery' : '');
+    (preference === 'lowest_priced'
+      ? 'Best Price'
+      : preference === 'fastest'
+        ? 'Fastest Delivery'
+        : 'Current Offer');
   if (!label) {
     return null;
   }
@@ -317,7 +361,12 @@ function mapPreferredResponseToOffer(
   const sellerLink = buildSellerLink(payload.seller_detail);
 
   return {
-    kind: preference === 'lowest_priced' ? 'best-price' : preference === 'fastest' ? 'fastest-delivery' : 'other',
+    kind:
+      preference === 'lowest_priced'
+        ? 'best-price'
+        : preference === 'fastest'
+          ? 'fastest-delivery'
+          : 'other',
     label,
     priceText: selected.pretty_price ?? undefined,
     listPriceText:
@@ -334,6 +383,27 @@ function mapPreferredResponseToOffer(
     sellerReviewCount: payload.seller_detail?.seller_reviews?.total_count_value ?? null,
     availabilityStatus: selected.stock_availability?.status?.trim() || undefined,
   };
+}
+
+function extractProductInsights(payload: ProductDetailsResponse): Array<{ label: string; value: string }> {
+  const ignored = new Set(['Categories', 'Barcode']);
+  return (payload.product_information?.items ?? [])
+    .map((item) => ({
+      label: item.display_name?.trim() ?? '',
+      value: cleanDisplayValue(item.displayable_text ?? ''),
+    }))
+    .filter((item) => item.label && item.value && !ignored.has(item.label))
+    .slice(0, 8);
+}
+
+function cleanDisplayValue(value: string): string {
+  return value
+    .replace(/\\-/g, '-')
+    .replace(/\\([()])/g, '$1')
+    .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
+    .replace(/^\-\s*/gm, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function buildSellerLink(sellerDetail?: SellerDetail | null): string | null {

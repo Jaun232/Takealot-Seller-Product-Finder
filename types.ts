@@ -31,16 +31,27 @@ export interface OfferHighlight {
   availabilityStatus?: string;
 }
 
+export interface ProductInsight {
+  label: string;
+  value: string;
+}
+
 export interface ProductOfferSummary {
   product: {
     id: string;
     name: string;
+    subtitle?: string | null;
+    brand?: string | null;
     productUrl: string;
     imageUrl?: string | null;
+    starRating?: number | null;
+    reviewCount?: number | null;
     sellerName?: string | null;
     sellerLink?: string | null;
     sellerRating?: number | null;
     sellerReviewCount?: number | null;
+    bulletHighlights: string[];
+    insights: ProductInsight[];
   };
   offers: OfferHighlight[];
   meta: {
