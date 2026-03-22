@@ -1,16 +1,23 @@
 import http from 'http';
 import url from 'url';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import productSearchHandler from './api/product-search.js';
 import sellerHandler from './api/seller-products.js';
 import productOffersHandler from './api/product-offers.js';
 
 const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url ?? '', true);
 
-  let routeHandler: typeof sellerHandler | typeof productOffersHandler | null = null;
+  let routeHandler:
+    | typeof sellerHandler
+    | typeof productOffersHandler
+    | typeof productSearchHandler
+    | null = null;
 
   if (parsedUrl.pathname?.startsWith('/api/seller-products')) {
     routeHandler = sellerHandler;
+  } else if (parsedUrl.pathname?.startsWith('/api/product-search')) {
+    routeHandler = productSearchHandler;
   } else if (parsedUrl.pathname?.startsWith('/api/product-offers')) {
     routeHandler = productOffersHandler;
   }

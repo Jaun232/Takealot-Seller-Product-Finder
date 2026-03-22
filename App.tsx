@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Product, ProductOfferSummary } from './types';
-import { fetchSellerProducts, fetchProductOffers } from './services/takealotService';
+import { fetchSellerProducts, fetchProductOffers, fetchProductSearchResults } from './services/takealotService';
 import SearchForm, { SearchMode } from './components/SearchForm';
 import ProductGrid from './components/ProductGrid';
 import Spinner from './components/Spinner';
@@ -37,10 +37,15 @@ const App: React.FC = () => {
   const [hasSearchedSeller, setHasSearchedSeller] = useState<boolean>(false);
   const [catalogQuery, setCatalogQuery] = useState<string>('');
 
+  const [productResults, setProductResults] = useState<Product[]>([]);
   const [productOffers, setProductOffers] = useState<ProductOfferSummary | null>(null);
   const [productOfferError, setProductOfferError] = useState<string | null>(null);
-  const [isSearchingOffers, setIsSearchingOffers] = useState<boolean>(false);
+  const [productResultsError, setProductResultsError] = useState<string | null>(null);
+  const [isSearchingProductResults, setIsSearchingProductResults] = useState<boolean>(false);
+  const [isLoadingSelectedProduct, setIsLoadingSelectedProduct] = useState<boolean>(false);
   const [hasSearchedOffers, setHasSearchedOffers] = useState<boolean>(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [lastProductQuery, setLastProductQuery] = useState<string>('');
 
   const [searchMode, setSearchMode] = useState<SearchMode>('seller');
 
@@ -78,18 +83,60 @@ const App: React.FC = () => {
     }
 
     setHasSearchedOffers(true);
-    setIsSearchingOffers(true);
+    setIsSearchingProductResults(true);
+    setLastProductQuery(input.trim());
+    setProductResults([]);
+    setSelectedProductId(null);
     setProductOffers(null);
+    setProductOfferError(null);
+    setProductResultsError(null);
+
+    try {
+      if (params.productUrl) {
+        const summary = await fetchProductOffers(params);
+        setProductOffers(summary);
+        setSelectedProductId(summary.product.id);
+        setProductResults([
+          {
+            id: summary.product.id,
+            name: summary.product.name,
+            description: '',
+            price: summary.offers[0]?.price ?? 0,
+            currency: summary.offers[0]?.currency ?? 'R',
+            imageUrl: summary.product.imageUrl ?? '',
+            productUrl: summary.product.productUrl,
+            sellerId: '',
+          },
+        ]);
+      } else {
+        const results = await fetchProductSearchResults(params.description ?? '');
+        if (results.length === 0) {
+          setProductResultsError('No products matched that search. Try a more specific product name.');
+        } else {
+          setProductResults(results);
+        }
+      }
+    } catch (error) {
+      console.error('Error searching products:', error);
+      setProductResultsError('Unable to search Takealot products right now.');
+    } finally {
+      setIsSearchingProductResults(false);
+    }
+  }, []);
+
+  const handleInspectProduct = useCallback(async (product: Product) => {
+    setSelectedProductId(product.id);
+    setIsLoadingSelectedProduct(true);
     setProductOfferError(null);
 
     try {
-      const summary = await fetchProductOffers(params);
+      const summary = await fetchProductOffers({ productUrl: product.productUrl });
       setProductOffers(summary);
     } catch (error) {
-      console.error('Error fetching product offers:', error);
-      setProductOfferError("Unable to load the product's Best Price / Fastest Delivery info.");
+      console.error('Error fetching selected product offers:', error);
+      setProductOfferError("Unable to load the selected product's offer breakdown.");
     } finally {
-      setIsSearchingOffers(false);
+      setIsLoadingSelectedProduct(false);
     }
   }, []);
 
@@ -162,37 +209,83 @@ const App: React.FC = () => {
   };
 
   const renderProductContent = () => {
-    if (isSearchingOffers) {
+    if (isSearchingProductResults) {
       return (
         <div className="mt-20 flex justify-center">
           <Spinner />
         </div>
       );
     }
-    if (productOfferError) {
+    if (productResultsError) {
       return (
         <div className="mt-8 text-center text-red-400">
-          {productOfferError}
+          {productResultsError}
           <p className="text-sm text-gray-400 mt-2">
-            Make sure the description matches a product that is available on Takealot.
+            Use a more specific Takealot listing title or paste the full product URL.
           </p>
         </div>
       );
     }
-    if (productOffers && productOffers.offers.length > 0) {
+    if (productResults.length > 0 || productOffers) {
       return (
-        <div className="mt-8">
-          <ProductOfferHighlights summary={productOffers} />
+        <div className="space-y-8">
+          <section className="bg-gray-800/60 border border-gray-700 rounded-lg p-6">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
+              <div>
+                <h2 className="text-2xl font-semibold text-brand-light">Matching products</h2>
+                <p className="text-sm text-gray-400 mt-1">
+                  Found {productResults.length} result{productResults.length === 1 ? '' : 's'} for
+                  {' '}“{lastProductQuery}”. Select a product to break down the buybox, fastest-delivery
+                  offer, and seller signals.
+                </p>
+              </div>
+              {selectedProductId && (
+                <p className="text-xs text-brand-cyan">Selected: {selectedProductId}</p>
+              )}
+            </div>
+            <ProductGrid
+              products={productResults}
+              onInspectProduct={handleInspectProduct}
+              inspectLabel="Break down offers"
+              selectedProductId={selectedProductId}
+            />
+          </section>
+
+          {isLoadingSelectedProduct && (
+            <div className="flex justify-center py-8">
+              <Spinner />
+            </div>
+          )}
+
+          {productOfferError && (
+            <div className="mt-4 text-center text-red-400">
+              {productOfferError}
+            </div>
+          )}
+
+          {productOffers && productOffers.offers.length > 0 && (
+            <ProductOfferHighlights summary={productOffers} />
+          )}
+
+          {productOffers && productOffers.offers.length === 0 && !isLoadingSelectedProduct && (
+            <div className="mt-12 max-w-xl mx-auto text-center text-gray-300">
+              <h2 className="text-xl font-semibold">No highlighted offers were found.</h2>
+              <p className="mt-2 text-sm text-gray-400">
+                This product resolved correctly, but Takealot did not expose Best Price or Fastest
+                Delivery cards for it.
+              </p>
+            </div>
+          )}
         </div>
       );
     }
     if (hasSearchedOffers) {
       return (
         <div className="mt-12 max-w-xl mx-auto text-center text-gray-300">
-          <h2 className="text-xl font-semibold">No highlighted offers were found.</h2>
+          <h2 className="text-xl font-semibold">No products were found.</h2>
           <p className="mt-2 text-sm text-gray-400">
-            Try another description or a more specific product title to surface Takealot's Best Price
-            and Fastest Delivery sections.
+            Try another description or a more specific product title to surface a list of matching
+            Takealot products.
           </p>
         </div>
       );
@@ -201,8 +294,8 @@ const App: React.FC = () => {
       <div className="mt-20 text-center text-gray-300">
         <h2 className="text-2xl font-bold">Compare Takealot offers</h2>
         <p className="mt-2 text-sm text-gray-400">
-          Paste a Takealot product URL or describe the item and we will fetch the Best Price and Fastest
-          Delivery cards from that listing.
+          Search for a product first, then select the exact listing you want to break down by Best Price,
+          Fastest Delivery, seller, and sourcing signals.
         </p>
       </div>
     );
@@ -235,7 +328,7 @@ const App: React.FC = () => {
             onModeChange={setSearchMode}
             onSellerSearch={handleSellerSearch}
             onProductSearch={handleProductSearch}
-            isLoading={isSearchingProducts || isSearchingOffers}
+            isLoading={isSearchingProducts || isSearchingProductResults || isLoadingSelectedProduct}
           />
         </div>
         <div className="mt-8">{renderContent()}</div>

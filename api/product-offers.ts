@@ -32,6 +32,9 @@ type OfferHighlight = {
   locationDetails: string[];
   sellerName?: string | null;
   sellerLink?: string | null;
+  sellerRating?: number | null;
+  sellerReviewCount?: number | null;
+  availabilityStatus?: string;
 };
 
 type ProductOfferResponse = {
@@ -42,6 +45,8 @@ type ProductOfferResponse = {
     imageUrl?: string | null;
     sellerName?: string | null;
     sellerLink?: string | null;
+    sellerRating?: number | null;
+    sellerReviewCount?: number | null;
   };
   offers: OfferHighlight[];
   meta: {
@@ -121,6 +126,10 @@ type BuyboxItem = {
 
 type SellerDetail = {
   display_name?: string | null;
+  seller_reviews?: {
+    average_star_rating?: number | null;
+    total_count_value?: number | null;
+  };
   link_data?: {
     path?: string | null;
     fields?: Record<string, string | undefined>;
@@ -190,6 +199,8 @@ async function fetchProductOffers(params: ProductOfferParams): Promise<ProductOf
       imageUrl: normalizeImageUrl(baseDetails.gallery?.images?.[0] ?? null),
       sellerName: baseDetails.seller_detail?.display_name ?? null,
       sellerLink,
+      sellerRating: baseDetails.seller_detail?.seller_reviews?.average_star_rating ?? null,
+      sellerReviewCount: baseDetails.seller_detail?.seller_reviews?.total_count_value ?? null,
     },
     offers,
     meta: {
@@ -319,6 +330,9 @@ function mapPreferredResponseToOffer(
     locationDetails,
     sellerName,
     sellerLink,
+    sellerRating: payload.seller_detail?.seller_reviews?.average_star_rating ?? null,
+    sellerReviewCount: payload.seller_detail?.seller_reviews?.total_count_value ?? null,
+    availabilityStatus: selected.stock_availability?.status?.trim() || undefined,
   };
 }
 

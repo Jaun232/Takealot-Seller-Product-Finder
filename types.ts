@@ -26,6 +26,9 @@ export interface OfferHighlight {
   locationDetails: string[];
   sellerName?: string;
   sellerLink?: string;
+  sellerRating?: number | null;
+  sellerReviewCount?: number | null;
+  availabilityStatus?: string;
 }
 
 export interface ProductOfferSummary {
@@ -36,6 +39,8 @@ export interface ProductOfferSummary {
     imageUrl?: string | null;
     sellerName?: string | null;
     sellerLink?: string | null;
+    sellerRating?: number | null;
+    sellerReviewCount?: number | null;
   };
   offers: OfferHighlight[];
   meta: {

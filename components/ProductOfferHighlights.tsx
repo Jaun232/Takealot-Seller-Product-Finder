@@ -1,5 +1,6 @@
 import React from 'react';
 import type { OfferHighlight, ProductOfferSummary } from '../types';
+import ProductComparisonLinks from './ProductComparisonLinks';
 
 interface ProductOfferHighlightsProps {
   summary: ProductOfferSummary;
@@ -41,6 +42,15 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
                 )}
               </p>
             )}
+            {(typeof product.sellerRating === 'number' || typeof product.sellerReviewCount === 'number') && (
+              <p className="text-xs text-gray-400 mt-1">
+                Seller signal:{' '}
+                {typeof product.sellerRating === 'number' ? `${product.sellerRating.toFixed(1)}★` : 'No rating'}{' '}
+                {typeof product.sellerReviewCount === 'number'
+                  ? `from ${product.sellerReviewCount.toLocaleString('en-ZA')} reviews`
+                  : ''}
+              </p>
+            )}
           </div>
         </div>
         <div className="flex gap-2">
@@ -68,6 +78,10 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
           {message}
         </p>
       )}
+
+      <div className="mt-6">
+        <ProductComparisonLinks productName={product.name} expanded />
+      </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         {offers.map((offer) => (
@@ -118,6 +132,9 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
       {offer.deliveryPromise && (
         <p className="mt-3 text-sm text-gray-300">{offer.deliveryPromise}</p>
       )}
+      {offer.availabilityStatus && offer.availabilityStatus !== offer.deliveryPromise && (
+        <p className="mt-2 text-xs text-gray-400">{offer.availabilityStatus}</p>
+      )}
       {offer.sellerName && (
         <p className="mt-3 text-sm text-gray-300">
           Sold by{' '}
@@ -133,6 +150,15 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
           ) : (
             offer.sellerName
           )}
+        </p>
+      )}
+      {(typeof offer.sellerRating === 'number' || typeof offer.sellerReviewCount === 'number') && (
+        <p className="mt-2 text-xs text-gray-400">
+          Seller signal:{' '}
+          {typeof offer.sellerRating === 'number' ? `${offer.sellerRating.toFixed(1)}★` : 'No rating'}{' '}
+          {typeof offer.sellerReviewCount === 'number'
+            ? `from ${offer.sellerReviewCount.toLocaleString('en-ZA')} reviews`
+            : ''}
         </p>
       )}
       {offer.locationCodes.length > 0 && (
