@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withCors } from './_lib/http.js';
-import { fetchProductOffers, type ProductOfferResponse } from './product-offers.js';
 
 const TAKEALOT_ORIGIN = 'https://www.takealot.com';
 const TAKEALOT_SEARCH_ENDPOINT =
@@ -80,7 +79,6 @@ type DiscoveryProduct = {
   productUrl: string;
   sellerId: string;
   brand?: string;
-  opportunityScore: number;
   sourceQuery: string;
 };
 
@@ -140,7 +138,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
 }
 
 async function buildDiscoveryFeed(page: number): Promise<{ products: DiscoveryProduct[]; hasMore: boolean }> {
-  const candidates = new Map<string, Omit<DiscoveryProduct, 'opportunityScore'>>();
+  const candidates = new Map<string, DiscoveryProduct>();
   let hasMore = false;
 
   for (let round = 0; round < MAX_DISCOVERY_ROUNDS && candidates.size < TARGET_RESULTS; round += 1) {
@@ -173,25 +171,7 @@ async function buildDiscoveryFeed(page: number): Promise<{ products: DiscoveryPr
     }
   }
 
-  const detailedProducts = await Promise.all(
-    Array.from(candidates.values()).map(async (product) => {
-      try {
-        const summary = await fetchProductOffers({ productUrl: product.productUrl });
-        return {
-          ...product,
-          opportunityScore: scoreOpportunity(summary),
-        };
-      } catch (error) {
-        console.error(`Failed to score discovery product ${product.id}:`, error);
-        return null;
-      }
-    })
-  );
-
-  const products = detailedProducts
-    .filter((product): product is DiscoveryProduct => Boolean(product))
-    .sort((left, right) => right.opportunityScore - left.opportunityScore)
-    .slice(0, TARGET_RESULTS);
+  const products = Array.from(candidates.values()).slice(0, TARGET_RESULTS);
 
   return {
     products,
@@ -277,63 +257,6 @@ function mapSearchResultToProduct(result: SearchResult): Omit<DiscoveryProduct, 
     sellerId: '',
     brand: core?.brand?.trim() || undefined,
   };
-}
-
-function scoreOpportunity(summary: ProductOfferResponse): number {
-  const { product, offers } = summary;
-  const bestPrice = offers.find((offer) => offer.kind === 'best-price');
-  const fastest = offers.find((offer) => offer.kind === 'fastest-delivery');
-  const sellerReviewCount = Math.max(
-    product.sellerReviewCount ?? 0,
-    ...offers.map((offer) => offer.sellerReviewCount ?? 0)
-  );
-  const sellerRating = Math.max(
-    product.sellerRating ?? 0,
-    ...offers.map((offer) => offer.sellerRating ?? 0)
-  );
-
-  let score = 50;
-
-  if (typeof product.starRating === 'number') {
-    if (product.starRating >= 4.5) score += 15;
-    else if (product.starRating >= 4.2) score += 10;
-    else if (product.starRating >= 4) score += 6;
-    else if (product.starRating > 0 && product.starRating < 3.8) score -= 10;
-  } else {
-    score -= 8;
-  }
-
-  if (typeof product.reviewCount === 'number') {
-    if (product.reviewCount >= 100) score += 18;
-    else if (product.reviewCount >= 40) score += 12;
-    else if (product.reviewCount >= 15) score += 7;
-    else if (product.reviewCount >= 5) score += 3;
-    else score -= 8;
-  } else {
-    score -= 10;
-  }
-
-  if (sellerReviewCount >= 1000) score -= 10;
-  else if (sellerReviewCount >= 250) score -= 6;
-  else if (sellerReviewCount > 0 && sellerReviewCount < 50) score += 5;
-
-  if (sellerRating >= 4.6) score -= 4;
-  else if (sellerRating > 0 && sellerRating < 4.1) score += 4;
-
-  if (bestPrice && fastest) {
-    const gap = (fastest.price ?? 0) - (bestPrice.price ?? 0);
-    if (gap >= 150) score += 6;
-    else if (gap > 0 && gap < 80) score -= 2;
-  } else if (bestPrice || fastest) {
-    score += 3;
-  }
-
-  if (!product.brand) score += 4;
-  if (product.bulletHighlights.some((item) => /free delivery/i.test(item))) score += 3;
-  if (product.bulletHighlights.some((item) => /warranty/i.test(item))) score += 2;
-  if (product.bulletHighlights.some((item) => /non-returnable/i.test(item))) score -= 4;
-
-  return Math.max(0, Math.min(100, Math.round(score)));
 }
 
 function normalizeImageUrl(value: string): string {
