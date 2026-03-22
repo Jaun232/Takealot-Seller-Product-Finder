@@ -25,6 +25,7 @@ const DISCOVERY_QUERY_SEEDS = [
 ];
 const RESULTS_PER_QUERY_SLICE = 4;
 const TARGET_RESULTS = 20;
+const MAX_DISCOVERY_ROUNDS = 6;
 const DISCOVERY_CACHE_TTL_MS = 10 * 60_000;
 
 const discoveryCache = new Map<number, { payload: DiscoveryResponse; expiresAt: number }>();
@@ -130,27 +131,36 @@ export default async function handler(request: VercelRequest, response: VercelRe
 }
 
 async function buildDiscoveryFeed(page: number): Promise<{ products: DiscoveryProduct[]; hasMore: boolean }> {
-  const searchPages = await Promise.all(
-    DISCOVERY_QUERY_SEEDS.map(async (query) => ({
-      query,
-      ...await searchProducts(query, page),
-    }))
-  );
-
   const candidates = new Map<string, Omit<DiscoveryProduct, 'opportunityScore'>>();
   let hasMore = false;
-  for (const searchPage of searchPages) {
-    if (searchPage.hasMore) {
-      hasMore = true;
+
+  for (let round = 0; round < MAX_DISCOVERY_ROUNDS && candidates.size < TARGET_RESULTS; round += 1) {
+    const searchPages = await Promise.all(
+      DISCOVERY_QUERY_SEEDS.map(async (query) => ({
+        query,
+        ...await searchProducts(query, page + round),
+      }))
+    );
+
+    let roundHasMore = false;
+    for (const searchPage of searchPages) {
+      if (searchPage.hasMore) {
+        roundHasMore = true;
+        hasMore = true;
+      }
+
+      for (const product of searchPage.results.slice(0, RESULTS_PER_QUERY_SLICE)) {
+        if (!candidates.has(product.id)) {
+          candidates.set(product.id, {
+            ...product,
+            sourceQuery: searchPage.query,
+          });
+        }
+      }
     }
 
-    for (const product of searchPage.results.slice(0, RESULTS_PER_QUERY_SLICE)) {
-      if (!candidates.has(product.id)) {
-        candidates.set(product.id, {
-          ...product,
-          sourceQuery: searchPage.query,
-        });
-      }
+    if (!roundHasMore) {
+      break;
     }
   }
 
