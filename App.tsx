@@ -328,7 +328,7 @@ const App: React.FC = () => {
         </div>
       );
     }
-    if (productResults.length > 0 || productOffers) {
+    if (productResults.length > 0) {
       return (
         <div className="space-y-8">
           <section className="rounded-lg border border-gray-700 bg-gray-800/60 p-4 sm:p-6">
