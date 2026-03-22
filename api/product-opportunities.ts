@@ -14,16 +14,25 @@ const API_HEADERS = {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
 };
 const DISCOVERY_QUERY_SEEDS = [
-  'smart watch',
-  'wireless earbuds',
-  'car phone holder',
-  'desk organiser',
-  'led strip lights',
-  'pet water fountain',
-  'resistance bands',
-  'air fryer accessories',
+  'Appliances',
+  'Automotive & DIY',
+  'Baby & Toddler',
+  'Beauty',
+  'Books & Courses',
+  'Camping & Outdoor',
+  'Clothing & Shoes',
+  'Electronics',
+  'Gaming & Media',
+  'Garden, Pool & Patio',
+  'Groceries & Household',
+  'Health & Personal Care',
+  'Homeware',
+  'Office & Stationery',
+  'Pets',
+  'Sport & Training',
+  'Toys',
 ];
-const RESULTS_PER_QUERY_SLICE = 4;
+const RESULTS_PER_QUERY_SLICE = 2;
 const TARGET_RESULTS = 20;
 const MAX_DISCOVERY_ROUNDS = 6;
 const DISCOVERY_CACHE_TTL_MS = 10 * 60_000;
