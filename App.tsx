@@ -31,6 +31,150 @@ const FEATURED_LISTS = [
     label: 'Top Rated Kettles',
     listingUrl: 'https://www.takealot.com/home-kitchen/kettles-25790?sort=Rating%20Descending',
   },
+  {
+    label: 'Top Rated Blenders',
+    listingUrl: 'https://www.takealot.com/home-kitchen/blenders-25764?sort=Rating%20Descending',
+  },
+  {
+    label: 'Coffee Machines',
+    listingUrl: 'https://www.takealot.com/coffee-machines',
+  },
+  {
+    label: 'Top Rated Fans',
+    listingUrl: 'https://www.takealot.com/home-kitchen/fans-25799?sort=Rating%20Descending',
+  },
+  {
+    label: 'Vacuums',
+    listingUrl: 'https://www.takealot.com/vacuums',
+  },
+  {
+    label: 'Large Appliances',
+    listingUrl: 'https://www.takealot.com/home-kitchen/large-appliances',
+  },
+  {
+    label: 'Top Rated Fridges and Freezers',
+    listingUrl: 'https://www.takealot.com/home-kitchen/fridges-and-freezers-25722?sort=Rating%20Descending',
+  },
+  {
+    label: 'Microwaves',
+    listingUrl: 'https://www.takealot.com/microwaves',
+  },
+  {
+    label: 'Top Rated Washing and Drying',
+    listingUrl: 'https://www.takealot.com/home-kitchen/washing-and-drying-25723?sort=Rating%20Descending',
+  },
+  {
+    label: 'Top Rated Dishwashers',
+    listingUrl: 'https://www.takealot.com/home-kitchen/dishwashers-25721?sort=Rating%20Descending',
+  },
+  {
+    label: 'Top Rated Stoves and Ovens',
+    listingUrl: 'https://www.takealot.com/home-kitchen/stoves-and-ovens-25731?sort=Rating%20Descending',
+  },
+  {
+    label: 'New To Takealot DIY and Auto',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-diy-and-auto&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'DIY and Auto',
+    listingUrl: 'https://www.takealot.com/pool-garden/diy_auto',
+  },
+  {
+    label: 'Paint and Supplies',
+    listingUrl: 'https://www.takealot.com/pool-garden/paint-and-supplies-25832',
+  },
+  {
+    label: 'Auto',
+    listingUrl: 'https://www.takealot.com/pool-garden/auto',
+  },
+  {
+    label: 'Best Selling Car Care and Cleaning',
+    listingUrl: 'https://www.takealot.com/pool-garden/car-care-and-cleaning-25854?filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'DIY Tools and Machinery',
+    listingUrl: 'https://www.takealot.com/pool-garden/diy-tools-and-machinery-25818',
+  },
+  {
+    label: 'Cordless Power Tools',
+    listingUrl: 'https://www.takealot.com/all?dcat=power-tools-cordless',
+  },
+  {
+    label: 'Industrial Power Tools',
+    listingUrl: 'https://www.takealot.com/pool-garden/industrial-power-tools-25823',
+  },
+  {
+    label: 'Measuring Tools',
+    listingUrl: 'https://www.takealot.com/pool-garden/measuring-tools-25820',
+  },
+  {
+    label: 'Tool Organisers',
+    listingUrl: 'https://www.takealot.com/pool-garden/tool-organisers-27436',
+  },
+  {
+    label: 'Workwear and PPE',
+    listingUrl: 'https://www.takealot.com/pool-garden/workwear-and-ppe-25829',
+  },
+  {
+    label: 'Safety and Security',
+    listingUrl: 'https://www.takealot.com/pool-garden/safety-and-security-25840',
+  },
+  {
+    label: 'New To Takealot Baby and Toddler',
+    listingUrl: 'https://www.takealot.com/all?dcat=new-to-tal-baby-and-toddler&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Baby',
+    listingUrl: 'https://www.takealot.com/baby',
+  },
+  {
+    label: 'Nappies and Changing',
+    listingUrl: 'https://www.takealot.com/baby/nappies_changing',
+  },
+  {
+    label: 'Changing and Feeding',
+    listingUrl: 'https://www.takealot.com/baby/changing_feeding',
+  },
+  {
+    label: 'Baby Food and Snacks',
+    listingUrl: 'https://www.takealot.com/baby/baby-food-and-snacks-25263?sort=Relevance',
+  },
+  {
+    label: 'Baby and Toddler Toiletries',
+    listingUrl: 'https://www.takealot.com/baby/baby-toddler-toiletries',
+  },
+  {
+    label: 'Best Selling Potty Training',
+    listingUrl: 'https://www.takealot.com/baby/potty-training-25262?filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Maternity Care',
+    listingUrl: 'https://www.takealot.com/baby/maternity-care',
+  },
+  {
+    label: 'Care and Nursery',
+    listingUrl: 'https://www.takealot.com/baby/care_nursery',
+  },
+  {
+    label: 'Baby Toys and Activity',
+    listingUrl: 'https://www.takealot.com/baby/baby-toys-activity',
+  },
+  {
+    label: 'Baby Clothing',
+    listingUrl: 'https://www.takealot.com/baby/baby_clothing',
+  },
+  {
+    label: 'Out and About',
+    listingUrl: 'https://www.takealot.com/baby/out_and_about',
+  },
+  {
+    label: 'Health and Safety',
+    listingUrl: 'https://www.takealot.com/baby/health-and-safety-25318?sort=Relevance',
+  },
+  {
+    label: 'Gift Ideas',
+    listingUrl: 'https://www.takealot.com/all?custom=gift-ideas',
+  },
 ] as const;
 
 function buildProductOfferParams(value: string): {
