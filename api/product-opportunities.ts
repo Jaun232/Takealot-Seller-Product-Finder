@@ -14,27 +14,18 @@ const API_HEADERS = {
 };
 const DISCOVERY_QUERY_SEEDS = [
   'Appliances',
-  'Automotive & DIY',
-  'Baby & Toddler',
   'Beauty',
-  'Books & Courses',
-  'Camping & Outdoor',
-  'Clothing & Shoes',
   'Electronics',
-  'Gaming & Media',
-  'Garden, Pool & Patio',
-  'Groceries & Household',
-  'Health & Personal Care',
   'Homeware',
-  'Office & Stationery',
   'Pets',
-  'Sport & Training',
   'Toys',
 ];
 const RESULTS_PER_QUERY_SLICE = 2;
 const TARGET_RESULTS = 20;
-const MAX_DISCOVERY_ROUNDS = 6;
+const MAX_DISCOVERY_ROUNDS = 3;
 const DISCOVERY_CACHE_TTL_MS = 10 * 60_000;
+const SEARCH_RETRY_LIMIT = 2;
+const SEARCH_RETRY_DELAY_MS = 1200;
 
 const discoveryCache = new Map<number, { payload: DiscoveryResponse; expiresAt: number }>();
 
@@ -142,12 +133,20 @@ async function buildDiscoveryFeed(page: number): Promise<{ products: DiscoveryPr
   let hasMore = false;
 
   for (let round = 0; round < MAX_DISCOVERY_ROUNDS && candidates.size < TARGET_RESULTS; round += 1) {
-    const searchPages = await Promise.all(
-      DISCOVERY_QUERY_SEEDS.map(async (query) => ({
-        query,
-        ...await searchProducts(query, page + round),
-      }))
-    );
+    const searchPages: Array<{
+      query: string;
+      results: Array<Omit<DiscoveryProduct, 'sourceQuery'>>;
+      hasMore: boolean;
+    }> = [];
+
+    for (const query of DISCOVERY_QUERY_SEEDS) {
+      try {
+        const result = await searchProducts(query, page + round);
+        searchPages.push({ query, ...result });
+      } catch (error) {
+        console.error(`Discovery search failed for "${query}" on page ${page + round}:`, error);
+      }
+    }
 
     let roundHasMore = false;
     for (const searchPage of searchPages) {
@@ -175,7 +174,7 @@ async function buildDiscoveryFeed(page: number): Promise<{ products: DiscoveryPr
 
   return {
     products,
-    hasMore: hasMore || products.length > 0,
+    hasMore,
   };
 }
 
@@ -196,12 +195,7 @@ async function searchProducts(
       url.searchParams.set('after', after);
     }
 
-    const response = await fetch(url, {
-      headers: {
-        ...API_HEADERS,
-        Referer: `${TAKEALOT_ORIGIN}/all?qsearch=${encodeURIComponent(query)}`,
-      },
-    });
+    const response = await fetchWithRetry(url, query);
 
     if (!response.ok) {
       throw new Error(`Takealot discovery search failed with status ${response.status}`);
@@ -223,6 +217,38 @@ async function searchProducts(
     results,
     hasMore: Boolean(after),
   };
+}
+
+async function fetchWithRetry(url: URL, query: string): Promise<Response> {
+  let lastResponse: Response | null = null;
+
+  for (let attempt = 0; attempt <= SEARCH_RETRY_LIMIT; attempt += 1) {
+    const response = await fetch(url, {
+      headers: {
+        ...API_HEADERS,
+        Referer: `${TAKEALOT_ORIGIN}/all?qsearch=${encodeURIComponent(query)}`,
+      },
+    });
+
+    if (response.status !== 429) {
+      return response;
+    }
+
+    lastResponse = response;
+    if (attempt < SEARCH_RETRY_LIMIT) {
+      await delay(SEARCH_RETRY_DELAY_MS * (attempt + 1));
+    }
+  }
+
+  if (!lastResponse) {
+    throw new Error('Takealot discovery search failed before receiving a response.');
+  }
+
+  return lastResponse;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function mapSearchResultToProduct(result: SearchResult): Omit<DiscoveryProduct, 'opportunityScore' | 'sourceQuery'> | null {

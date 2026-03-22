@@ -3,6 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import productSearchHandler from './api/product-search.js';
 import sellerHandler from './api/seller-products.js';
 import productOffersHandler from './api/product-offers.js';
+import productOpportunitiesHandler from './api/product-opportunities.js';
 
 const server = http.createServer(async (req, res) => {
   const parsedUrl = new URL(req.url ?? '/', 'http://localhost');
@@ -11,6 +12,7 @@ const server = http.createServer(async (req, res) => {
     | typeof sellerHandler
     | typeof productOffersHandler
     | typeof productSearchHandler
+    | typeof productOpportunitiesHandler
     | null = null;
 
   if (parsedUrl.pathname?.startsWith('/api/seller-products')) {
@@ -19,6 +21,8 @@ const server = http.createServer(async (req, res) => {
     routeHandler = productSearchHandler;
   } else if (parsedUrl.pathname?.startsWith('/api/product-offers')) {
     routeHandler = productOffersHandler;
+  } else if (parsedUrl.pathname?.startsWith('/api/product-opportunities')) {
+    routeHandler = productOpportunitiesHandler;
   }
 
   if (!routeHandler) {
