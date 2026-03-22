@@ -173,6 +173,72 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({ summary
         </div>
       )}
 
+      {product.variants.length > 0 && (
+        <div className="mt-6 rounded-lg border border-gray-700 bg-gray-900/40 p-4">
+          <h3 className="mb-3 text-sm font-semibold text-brand-light">Variations</h3>
+          <div className="space-y-4">
+            {product.variants.map((variant) => (
+              <div key={`${variant.type}-${variant.label}`}>
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm font-medium text-brand-light">{variant.label}</p>
+                  <p className="text-xs text-gray-400">
+                    {variant.selected ? `Selected: ${variant.selected}` : 'No option selected in this URL'}
+                  </p>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {variant.options.map((option) => {
+                    const content = (
+                      <>
+                        {option.imageUrl && (
+                          <img
+                            src={option.imageUrl.replace('{size}', '200')}
+                            alt={option.name}
+                            className="h-6 w-6 rounded-full border border-gray-600 object-cover"
+                            loading="lazy"
+                          />
+                        )}
+                        <span>{option.name}</span>
+                      </>
+                    );
+
+                    const className = `inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                      option.isSelected
+                        ? 'border-brand-cyan bg-brand-cyan/20 text-brand-light'
+                        : option.isEnabled
+                          ? 'border-gray-600 bg-gray-800/80 text-gray-300 hover:border-brand-cyan/60'
+                          : 'border-gray-700 bg-gray-900 text-gray-500'
+                    }`;
+
+                    if (option.productUrl && option.isEnabled) {
+                      return (
+                        <a
+                          key={`${variant.type}-${option.value}`}
+                          href={option.productUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={className}
+                        >
+                          {content}
+                        </a>
+                      );
+                    }
+
+                    return (
+                      <span
+                        key={`${variant.type}-${option.value}`}
+                        className={className}
+                      >
+                        {content}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {product.insights.length > 0 && (
         <div className="mt-6 bg-gray-900/40 border border-gray-700 rounded-lg p-4">
           <h3 className="text-sm font-semibold text-brand-light mb-3">Key Product Information</h3>

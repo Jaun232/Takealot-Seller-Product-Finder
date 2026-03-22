@@ -122,6 +122,9 @@ type ProductDetailsResponse = {
     }>;
   };
   seller_detail?: SellerDetail | null;
+  variants?: {
+    selectors?: VariantSelector[];
+  } | null;
 };
 
 type BuyboxItem = {
@@ -163,6 +166,25 @@ type SellerDetail = {
   };
 };
 
+type VariantSelector = {
+  selector_type?: string | null;
+  title?: string | null;
+  call_to_action?: string | null;
+  options?: VariantOption[];
+};
+
+type VariantOption = {
+  is_enabled?: boolean;
+  is_selected?: boolean;
+  desktop_href?: string | null;
+  value?: {
+    name?: string | null;
+    value?: string | null;
+    type?: string | null;
+  };
+  image?: Array<string | null>;
+};
+
 export async function fetchProductOffers(params: ProductOfferParams): Promise<ProductOfferResponse> {
   const normalizedQuery = params.query?.trim();
   const normalizedProductUrl = normalizeProductUrl(params.productUrl);
@@ -182,7 +204,8 @@ export async function fetchProductOffers(params: ProductOfferParams): Promise<Pr
     searchUrl = resolved.searchUrl;
   }
 
-  const baseDetails = await fetchProductDetails(plid);
+  const variantParams = extractVariantParams(normalizedProductUrl);
+  const baseDetails = await fetchProductDetails(plid, undefined, variantParams);
   const allItems = baseDetails.buybox?.items ?? [];
 
   const preferences = new Set<string>();
@@ -195,10 +218,10 @@ export async function fetchProductOffers(params: ProductOfferParams): Promise<Pr
 
   const preferredResponses = new Map<string, ProductDetailsResponse>();
   if (preferences.has('lowest_priced')) {
-    preferredResponses.set('lowest_priced', await fetchProductDetails(plid, 'lowest_priced'));
+    preferredResponses.set('lowest_priced', await fetchProductDetails(plid, 'lowest_priced', variantParams));
   }
   if (preferences.has('fastest')) {
-    preferredResponses.set('fastest', await fetchProductDetails(plid, 'fastest'));
+    preferredResponses.set('fastest', await fetchProductDetails(plid, 'fastest', variantParams));
   }
 
   const offers: OfferHighlight[] = [];
@@ -236,6 +259,7 @@ export async function fetchProductOffers(params: ProductOfferParams): Promise<Pr
       sellerLink,
       sellerRating: baseDetails.seller_detail?.seller_reviews?.average_star_rating ?? null,
       sellerReviewCount: baseDetails.seller_detail?.seller_reviews?.total_count_value ?? null,
+      variants: extractVariants(baseDetails),
       bulletHighlights: (baseDetails.bullet_point_attributes?.items ?? [])
         .map((item) => item.text?.trim())
         .filter((value): value is string => Boolean(value))
@@ -302,11 +326,15 @@ async function resolveProductFromSearch(
 
 async function fetchProductDetails(
   plid: string,
-  offerPref?: 'lowest_priced' | 'fastest'
+  offerPref?: 'lowest_priced' | 'fastest',
+  variantParams?: Record<string, string>
 ): Promise<ProductDetailsResponse> {
   const url = new URL(`${TAKEALOT_PRODUCT_DETAILS_ENDPOINT}/${plid}`);
   url.searchParams.set('platform', 'desktop');
   url.searchParams.set('display_credit', 'true');
+  for (const [key, value] of Object.entries(variantParams ?? {})) {
+    url.searchParams.set(key, value);
+  }
   if (offerPref) {
     url.searchParams.set('offer_pref', offerPref);
   }
@@ -394,6 +422,41 @@ function extractProductInsights(payload: ProductDetailsResponse): Array<{ label:
     }))
     .filter((item) => item.label && item.value && !ignored.has(item.label))
     .slice(0, 8);
+}
+
+function extractVariants(payload: ProductDetailsResponse) {
+  return (payload.variants?.selectors ?? [])
+    .map((selector) => {
+      const options = (selector.options ?? [])
+        .map((option) => {
+          const name = option.value?.name?.trim() || option.value?.value?.trim() || '';
+          if (!name) {
+            return null;
+          }
+
+          return {
+            name,
+            value: option.value?.value?.trim() || name,
+            isSelected: Boolean(option.is_selected),
+            isEnabled: option.is_enabled !== false,
+            imageUrl: normalizeImageUrl(option.image?.[0] ?? null),
+            productUrl: normalizeProductUrl(option.desktop_href),
+          };
+        })
+        .filter((option): option is NonNullable<typeof option> => Boolean(option));
+
+      if (options.length === 0) {
+        return null;
+      }
+
+      return {
+        label: selector.title?.trim() || selector.call_to_action?.trim() || 'Variation',
+        type: selector.selector_type?.trim() || 'variant',
+        selected: options.find((option) => option.isSelected)?.name ?? null,
+        options,
+      };
+    })
+    .filter((selector): selector is NonNullable<typeof selector> => Boolean(selector));
 }
 
 function cleanDisplayValue(value: string): string {
@@ -542,6 +605,25 @@ function normalizeProductUrl(value?: string | null): string | null {
   }
 
   return url.toString();
+}
+
+function extractVariantParams(value?: string | null): Record<string, string> {
+  if (!value) {
+    return {};
+  }
+
+  try {
+    const url = value.startsWith('http') ? new URL(value) : new URL(`https://${value}`);
+    const params: Record<string, string> = {};
+    for (const [key, rawValue] of url.searchParams.entries()) {
+      if (/variant/i.test(key) || key === 'colour' || key === 'color') {
+        params[key] = rawValue;
+      }
+    }
+    return params;
+  } catch {
+    return {};
+  }
 }
 
 function extractPlid(value?: string | null): string | null {
