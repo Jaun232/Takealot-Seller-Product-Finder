@@ -534,12 +534,21 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-brand-dark font-sans text-brand-light">
       <header className="sticky top-0 z-10 bg-brand-blue/20 shadow-lg backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold tracking-wider text-brand-cyan sm:text-3xl">
-            Takealot Seller Product Finder
-          </h1>
-          <p className="mt-1 text-sm text-gray-400">
-            Search Takealot directly by seller ID or describe a product to surface the best offers.
-          </p>
+          <div className="flex items-center gap-3">
+            <img
+              src="/6671601.png"
+              alt="Takealot Seller Product Finder"
+              className="h-12 w-12 rounded-xl border border-brand-cyan/30 object-cover sm:h-14 sm:w-14"
+            />
+            <div>
+              <h1 className="text-2xl font-bold tracking-wider text-brand-cyan sm:text-3xl">
+                Takealot Seller Product Finder
+              </h1>
+              <p className="mt-1 text-sm text-gray-400">
+                Search Takealot directly by seller ID or describe a product to surface the best offers.
+              </p>
+            </div>
+          </div>
         </div>
       </header>
 

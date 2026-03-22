@@ -175,7 +175,7 @@ async function buildDiscoveryFeed(page: number): Promise<{ products: DiscoveryPr
 
   return {
     products,
-    hasMore,
+    hasMore: hasMore || products.length > 0,
   };
 }
 
