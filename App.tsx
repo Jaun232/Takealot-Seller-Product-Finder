@@ -74,40 +74,24 @@ const App: React.FC = () => {
     };
   }, [isProductModalOpen]);
 
-  useEffect(() => {
-    if (searchMode !== 'product' || hasSearchedOffers || discoveryProducts.length > 0 || isLoadingProductDiscovery) {
+  const handleLoadDiscoveryProducts = useCallback(async () => {
+    if (isLoadingProductDiscovery) {
       return;
     }
 
-    let isCancelled = false;
+    setIsLoadingProductDiscovery(true);
+    setProductDiscoveryError(null);
 
-    const loadOpportunities = async () => {
-      setIsLoadingProductDiscovery(true);
-      setProductDiscoveryError(null);
-
-      try {
-        const featured = await fetchProductOpportunities();
-        if (!isCancelled) {
-          setDiscoveryProducts(featured);
-        }
-      } catch (error) {
-        console.error('Error loading product opportunities:', error);
-        if (!isCancelled) {
-          setProductDiscoveryError('Recommended products took too long to load. You can still search normally below.');
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsLoadingProductDiscovery(false);
-        }
-      }
-    };
-
-    loadOpportunities();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [searchMode, hasSearchedOffers, discoveryProducts.length, isLoadingProductDiscovery]);
+    try {
+      const featured = await fetchProductOpportunities();
+      setDiscoveryProducts(featured);
+    } catch (error) {
+      console.error('Error loading product opportunities:', error);
+      setProductDiscoveryError('Recommended products took too long to load. You can still search manually.');
+    } finally {
+      setIsLoadingProductDiscovery(false);
+    }
+  }, [isLoadingProductDiscovery]);
 
   const handleSellerSearch = useCallback(async (sellerId: string) => {
     if (!sellerId) return;
@@ -330,7 +314,7 @@ const App: React.FC = () => {
                   its full sourcing analysis.
                 </p>
               </div>
-              <p className="text-xs text-brand-cyan">Auto-loaded shortlist: {discoveryProducts.length} products</p>
+              <p className="text-xs text-brand-cyan">Shortlist loaded: {discoveryProducts.length} products</p>
             </div>
             <ProductGrid
               products={discoveryProducts}
@@ -371,16 +355,26 @@ const App: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold text-brand-light">Recommended products</h3>
               <p className="mt-1 text-sm text-gray-400">
-                The app tries to load a shortlist of products with stronger public signals. If it does not load,
-                you can still search manually right away.
+                Load a shortlist of products with stronger public signals, or skip it and search manually right away.
               </p>
             </div>
-            {isLoadingProductDiscovery && (
-              <div className="inline-flex items-center gap-3 text-sm text-brand-light">
-                <Spinner />
-                <span>Loading shortlist</span>
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={handleLoadDiscoveryProducts}
+              disabled={isLoadingProductDiscovery}
+              className="inline-flex items-center justify-center rounded-md border border-brand-cyan/60 px-4 py-2 text-sm font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
+            >
+              {isLoadingProductDiscovery ? (
+                <>
+                  <Spinner />
+                  <span className="ml-3">Loading shortlist</span>
+                </>
+              ) : discoveryProducts.length > 0 ? (
+                'Reload shortlist'
+              ) : (
+                'Load shortlist'
+              )}
+            </button>
           </div>
           {productDiscoveryError && (
             <p className="mt-4 rounded-md border border-amber-700/60 bg-amber-900/20 px-3 py-2 text-sm text-amber-200">
