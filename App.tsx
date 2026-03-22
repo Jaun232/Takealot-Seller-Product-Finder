@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { Product, ProductOfferSummary } from './types';
 import { fetchSellerProducts, fetchProductOffers, fetchProductSearchResults } from './services/takealotService';
 import SearchForm, { SearchMode } from './components/SearchForm';
@@ -46,6 +46,7 @@ const App: React.FC = () => {
   const [hasSearchedOffers, setHasSearchedOffers] = useState<boolean>(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [lastProductQuery, setLastProductQuery] = useState<string>('');
+  const productBreakdownRef = useRef<HTMLDivElement | null>(null);
 
   const [searchMode, setSearchMode] = useState<SearchMode>('seller');
 
@@ -128,10 +129,15 @@ const App: React.FC = () => {
     setSelectedProductId(product.id);
     setIsLoadingSelectedProduct(true);
     setProductOfferError(null);
+    setProductOffers(null);
+    productBreakdownRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     try {
       const summary = await fetchProductOffers({ productUrl: product.productUrl });
       setProductOffers(summary);
+      setTimeout(() => {
+        productBreakdownRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
     } catch (error) {
       console.error('Error fetching selected product offers:', error);
       setProductOfferError("Unable to load the selected product's offer breakdown.");
@@ -251,31 +257,41 @@ const App: React.FC = () => {
             />
           </section>
 
-          {isLoadingSelectedProduct && (
-            <div className="flex justify-center py-8">
-              <Spinner />
-            </div>
-          )}
+          <div ref={productBreakdownRef}>
+            {isLoadingSelectedProduct && (
+              <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-8">
+                <div className="flex items-center gap-3 text-brand-light">
+                  <Spinner />
+                  <div>
+                    <p className="font-semibold">Loading product breakdown</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Pulling buybox, delivery, seller, and sourcing signals for the selected listing.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
-          {productOfferError && (
-            <div className="mt-4 text-center text-red-400">
-              {productOfferError}
-            </div>
-          )}
+            {productOfferError && (
+              <div className="mt-4 text-center text-red-400">
+                {productOfferError}
+              </div>
+            )}
 
-          {productOffers && productOffers.offers.length > 0 && (
-            <ProductOfferHighlights summary={productOffers} />
-          )}
+            {productOffers && productOffers.offers.length > 0 && (
+              <ProductOfferHighlights summary={productOffers} />
+            )}
 
-          {productOffers && productOffers.offers.length === 0 && !isLoadingSelectedProduct && (
-            <div className="mt-12 max-w-xl mx-auto text-center text-gray-300">
-              <h2 className="text-xl font-semibold">No highlighted offers were found.</h2>
-              <p className="mt-2 text-sm text-gray-400">
-                This product resolved correctly, but Takealot did not expose Best Price or Fastest
-                Delivery cards for it.
-              </p>
-            </div>
-          )}
+            {productOffers && productOffers.offers.length === 0 && !isLoadingSelectedProduct && (
+              <div className="mt-12 max-w-xl mx-auto text-center text-gray-300">
+                <h2 className="text-xl font-semibold">No highlighted offers were found.</h2>
+                <p className="mt-2 text-sm text-gray-400">
+                  This product resolved correctly, but Takealot did not expose Best Price or Fastest
+                  Delivery cards for it.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       );
     }
