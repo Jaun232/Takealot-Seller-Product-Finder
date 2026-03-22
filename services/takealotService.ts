@@ -16,7 +16,7 @@ interface SellerProductsResponse {
 }
 
 type ProductOffersResponse = ProductOfferSummary;
-const DISCOVERY_REQUEST_TIMEOUT_MS = 8000;
+const DISCOVERY_REQUEST_TIMEOUT_MS = 30000;
 
 function buildQueryString(params: Record<string, string | number | undefined>): string {
   const search = new URLSearchParams();
