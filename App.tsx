@@ -12,6 +12,8 @@ import Spinner from './components/Spinner';
 import SearchGuide from './components/SearchGuide';
 import ProductOfferHighlights from './components/ProductOfferHighlights';
 import { CloseIcon } from './components/icons/CloseIcon';
+import { SunIcon } from './components/icons/SunIcon';
+import { MoonIcon } from './components/icons/MoonIcon';
 
 const TAKEALOT_HOST_SNIPPET = 'takealot.com';
 type Theme = 'dark' | 'light';
@@ -1824,9 +1826,23 @@ const App: React.FC = () => {
             <button
               type="button"
               onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
-              className="button-ghost inline-flex w-full items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold sm:w-auto"
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+              className="segmented-shell inline-flex w-full items-center justify-center rounded-full p-1 sm:w-auto"
             >
-              {theme === 'dark' ? 'Light theme' : 'Dark theme'}
+              <span
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
+                  theme === 'light' ? 'segmented-option-active text-accent' : 'segmented-option'
+                }`}
+              >
+                <SunIcon />
+              </span>
+              <span
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
+                  theme === 'dark' ? 'segmented-option-active text-accent' : 'segmented-option'
+                }`}
+              >
+                <MoonIcon />
+              </span>
             </button>
           </div>
         </div>
