@@ -1667,9 +1667,9 @@ const App: React.FC = () => {
 
     return (
       <div className="space-y-6">
-        <section className="surface-card rounded-[24px] p-4 sm:rounded-[32px] sm:p-8">
+        <section className="surface-card max-w-full overflow-hidden rounded-[24px] p-4 sm:rounded-[32px] sm:p-8">
           <div className="app-grid">
-            <div className="space-y-6">
+            <div className="min-w-0 space-y-6">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Product analysis</p>
                 <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">
@@ -1716,7 +1716,7 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="surface-muted rounded-[24px] p-4 sm:rounded-[28px] sm:p-6">
+            <div className="surface-muted min-w-0 rounded-[24px] p-4 sm:rounded-[28px] sm:p-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                 <div>
                   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent">Source explorer</p>
@@ -1727,7 +1727,8 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-5 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="mt-5 max-w-full overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex min-w-max gap-2">
                 {featuredGroups.map((item) => (
                   <button
                     key={item.group}
@@ -1741,6 +1742,7 @@ const App: React.FC = () => {
                     <span className="ml-2 text-xs opacity-70">{item.count}</span>
                   </button>
                 ))}
+                </div>
               </div>
 
               <div className="mt-5">
@@ -1804,7 +1806,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen font-sans">
+      <div className="min-h-screen overflow-x-hidden font-sans">
       <header className="sticky top-0 z-10 border-b border-subtle bg-[color:var(--bg-elevated)]/90 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1827,7 +1829,7 @@ const App: React.FC = () => {
               type="button"
               onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
               aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
-              className="segmented-shell inline-flex w-full items-center justify-center rounded-full p-1 sm:w-auto"
+              className="segmented-shell inline-flex w-fit self-start items-center justify-center rounded-full p-1 sm:self-auto"
             >
               <span
                 className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
