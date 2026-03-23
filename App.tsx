@@ -395,6 +395,58 @@ const FEATURED_LISTS = [
     label: 'Wallets and Purses',
     listingUrl: 'https://www.takealot.com/luggage-travel/walletsandpurses',
   },
+  {
+    label: 'New In Electronics',
+    listingUrl: 'https://www.takealot.com/all?custom=new-in-electronics&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Vlogging',
+    listingUrl: 'https://www.takealot.com/cameras/vlogging',
+  },
+  {
+    label: 'TV Audio and Video',
+    listingUrl: 'https://www.takealot.com/tv-audio-video',
+  },
+  {
+    label: 'Cellular and GPS',
+    listingUrl: 'https://www.takealot.com/cellular-gps',
+  },
+  {
+    label: 'Laptops',
+    listingUrl: 'https://www.takealot.com/computers/laptops',
+  },
+  {
+    label: 'Wearable Tech',
+    listingUrl: 'https://www.takealot.com/cellular-gps/wearabletech',
+  },
+  {
+    label: 'Computers',
+    listingUrl: 'https://www.takealot.com/computers',
+  },
+  {
+    label: 'Computer Monitors and Accessories',
+    listingUrl: 'https://www.takealot.com/computers/computer-monitors-and-accessories-27166',
+  },
+  {
+    label: 'Top Rated Components',
+    listingUrl: 'https://www.takealot.com/computers/components-26415?sort=Rating%20Descending',
+  },
+  {
+    label: 'Tablets and Kindles',
+    listingUrl: 'https://www.takealot.com/computers/tablets_and_kindles',
+  },
+  {
+    label: 'Cameras',
+    listingUrl: 'https://www.takealot.com/cameras',
+  },
+  {
+    label: 'Drones',
+    listingUrl: 'https://www.takealot.com/cameras/drones-26441',
+  },
+  {
+    label: 'Smart Home',
+    listingUrl: 'https://www.takealot.com/computers/smarthome',
+  },
 ] as const;
 
 function buildProductOfferParams(value: string): {
