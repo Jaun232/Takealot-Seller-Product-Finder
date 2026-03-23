@@ -87,19 +87,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
     const searchMode: SearchMode = listingUrl ? 'listing' : 'query';
     if (listingUrl) {
       const listing = new URL(listingUrl);
-      for (const [key, value] of listing.searchParams.entries()) {
-        if (['qsearch', 'custom', 'filter', 'sort'].includes(key)) {
-          url.searchParams.set(key, value);
-        }
-      }
-
-      if (![...url.searchParams.keys()].some((key) => key === 'qsearch' || key === 'custom' || key === 'filter')) {
-        const derivedQuery = deriveQueryFromListingPath(listing.pathname);
-        if (!derivedQuery) {
-          throw new Error('Unable to derive search parameters from listing URL.');
-        }
-        url.searchParams.set('qsearch', derivedQuery);
-      }
+      applyListingSearchParams(url, listing);
     } else {
       url.searchParams.set('qsearch', query);
     }
@@ -148,6 +136,72 @@ export default async function handler(request: VercelRequest, response: VercelRe
   }
 }
 
+const KNOWN_DEPARTMENT_SLUGS = new Set([
+  'baby',
+  'beauty',
+  'books',
+  'camping-outdoor',
+  'cameras',
+  'cellular-gps',
+  'computers',
+  'fashion',
+  'gaming',
+  'health',
+  'home-kitchen',
+  'luggage-travel',
+  'movies',
+  'music',
+  'office-stationery',
+  'pets',
+  'pool-garden',
+  'sport',
+  'toys',
+]);
+
+function applyListingSearchParams(searchUrl: URL, listing: URL): void {
+  for (const [key, value] of listing.searchParams.entries()) {
+    if (['qsearch', 'custom', 'filter', 'sort', 'dcat'].includes(key)) {
+      searchUrl.searchParams.append(key, value);
+    }
+  }
+
+  if (
+    [...searchUrl.searchParams.keys()].some((key) =>
+      ['qsearch', 'custom', 'filter', 'dcat', 'department_slug', 'category_slug'].includes(key)
+    )
+  ) {
+    return;
+  }
+
+  const pathSegments = listing.pathname
+    .split('/')
+    .map((segment) => segment.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (pathSegments.length === 0) {
+    throw new Error('Unable to derive search parameters from listing URL.');
+  }
+
+  const departmentSlug = KNOWN_DEPARTMENT_SLUGS.has(pathSegments[0]) ? pathSegments[0] : null;
+  const categorySegment = pathSegments.length > 1 ? pathSegments[pathSegments.length - 1] : null;
+
+  if (departmentSlug) {
+    searchUrl.searchParams.set('department_slug', departmentSlug);
+  }
+
+  if (categorySegment && /-\d+$/.test(categorySegment)) {
+    searchUrl.searchParams.set('category_slug', categorySegment);
+    return;
+  }
+
+  const derivedQuery = deriveQueryFromListingPath(listing.pathname);
+  if (!derivedQuery) {
+    throw new Error('Unable to derive search parameters from listing URL.');
+  }
+
+  searchUrl.searchParams.set('qsearch', derivedQuery);
+}
+
 function deriveQueryFromListingPath(pathname: string): string {
   const normalizedPath = pathname.trim().toLowerCase();
   const explicitMappings: Array<[string, string]> = [
@@ -188,6 +242,7 @@ function deriveQueryFromListingPath(pathname: string): string {
   return slug
     .replace(/-\d+$/, '')
     .replace(/--+/g, '-')
+    .replace(/_/g, ' ')
     .replace(/-/g, ' ')
     .trim();
 }
