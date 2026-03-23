@@ -1108,6 +1108,14 @@ function buildProductOfferParams(value: string): {
   return { description: trimmed };
 }
 
+function scrollToPageTop(behavior: ScrollBehavior = 'smooth') {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.scrollTo({ top: 0, left: 0, behavior });
+}
+
 const App: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === 'undefined') {
@@ -1212,6 +1220,7 @@ const App: React.FC = () => {
 
     if (currentDiscoveryPage < discoveryPages.length - 1) {
       setCurrentDiscoveryPage((current) => current + 1);
+      scrollToPageTop();
       return;
     }
 
@@ -1227,6 +1236,7 @@ const App: React.FC = () => {
       setCurrentDiscoveryPage(discoveryPages.length);
       setHasMoreDiscoveryProducts(Boolean(featured.meta?.nextAfter));
       setFeaturedListNextAfter(featured.meta?.nextAfter ?? null);
+      scrollToPageTop();
     } catch (error) {
       console.error('Error loading product opportunities:', error);
       setProductDiscoveryError('Recommended products took too long to load. You can still search manually.');
@@ -1236,6 +1246,7 @@ const App: React.FC = () => {
   }, [currentDiscoveryPage, discoveryPages.length, featuredListNextAfter, isLoadingProductDiscovery, selectedFeaturedList]);
 
   const handleSelectFeaturedList = useCallback(async (listingUrl: string) => {
+    scrollToPageTop();
     setSelectedFeaturedList(listingUrl);
     setDiscoveryPages([]);
     setCurrentDiscoveryPage(0);
@@ -1264,6 +1275,7 @@ const App: React.FC = () => {
   }, [isLoadingProductDiscovery]);
 
   const handleClearFeaturedList = useCallback(() => {
+    scrollToPageTop();
     setSelectedFeaturedList(null);
     setDiscoveryPages([]);
     setCurrentDiscoveryPage(0);
@@ -1276,6 +1288,7 @@ const App: React.FC = () => {
   const handleSellerSearch = useCallback(async (sellerId: string) => {
     if (!sellerId) return;
 
+    scrollToPageTop();
     setHasSearchedSeller(true);
     setIsSearchingProducts(true);
     setProducts([]);
@@ -1306,6 +1319,7 @@ const App: React.FC = () => {
       return;
     }
 
+    scrollToPageTop();
     setHasSearchedOffers(true);
     setIsSearchingProductResults(true);
     setLastProductQuery(input.trim());
@@ -1400,6 +1414,7 @@ const App: React.FC = () => {
       const nextPage = currentProductResultsPage + 1;
       setCurrentProductResultsPage(nextPage);
       setProductResults(productResultPages[nextPage]);
+      scrollToPageTop();
       return;
     }
 
@@ -1416,6 +1431,7 @@ const App: React.FC = () => {
       setCurrentProductResultsPage((current) => current + 1);
       setProductResults(results.products);
       setProductResultsNextAfter(results.meta?.nextAfter ?? null);
+      scrollToPageTop();
     } catch (error) {
       console.error('Error loading more product results:', error);
       setProductResultsError('Unable to load more products right now.');
@@ -1438,6 +1454,7 @@ const App: React.FC = () => {
     const previousPage = currentProductResultsPage - 1;
     setCurrentProductResultsPage(previousPage);
     setProductResults(productResultPages[previousPage]);
+    scrollToPageTop();
   }, [currentProductResultsPage, productResultPages]);
 
   const handlePreviousDiscoveryPage = useCallback(() => {
@@ -1447,7 +1464,13 @@ const App: React.FC = () => {
 
     const previousPage = currentDiscoveryPage - 1;
     setCurrentDiscoveryPage(previousPage);
+    scrollToPageTop();
   }, [currentDiscoveryPage]);
+
+  const handleModeChange = useCallback((mode: SearchMode) => {
+    setSearchMode(mode);
+    scrollToPageTop();
+  }, []);
 
   const filteredProducts = useMemo(() => {
     if (!catalogQuery.trim()) return products;
@@ -1854,7 +1877,7 @@ const App: React.FC = () => {
         <div className="mx-auto max-w-6xl">
           <SearchForm
             mode={searchMode}
-            onModeChange={setSearchMode}
+            onModeChange={handleModeChange}
             onSellerSearch={handleSellerSearch}
             onProductSearch={handleProductSearch}
             isLoading={isSearchingProducts || isSearchingProductResults || isLoadingSelectedProduct}
