@@ -18,8 +18,8 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
 
   return (
     <section className="surface-card rounded-[28px] p-4 sm:p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex min-w-0 items-start gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-start gap-3 sm:gap-4">
           {product.imageUrl && (
             <img
               src={product.imageUrl.replace('{size}', '400')}
@@ -103,7 +103,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
         </p>
       )}
 
-      <div className="surface-muted mt-6 rounded-[24px] p-5">
+      <div className="surface-muted mt-6 rounded-[24px] p-4 sm:p-5">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-wide text-muted">Sourcing Assessment</p>
@@ -114,7 +114,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
               {sourcingAssessment.summary}
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             <ScorePill
               label="Opportunity"
               value={`${sourcingAssessment.opportunityScore}/100`}
@@ -143,7 +143,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
           </div>
         </div>
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-2">
+        <div className="mt-5 grid gap-3 lg:grid-cols-2 lg:gap-4">
           <div className="surface-soft rounded-2xl p-4">
             <p className="text-sm font-semibold">Why This Looks {sourcingAssessment.opportunityLabel}</p>
             <ul className="mt-3 list-inside list-disc space-y-2 text-sm">
@@ -207,7 +207,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
                       </>
                     );
 
-                    const className = `inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                    const className = `inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
                       option.isSelected
                         ? 'border-brand-cyan bg-brand-cyan/20'
                         : option.isEnabled
@@ -285,7 +285,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
         <ProductComparisonLinks productName={product.name} expanded />
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <div className="mt-6 grid gap-3 md:grid-cols-2 md:gap-4">
         {offers.map((offer) => (
           <OfferCard key={`${offer.kind}-${offer.label}`} offer={offer} />
         ))}

@@ -25,7 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         isSelected ? 'ring-2 ring-brand-cyan shadow-cyan-500/20' : ''
       }`}
     >
-      <div className="relative h-48 w-full overflow-hidden bg-[var(--bg-muted)]">
+      <div className="relative h-44 w-full overflow-hidden bg-[var(--bg-muted)] sm:h-48">
         <img
           src={product.imageUrl}
           alt={product.name}
@@ -33,7 +33,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>
-      <div className="p-4 flex flex-col gap-3">
+      <div className="flex flex-col gap-3 p-4">
         <div className="flex-1">
           {product.brand && (
             <p className="mb-1 text-xs uppercase tracking-wide text-accent">{product.brand}</p>
@@ -43,7 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               Opportunity Score {product.opportunityScore}/100
             </p>
           )}
-          <h3 className="line-clamp-2 text-base font-semibold sm:text-lg" title={product.name}>
+          <h3 className="line-clamp-2 text-[15px] font-semibold sm:text-lg" title={product.name}>
             {product.name}
           </h3>
           <p className="text-muted mt-2 min-h-10 line-clamp-2 text-sm">{product.description}</p>

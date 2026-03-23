@@ -179,7 +179,13 @@ a {
 
 .app-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .app-grid {
+    gap: 1.5rem;
+  }
 }
 
 @media (min-width: 1024px) {

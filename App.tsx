@@ -1467,7 +1467,7 @@ const App: React.FC = () => {
     hasNext: boolean;
     isLoadingNext?: boolean;
   }) => (
-    <div className="mt-8 flex items-center justify-center gap-4">
+    <div className="mt-8 flex items-center justify-center gap-2 sm:gap-4">
       <button
         type="button"
         onClick={options.onPrevious}
@@ -1476,7 +1476,7 @@ const App: React.FC = () => {
       >
         {'<'}
       </button>
-      <div className="surface-muted rounded-full px-4 py-2 text-sm font-semibold">
+      <div className="surface-muted rounded-full px-3 py-2 text-xs font-semibold sm:px-4 sm:text-sm">
         Page {options.currentPage}
       </div>
       <button
@@ -1539,7 +1539,7 @@ const App: React.FC = () => {
       return <SearchGuide />;
     }
     return (
-      <div className="surface-card mt-12 rounded-[32px] p-8 text-center">
+      <div className="surface-card mt-12 rounded-[28px] p-6 text-center sm:rounded-[32px] sm:p-8">
         <h2 className="text-2xl font-bold">Welcome!</h2>
         <p className="mt-2 text-muted">Enter a Takealot Seller ID to list their catalogue.</p>
       </div>
@@ -1569,7 +1569,7 @@ const App: React.FC = () => {
     if (productResults.length > 0) {
       return (
         <div className="space-y-8">
-          <section className="surface-card rounded-[28px] p-5 sm:p-7">
+          <section className="surface-card rounded-[24px] p-4 sm:rounded-[28px] sm:p-7">
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2 className="text-2xl font-semibold">Matching products</h2>
@@ -1620,7 +1620,7 @@ const App: React.FC = () => {
                     : 'This shortlist surfaces 20 products with comparatively stronger public signals across rating, review depth, seller strength, and buybox structure. Open any product to inspect its full sourcing analysis.'}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <p className="text-xs text-accent">Page {currentDiscoveryPage + 1}</p>
                 <button
                   type="button"
@@ -1665,15 +1665,15 @@ const App: React.FC = () => {
 
     return (
       <div className="space-y-6">
-        <section className="surface-card rounded-[32px] p-6 sm:p-8">
+        <section className="surface-card rounded-[24px] p-4 sm:rounded-[32px] sm:p-8">
           <div className="app-grid">
             <div className="space-y-6">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Product analysis</p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">
                   Analyse products before you commit capital.
                 </h2>
-                <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
+                <p className="mt-4 max-w-2xl text-sm leading-6 text-muted sm:text-base sm:leading-7">
                   Search directly for a product, or browse curated Takealot source feeds by department.
                   Open any listing to inspect buybox signals, seller strength, rating depth, variation-level
                   performance, and external sourcing comparisons.
@@ -1714,13 +1714,13 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="surface-muted rounded-[28px] p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
+            <div className="surface-muted rounded-[24px] p-4 sm:rounded-[28px] sm:p-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                 <div>
                   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent">Source explorer</p>
-                  <h3 className="mt-2 text-2xl font-semibold">Browse curated category feeds</h3>
+                  <h3 className="mt-2 text-xl font-semibold sm:text-2xl">Browse curated category feeds</h3>
                 </div>
-                <div className="metric-pill rounded-full px-3 py-1 text-xs font-semibold">
+                <div className="metric-pill w-fit rounded-full px-3 py-1 text-xs font-semibold">
                   {activeGroupMeta?.count ?? 0} feeds
                 </div>
               </div>
@@ -1760,7 +1760,7 @@ const App: React.FC = () => {
                 <p className="mt-1 text-sm text-muted">{activeGroupMeta?.description}</p>
               </div>
 
-              <div className="mt-5 grid gap-3 max-h-[28rem] overflow-y-auto pr-1">
+              <div className="mt-5 grid gap-3 max-h-[24rem] overflow-y-auto pr-1 sm:max-h-[28rem]">
                 {featuredGroupItems.map((item) => (
                   <button
                     key={item.listingUrl}
@@ -1805,18 +1805,18 @@ const App: React.FC = () => {
     <div className="min-h-screen font-sans">
       <header className="sticky top-0 z-10 border-b border-subtle bg-[color:var(--bg-elevated)]/90 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
             <img
               src="/6671601.png"
               alt="Takealot Seller Product Finder"
               className="h-12 w-12 rounded-2xl border border-accent object-cover sm:h-14 sm:w-14"
             />
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-accent sm:text-3xl">
+            <div className="min-w-0">
+              <h1 className="text-xl font-bold tracking-tight text-accent sm:text-3xl">
                 Takealot Seller Product Finder
               </h1>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-xs text-muted sm:text-sm">
                 Search Takealot directly by seller ID or describe a product to surface the best offers.
               </p>
             </div>
@@ -1824,7 +1824,7 @@ const App: React.FC = () => {
             <button
               type="button"
               onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
-              className="button-ghost inline-flex items-center rounded-2xl px-4 py-2 text-sm font-semibold"
+              className="button-ghost inline-flex w-full items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold sm:w-auto"
             >
               {theme === 'dark' ? 'Light theme' : 'Dark theme'}
             </button>
@@ -1855,7 +1855,7 @@ const App: React.FC = () => {
           />
           <div className="absolute inset-0 overflow-y-auto p-3 sm:p-6 lg:p-10">
             <div className="mx-auto max-w-6xl">
-              <div className="surface-card rounded-[32px]">
+              <div className="surface-card rounded-[24px] sm:rounded-[32px]">
                 <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-subtle bg-[color:var(--bg-elevated)]/95 px-4 py-4 backdrop-blur sm:px-5">
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-wide text-faint">Product Analysis</p>
