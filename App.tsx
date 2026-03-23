@@ -447,6 +447,174 @@ const FEATURED_LISTS = [
     label: 'Smart Home',
     listingUrl: 'https://www.takealot.com/computers/smarthome',
   },
+  {
+    label: 'New To Takealot Gaming',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-gaming&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Gaming',
+    listingUrl: 'https://www.takealot.com/gaming',
+  },
+  {
+    label: 'PlayStation 5',
+    listingUrl: 'https://www.takealot.com/gaming/playstation5',
+  },
+  {
+    label: 'Xbox Series',
+    listingUrl: 'https://www.takealot.com/promotion/xboxseries',
+  },
+  {
+    label: 'Nintendo',
+    listingUrl: 'https://www.takealot.com/gaming/nintendo',
+  },
+  {
+    label: 'PC Gaming',
+    listingUrl: 'https://www.takealot.com/gaming/pc',
+  },
+  {
+    label: 'Games and Accessories',
+    listingUrl: 'https://www.takealot.com/gaming/gamesaccessories',
+  },
+  {
+    label: 'Gaming Merchandise',
+    listingUrl: 'https://www.takealot.com/gaming/gamingmerch',
+  },
+  {
+    label: 'Movies',
+    listingUrl: 'https://www.takealot.com/movies',
+  },
+  {
+    label: 'Movie Merchandise',
+    listingUrl: 'https://www.takealot.com/movies/movie-merchandise-28492?filter=Available:true&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Music',
+    listingUrl: 'https://www.takealot.com/music',
+  },
+  {
+    label: 'Musical Instruments',
+    listingUrl: 'https://www.takealot.com/music/musicalinstruments',
+  },
+  {
+    label: 'New To Takealot Garden Pool and Patio',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-gpp&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Pool and Garden',
+    listingUrl: 'https://www.takealot.com/pool-garden',
+  },
+  {
+    label: 'Braai',
+    listingUrl: 'https://www.takealot.com/pool-garden/braai_new',
+  },
+  {
+    label: 'Charcoal',
+    listingUrl: 'https://www.takealot.com/pool-garden/charcoal-25902',
+  },
+  {
+    label: 'Gas',
+    listingUrl: 'https://www.takealot.com/pool-garden/gas-25903',
+  },
+  {
+    label: 'Braai Accessories',
+    listingUrl: 'https://www.takealot.com/pool-garden/braai-accessories-28417',
+  },
+  {
+    label: 'Patio',
+    listingUrl: 'https://www.takealot.com/pool-garden/patio_new',
+  },
+  {
+    label: 'Patio Furniture',
+    listingUrl: 'https://www.takealot.com/pool-garden/patio-furniture-25874?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Patio Heaters',
+    listingUrl: 'https://www.takealot.com/pool-garden/patio-heaters-25895?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Outdoor Lighting',
+    listingUrl: 'https://www.takealot.com/pool-garden/outdoor-lighting-25896?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Garden',
+    listingUrl: 'https://www.takealot.com/pool-garden/garden1',
+  },
+  {
+    label: 'Top Rated Gardening Tools',
+    listingUrl: 'https://www.takealot.com/pool-garden/gardening-tools-25923?sort=Rating%20Descending',
+  },
+  {
+    label: 'Seeds and Bulbs',
+    listingUrl: 'https://www.takealot.com/pool-garden/seeds-and-bulbs-28645?sort=Relevance',
+  },
+  {
+    label: 'Garden Sheds and Storage',
+    listingUrl: 'https://www.takealot.com/pool-garden/garden-sheds-and-storage-25932?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Pool',
+    listingUrl: 'https://www.takealot.com/pool-garden/pool1',
+  },
+  {
+    label: 'Top Rated Pool Cleaners and Accessories',
+    listingUrl: 'https://www.takealot.com/pool-garden/pool-cleaners-and-accessories-25943?sort=Rating%20Descending',
+  },
+  {
+    label: 'Swimming Aids and Inflatables',
+    listingUrl: 'https://www.takealot.com/pool-garden/swimming-aids-and-inflatables-25942?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'New To Takealot Groceries and Household',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-groceries-and-household&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Alot For Less',
+    listingUrl: 'https://www.takealot.com/alot-for-less',
+  },
+  {
+    label: 'Food Cupboard',
+    listingUrl: 'https://www.takealot.com/home-kitchen/foodcupboard',
+  },
+  {
+    label: 'Top Rated Snacks',
+    listingUrl: 'https://www.takealot.com/health/snacks-28124?sort=Rating%20Descending',
+  },
+  {
+    label: 'Biscuits Rusks and Crackers',
+    listingUrl: 'https://www.takealot.com/home-kitchen/biscuits-rusks-and-crackers-31685?filter=Available:true&sort=Relevance',
+  },
+  {
+    label: 'Breakfast Cereals and Bars',
+    listingUrl: 'https://www.takealot.com/home-kitchen/breakfast-cereals-and-bars-31754?filter=Available:true&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Baking Supplies and Sugar Alternatives',
+    listingUrl: 'https://www.takealot.com/home-kitchen/baking-supplies-sugar-and-sugar-alternatives-31759?filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Tea Coffee and Hot Drinks',
+    listingUrl: 'https://www.takealot.com/home-kitchen/tea-coffee-and-hot-drinks-31738?filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Condiments Spices and Sauces',
+    listingUrl: 'https://www.takealot.com/home-kitchen/condiments-spices-and-sauces-31764?filter=Available:true&sort=Relevance',
+  },
+  {
+    label: 'Household Cleaning',
+    listingUrl: 'https://www.takealot.com/home-kitchen/householdcleaning',
+  },
+  {
+    label: 'Dishwashing',
+    listingUrl: 'https://www.takealot.com/home-kitchen/dishwashing-28707',
+  },
+  {
+    label: 'All Purpose Cleaners',
+    listingUrl: 'https://www.takealot.com/home-kitchen/all-purpose-cleaners-28701?filter=Available:true&sort=Relevance',
+  },
+  {
+    label: 'Best Selling Floor Cleaners',
+    listingUrl: 'https://www.takealot.com/home-kitchen/floor-cleaners-28719?filter=Available:true&sort=BestSelling%20Descending',
+  },
 ] as const;
 
 function buildProductOfferParams(value: string): {
