@@ -21,11 +21,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <article
-      className={`bg-gray-800 rounded-lg overflow-hidden shadow-lg transition-all duration-300 transform hover:-translate-y-1 ${
-        isSelected ? 'ring-2 ring-brand-cyan shadow-cyan-500/40' : 'hover:shadow-cyan-500/50'
+      className={`surface-card overflow-hidden rounded-[24px] transition-all duration-300 transform hover:-translate-y-1 ${
+        isSelected ? 'ring-2 ring-brand-cyan shadow-cyan-500/20' : ''
       }`}
     >
-      <div className="relative h-48 w-full overflow-hidden bg-gray-900">
+      <div className="relative h-48 w-full overflow-hidden bg-[var(--bg-muted)]">
         <img
           src={product.imageUrl}
           alt={product.name}
@@ -36,28 +36,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="p-4 flex flex-col gap-3">
         <div className="flex-1">
           {product.brand && (
-            <p className="text-xs uppercase tracking-wide text-brand-cyan/80 mb-1">{product.brand}</p>
+            <p className="mb-1 text-xs uppercase tracking-wide text-accent">{product.brand}</p>
           )}
           {typeof product.opportunityScore === 'number' && (
-            <p className="mb-2 inline-flex rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-300">
+            <p className="mb-2 inline-flex rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-400">
               Opportunity Score {product.opportunityScore}/100
             </p>
           )}
-          <h3 className="line-clamp-2 text-base font-semibold text-brand-light sm:text-lg" title={product.name}>
+          <h3 className="line-clamp-2 text-base font-semibold sm:text-lg" title={product.name}>
             {product.name}
           </h3>
-          <p className="mt-2 min-h-10 line-clamp-2 text-sm text-gray-400">{product.description}</p>
+          <p className="text-muted mt-2 min-h-10 line-clamp-2 text-sm">{product.description}</p>
           {product.sourceQuery && (
-            <p className="mt-2 text-xs text-gray-500">Discovery theme: {product.sourceQuery}</p>
+            <p className="text-faint mt-2 text-xs">Discovery theme: {product.sourceQuery}</p>
           )}
         </div>
         <div className="mt-3">
-          <p className="text-xl font-bold text-brand-cyan">{formattedPrice}</p>
+          <p className="text-xl font-bold text-accent">{formattedPrice}</p>
           {onInspect && (
             <button
               type="button"
               onClick={() => onInspect(product)}
-              className="mt-3 block w-full rounded-md bg-brand-cyan py-2 text-center font-semibold text-white whitespace-nowrap transition-colors duration-300 hover:bg-brand-cyan/80"
+              className="button-primary mt-3 block w-full rounded-xl py-2.5 text-center font-semibold whitespace-nowrap transition-colors duration-300"
             >
               {inspectLabel}
             </button>
@@ -66,16 +66,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
             href={product.productUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`block w-full rounded-md py-2 text-center font-semibold text-white whitespace-nowrap transition-colors duration-300 ${
+            className={`button-secondary block w-full rounded-xl py-2.5 text-center font-semibold whitespace-nowrap transition-colors duration-300 ${
               onInspect ? 'mt-2' : 'mt-3'
-            } bg-brand-blue hover:bg-brand-cyan`}
+            }`}
           >
             View on Takealot
           </a>
           <button
             type="button"
             onClick={() => setShowComparisons((prev) => !prev)}
-            className="mt-2 w-full rounded-md border border-brand-cyan/60 py-2 text-center font-semibold text-brand-light whitespace-nowrap transition-colors duration-300 hover:bg-brand-cyan/20"
+            className="button-ghost mt-2 w-full rounded-xl py-2.5 text-center font-semibold whitespace-nowrap transition-colors duration-300"
           >
             {showComparisons ? 'Hide price comparison' : 'Compare prices'}
           </button>

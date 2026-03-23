@@ -47,14 +47,14 @@ const SearchForm: React.FC<SearchFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full flex flex-col gap-3 rounded-lg bg-gray-800 p-3 shadow-md sm:p-4"
+      className="surface-card w-full rounded-[28px] p-4 sm:p-5"
     >
-      <div className="grid grid-cols-2 overflow-hidden rounded-md border border-gray-700">
+      <div className="segmented-shell grid grid-cols-2 overflow-hidden rounded-2xl p-1">
         <button
           type="button"
           onClick={() => onModeChange('seller')}
-          className={`px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors ${
-            isSellerMode ? 'bg-brand-cyan/20 text-brand-light' : 'bg-gray-900 text-gray-400'
+          className={`px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors rounded-xl ${
+            isSellerMode ? 'segmented-option-active' : 'segmented-option'
           }`}
         >
           Seller Lookup
@@ -62,8 +62,8 @@ const SearchForm: React.FC<SearchFormProps> = ({
         <button
           type="button"
           onClick={() => onModeChange('product')}
-          className={`px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors ${
-            !isSellerMode ? 'bg-brand-cyan/20 text-brand-light' : 'bg-gray-900 text-gray-400'
+          className={`px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors rounded-xl ${
+            !isSellerMode ? 'segmented-option-active' : 'segmented-option'
           }`}
         >
           Product Analysis
@@ -84,13 +84,13 @@ const SearchForm: React.FC<SearchFormProps> = ({
               : setProductDescription(event.target.value)
           }
           placeholder={placeholder}
-          className="w-full rounded-md bg-gray-700 px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-cyan"
+          className="input-shell w-full rounded-2xl px-4 py-3"
           disabled={isLoading}
         />
         <button
           type="submit"
           disabled={disableSubmit}
-          className="inline-flex w-full shrink-0 items-center justify-center rounded-md bg-brand-cyan px-4 py-2 font-bold text-white whitespace-nowrap transition-all duration-300 hover:bg-brand-cyan/80 disabled:cursor-not-allowed disabled:bg-gray-500 sm:w-auto sm:min-w-[11.5rem]"
+          className="button-primary inline-flex w-full shrink-0 items-center justify-center rounded-2xl px-4 py-3 font-bold whitespace-nowrap transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[11.5rem]"
         >
           {isLoading ? (
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent border-white" />
@@ -103,7 +103,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
         </button>
       </div>
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-muted">
         {isSellerMode
           ? "Enter a Takealot seller ID to load that seller's catalogue, then filter and compare products."
           : 'Search Takealot products first, then open the exact listing you want to analyse for sourcing, competition, and buybox signals.'}

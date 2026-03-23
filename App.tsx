@@ -14,6 +14,28 @@ import ProductOfferHighlights from './components/ProductOfferHighlights';
 import { CloseIcon } from './components/icons/CloseIcon';
 
 const TAKEALOT_HOST_SNIPPET = 'takealot.com';
+type Theme = 'dark' | 'light';
+type FeaturedGroup =
+  | 'Appliances'
+  | 'DIY & Auto'
+  | 'Baby'
+  | 'Beauty'
+  | 'Books'
+  | 'Outdoor'
+  | 'Fashion'
+  | 'Travel'
+  | 'Electronics'
+  | 'Gaming & Media'
+  | 'Garden & Pool'
+  | 'Groceries'
+  | 'Health'
+  | 'Homeware'
+  | 'Liquor'
+  | 'Office'
+  | 'Pets'
+  | 'Sport'
+  | 'Toys'
+  | 'General';
 const FEATURED_LISTS = [
   {
     label: 'New To Takealot Appliances',
@@ -992,6 +1014,76 @@ const FEATURED_LISTS = [
     listingUrl: 'https://www.takealot.com/toys/smart-and-interactive-toys-25363?sort=ReleaseDate%20Descending',
   },
 ] as const;
+const FEATURED_GROUP_ORDER: FeaturedGroup[] = [
+  'Appliances',
+  'DIY & Auto',
+  'Baby',
+  'Beauty',
+  'Books',
+  'Outdoor',
+  'Fashion',
+  'Travel',
+  'Electronics',
+  'Gaming & Media',
+  'Garden & Pool',
+  'Groceries',
+  'Health',
+  'Homeware',
+  'Liquor',
+  'Office',
+  'Pets',
+  'Sport',
+  'Toys',
+  'General',
+];
+const FEATURED_GROUP_COPY: Record<FeaturedGroup, string> = {
+  Appliances: 'Kitchen and appliance feeds suited to new-in, top-rated, and practical household sourcing.',
+  'DIY & Auto': 'Tools, auto parts, workshop supplies, and maintenance-led categories with repeat demand.',
+  Baby: 'Baby care, feeding, nursery, and parenting-led categories where trust and review depth matter.',
+  Beauty: 'Beauty, skincare, fragrances, and grooming trends that benefit from fast variation analysis.',
+  Books: 'Books and reading-led categories where trend, bestseller, and genre pockets move differently.',
+  Outdoor: 'Camping and outdoor categories with seasonality, bundles, and accessory-driven upsells.',
+  Fashion: 'Fashion-led discovery feeds for apparel, watches, jewelry, and footwear.',
+  Travel: 'Travel and luggage categories including suitcases, backpacks, wallets, and business bags.',
+  Electronics: 'Electronics, computing, cellular, wearables, and smart-home categories.',
+  'Gaming & Media': 'Gaming hardware, accessories, movies, music, and media-adjacent feeds.',
+  'Garden & Pool': 'Patio, braai, garden, and pool categories for home-improvement and seasonal sourcing.',
+  Groceries: 'Household, pantry, snacks, and cleaning categories with velocity and replenishment potential.',
+  Health: 'Health, supplements, wellness, and personal-care categories with strong repeat-purchase behavior.',
+  Homeware: 'Furniture, decor, cookware, drinkware, and broader home-living categories.',
+  Liquor: 'Liquor and beverage categories where brand and format matter more than deep spec analysis.',
+  Office: 'Office, stationery, printing, school, and craft-led supplies.',
+  Pets: 'Pet supplies and animal-type feeds for consumables, accessories, and niche care.',
+  Sport: 'Sporting goods, apparel, footwear, and fan-driven categories.',
+  Toys: 'Toys, games, outdoor play, and interactive products for seasonal and gifting demand.',
+  General: 'Promotions, gift ideas, and broader marketplace feeds that do not fit a single department.',
+};
+
+function resolveFeaturedGroup(listingUrl: string, label: string): FeaturedGroup {
+  const url = listingUrl.toLowerCase();
+  const text = `${label.toLowerCase()} ${url}`;
+
+  if (/appliances|airfryer|kettle|blender|microwave|fridge|dishwasher|stoves|oven|washing|dryer|vacuum|coffee-machines/.test(text)) return 'Appliances';
+  if (/diy|auto|paint|tool|power-tools|workwear|security|car-care|industrial/.test(text)) return 'DIY & Auto';
+  if (/\/baby|maternity|nursery|nappies|potty|baby /.test(text)) return 'Baby';
+  if (/beauty|grooming|fragrance|makeup|skin-care|haircare|sun-shop|salonhair/.test(text)) return 'Beauty';
+  if (/\/books|book|fiction|nonfiction|cookbooks|academic|christian|bestsellers|top-ya/.test(text)) return 'Books';
+  if (/camping-outdoor|tents|hiking|fishing|hunting|sleeping gear|coolers/.test(text)) return 'Outdoor';
+  if (/fashion|denim|footwear|jewellery|watches|fresh-fashion/.test(text)) return 'Fashion';
+  if (/luggage-travel|suitcases|wallets|business bags|backpacks and duffels/.test(text)) return 'Travel';
+  if (/electronics|computers|cameras|cellular-gps|tv-audio-video|laptops|tablets|wearable|drones|smart home|printing/.test(text)) return 'Electronics';
+  if (/gaming|playstation|xbox|nintendo|movies|music|musicalinstruments|media|psl/.test(text)) return 'Gaming & Media';
+  if (/pool-garden|patio|braai|charcoal|gas|garden|pool|outdoor-lighting|swimming/.test(text)) return 'Garden & Pool';
+  if (/groceries|foodcupboard|snacks|biscuits|cereals|baking|tea-coffee|condiments|householdcleaning|dishwashing|cleaners|alot-for-less/.test(text)) return 'Groceries';
+  if (/health|wellness|vitamins|supplements|sportsnutrition|first-aid|sexualhealth|personalcare|deodorant|lip-and-skin-care/.test(text)) return 'Health';
+  if (/home-kitchen|home-decor|bathroom-accessories|furniture|cookware_|kitchen-tools|cutlery|drinkware|linen/.test(text)) return 'Homeware';
+  if (/liquor|wine|beer|whisky|cognac|brandy|gin|vodka|tequila|liqueurs|non-alcoholic/.test(text)) return 'Liquor';
+  if (/office-stationery|office|student|paper|pens|colouring|technical-instruments|arts_crafts/.test(text)) return 'Office';
+  if (/\/pets|vetstore|dogsupplies|catsupplies|animaltype/.test(text)) return 'Pets';
+  if (/\/sport|supersport|sports-clothing|sports-footwear|teamsports|cycling|tennis|cricket|hockey|fan-gear/.test(text)) return 'Sport';
+  if (/\/toys|actionfigures|boardgames|card-games|indoor-play|outdoor-play|puzzles|interactive-toys/.test(text)) return 'Toys';
+  return 'General';
+}
 
 function buildProductOfferParams(value: string): {
   description?: string;
@@ -1015,6 +1107,14 @@ function buildProductOfferParams(value: string): {
 }
 
 const App: React.FC = () => {
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') {
+      return 'dark';
+    }
+
+    const stored = window.localStorage.getItem('app-theme');
+    return stored === 'light' || stored === 'dark' ? stored : 'dark';
+  });
   const [products, setProducts] = useState<Product[]>([]);
   const [isSearchingProducts, setIsSearchingProducts] = useState<boolean>(false);
   const [productSearchError, setProductSearchError] = useState<string | null>(null);
@@ -1044,6 +1144,8 @@ const App: React.FC = () => {
   const [hasMoreDiscoveryProducts, setHasMoreDiscoveryProducts] = useState<boolean>(false);
   const [selectedFeaturedList, setSelectedFeaturedList] = useState<string | null>(null);
   const [featuredListNextAfter, setFeaturedListNextAfter] = useState<string | null>(null);
+  const [selectedFeaturedGroup, setSelectedFeaturedGroup] = useState<FeaturedGroup>('Appliances');
+  const [featuredListQuery, setFeaturedListQuery] = useState<string>('');
 
   const [searchMode, setSearchMode] = useState<SearchMode>('seller');
 
@@ -1066,6 +1168,35 @@ const App: React.FC = () => {
       window.removeEventListener('keydown', handleEscape);
     };
   }, [isProductModalOpen]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem('app-theme', theme);
+  }, [theme]);
+
+  const featuredGroups = useMemo(() => {
+    const counts = new Map<FeaturedGroup, number>();
+    FEATURED_LISTS.forEach((item) => {
+      const group = resolveFeaturedGroup(item.listingUrl, item.label);
+      counts.set(group, (counts.get(group) ?? 0) + 1);
+    });
+
+    return FEATURED_GROUP_ORDER.filter((group) => counts.has(group)).map((group) => ({
+      group,
+      count: counts.get(group) ?? 0,
+      description: FEATURED_GROUP_COPY[group],
+    }));
+  }, []);
+
+  const featuredGroupItems = useMemo(() => {
+    const items = FEATURED_LISTS.filter((item) => resolveFeaturedGroup(item.listingUrl, item.label) === selectedFeaturedGroup);
+    if (!featuredListQuery.trim()) {
+      return items;
+    }
+
+    const needle = featuredListQuery.trim().toLowerCase();
+    return items.filter((item) => item.label.toLowerCase().includes(needle) || item.listingUrl.toLowerCase().includes(needle));
+  }, [featuredListQuery, selectedFeaturedGroup]);
 
   const handleLoadDiscoveryProducts = useCallback(async () => {
     if (isLoadingProductDiscovery) {
@@ -1341,18 +1472,18 @@ const App: React.FC = () => {
         type="button"
         onClick={options.onPrevious}
         disabled={!options.hasPrevious}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-cyan/60 text-lg font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
+        className="button-ghost inline-flex h-10 w-10 items-center justify-center rounded-full text-lg font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
       >
         {'<'}
       </button>
-      <div className="rounded-full border border-gray-700 bg-gray-800/80 px-4 py-2 text-sm font-semibold text-brand-light">
+      <div className="surface-muted rounded-full px-4 py-2 text-sm font-semibold">
         Page {options.currentPage}
       </div>
       <button
         type="button"
         onClick={options.onNext}
         disabled={!options.hasNext || options.isLoadingNext}
-        className="inline-flex h-10 min-w-10 items-center justify-center rounded-full border border-brand-cyan/60 px-3 text-lg font-semibold text-brand-light transition-colors hover:bg-brand-cyan/20 disabled:cursor-not-allowed disabled:border-gray-600 disabled:text-gray-500"
+        className="button-ghost inline-flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-lg font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
       >
         {options.isLoadingNext ? <Spinner /> : '>'}
       </button>
@@ -1378,8 +1509,8 @@ const App: React.FC = () => {
     if (products.length > 0) {
       return (
         <>
-          <div className="mb-6">
-            <label htmlFor="catalog-filter" className="mb-2 block text-sm font-medium text-gray-300">
+          <div className="surface-card mb-6 rounded-[28px] p-5 sm:p-6">
+            <label htmlFor="catalog-filter" className="mb-2 block text-sm font-medium text-muted">
               Filter results
             </label>
             <input
@@ -1388,16 +1519,16 @@ const App: React.FC = () => {
               value={catalogQuery}
               onChange={(event) => setCatalogQuery(event.target.value)}
               placeholder="Search within this seller's catalogue..."
-              className="w-full rounded-md bg-gray-700 px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-cyan"
+              className="input-shell w-full rounded-2xl px-4 py-3"
             />
-            <p className="mt-2 text-xs text-gray-400">
+            <p className="mt-2 text-xs text-muted">
               Showing {filteredProducts.length} of {products.length} items.
             </p>
           </div>
           {filteredProducts.length > 0 ? (
             <ProductGrid products={filteredProducts} />
           ) : (
-            <p className="mt-10 text-center text-gray-400">
+            <p className="mt-10 text-center text-muted">
               No products match &quot;{catalogQuery}&quot;. Try another keyword.
             </p>
           )}
@@ -1408,14 +1539,16 @@ const App: React.FC = () => {
       return <SearchGuide />;
     }
     return (
-      <div className="mt-20 text-center text-gray-300">
+      <div className="surface-card mt-12 rounded-[32px] p-8 text-center">
         <h2 className="text-2xl font-bold">Welcome!</h2>
-        <p className="mt-2">Enter a Takealot Seller ID to list their catalogue.</p>
+        <p className="mt-2 text-muted">Enter a Takealot Seller ID to list their catalogue.</p>
       </div>
     );
   };
 
   const renderProductContent = () => {
+    const activeGroupMeta = featuredGroups.find(({ group }) => group === selectedFeaturedGroup);
+
     if (isSearchingProductResults) {
       return (
         <div className="mt-20 flex justify-center">
@@ -1436,18 +1569,18 @@ const App: React.FC = () => {
     if (productResults.length > 0) {
       return (
         <div className="space-y-8">
-          <section className="rounded-lg border border-gray-700 bg-gray-800/60 p-4 sm:p-6">
+          <section className="surface-card rounded-[28px] p-5 sm:p-7">
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="text-2xl font-semibold text-brand-light">Matching products</h2>
-                <p className="mt-1 text-sm text-gray-400">
+                <h2 className="text-2xl font-semibold">Matching products</h2>
+                <p className="mt-1 text-sm text-muted">
                   Found {productResults.length} result{productResults.length === 1 ? '' : 's'} for{' '}
                   "{lastProductQuery}". Choose a listing to open its sourcing analysis, including
                   buybox position, delivery speed, seller strength, ratings, and comparison links.
                 </p>
               </div>
               {selectedProductId && (
-                <p className="break-all text-xs text-brand-cyan">Ready to analyse: {selectedProductId}</p>
+                <p className="break-all text-xs text-accent">Ready to analyse: {selectedProductId}</p>
               )}
             </div>
             <ProductGrid
@@ -1477,22 +1610,22 @@ const App: React.FC = () => {
       const activeFeaturedList = FEATURED_LISTS.find((item) => item.listingUrl === selectedFeaturedList);
       return (
         <div className="space-y-8">
-          <section className="rounded-lg border border-gray-700 bg-gray-800/60 p-4 sm:p-6">
+          <section className="surface-card rounded-[28px] p-5 sm:p-7">
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="text-2xl font-semibold text-brand-light">Recommended products to review</h2>
-                <p className="mt-1 text-sm text-gray-400">
+                <h2 className="text-2xl font-semibold">Browse source list</h2>
+                <p className="mt-1 text-sm text-muted">
                   {activeFeaturedList
                     ? `Browsing ${activeFeaturedList.label}. Open any product to inspect its sourcing analysis.`
                     : 'This shortlist surfaces 20 products with comparatively stronger public signals across rating, review depth, seller strength, and buybox structure. Open any product to inspect its full sourcing analysis.'}
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <p className="text-xs text-brand-cyan">Page {currentDiscoveryPage + 1}</p>
+                <p className="text-xs text-accent">Page {currentDiscoveryPage + 1}</p>
                 <button
                   type="button"
                   onClick={handleClearFeaturedList}
-                  className="inline-flex items-center rounded-md border border-gray-600 px-3 py-2 text-xs font-semibold text-gray-200 transition-colors hover:border-brand-cyan/60 hover:text-brand-light"
+                  className="button-ghost inline-flex items-center rounded-xl px-3 py-2 text-xs font-semibold transition-colors"
                 >
                   Back to front page
                 </button>
@@ -1532,48 +1665,127 @@ const App: React.FC = () => {
 
     return (
       <div className="space-y-6">
-        <section className="rounded-lg border border-gray-700 bg-gray-800/60 p-5 text-center text-gray-300 sm:p-6">
-          <h2 className="text-2xl font-bold">Analyse Products Before You Source Them</h2>
-          <p className="mt-2 text-sm text-gray-400">
-            1. Search by product name, keyword, or Takealot URL.
-            <br />
-            2. Review the matching listings.
-            <br />
-            3. Open one product to see its sourcing assessment, buybox signals, seller quality, and external comparison links.
-          </p>
-        </section>
+        <section className="surface-card rounded-[32px] p-6 sm:p-8">
+          <div className="app-grid">
+            <div className="space-y-6">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Product analysis</p>
+                <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+                  Analyse products before you commit capital.
+                </h2>
+                <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
+                  Search directly for a product, or browse curated Takealot source feeds by department.
+                  Open any listing to inspect buybox signals, seller strength, rating depth, variation-level
+                  performance, and external sourcing comparisons.
+                </p>
+              </div>
 
-        <section className="rounded-lg border border-gray-700 bg-gray-800/40 p-5 text-gray-300 sm:p-6">
-          <div className="flex flex-col gap-4">
-            <div>
-              <h3 className="text-lg font-semibold text-brand-light">Featured source lists</h3>
-              <p className="mt-1 text-sm text-gray-400">
-                Start from one of these curated listing pages, then page forward with the arrows.
-              </p>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="surface-muted rounded-2xl p-4">
+                  <p className="text-sm font-medium text-muted">Departments</p>
+                  <p className="mt-2 text-3xl font-semibold">{featuredGroups.length}</p>
+                </div>
+                <div className="surface-muted rounded-2xl p-4">
+                  <p className="text-sm font-medium text-muted">Source feeds</p>
+                  <p className="mt-2 text-3xl font-semibold">{FEATURED_LISTS.length}</p>
+                </div>
+                <div className="surface-muted rounded-2xl p-4">
+                  <p className="text-sm font-medium text-muted">Workflow</p>
+                  <p className="mt-2 text-lg font-semibold">Search, browse, analyse</p>
+                </div>
+              </div>
+
+              <div className="surface-muted rounded-2xl p-5">
+                <h3 className="text-lg font-semibold">How to use product analysis</h3>
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  <div>
+                    <p className="text-sm font-semibold">1. Search directly</p>
+                    <p className="mt-1 text-sm text-muted">Use a product title or Takealot URL when you already know the listing.</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">2. Browse by department</p>
+                    <p className="mt-1 text-sm text-muted">Use the source explorer to jump into a curated feed without leaving the app.</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">3. Inspect the modal</p>
+                    <p className="mt-1 text-sm text-muted">Review buybox, delivery, seller quality, product signals, and all available variations.</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {FEATURED_LISTS.map((item) => {
-                const isActive = selectedFeaturedList === item.listingUrl;
-                return (
+
+            <div className="surface-muted rounded-[28px] p-5 sm:p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent">Source explorer</p>
+                  <h3 className="mt-2 text-2xl font-semibold">Browse curated category feeds</h3>
+                </div>
+                <div className="metric-pill rounded-full px-3 py-1 text-xs font-semibold">
+                  {activeGroupMeta?.count ?? 0} feeds
+                </div>
+              </div>
+
+              <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
+                {featuredGroups.map((item) => (
+                  <button
+                    key={item.group}
+                    type="button"
+                    onClick={() => setSelectedFeaturedGroup(item.group)}
+                    className={`source-chip whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold ${
+                      item.group === selectedFeaturedGroup ? 'source-chip-active' : ''
+                    }`}
+                  >
+                    {item.group}
+                    <span className="ml-2 text-xs opacity-70">{item.count}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-5">
+                <label htmlFor="featured-filter" className="mb-2 block text-sm font-medium text-muted">
+                  Filter source feeds
+                </label>
+                <input
+                  id="featured-filter"
+                  type="text"
+                  value={featuredListQuery}
+                  onChange={(event) => setFeaturedListQuery(event.target.value)}
+                  placeholder="Filter this department..."
+                  className="input-shell w-full rounded-2xl px-4 py-3"
+                />
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-accent bg-[var(--accent-soft)] px-4 py-3">
+                <p className="text-sm font-semibold">{selectedFeaturedGroup}</p>
+                <p className="mt-1 text-sm text-muted">{activeGroupMeta?.description}</p>
+              </div>
+
+              <div className="mt-5 grid gap-3 max-h-[28rem] overflow-y-auto pr-1">
+                {featuredGroupItems.map((item) => (
                   <button
                     key={item.listingUrl}
                     type="button"
                     onClick={() => void handleSelectFeaturedList(item.listingUrl)}
-                    disabled={isLoadingProductDiscovery && isActive}
-                    className={`rounded-md border px-4 py-3 text-left text-sm font-semibold transition-colors ${
-                      isActive
-                        ? 'border-brand-cyan bg-brand-cyan/20 text-brand-light'
-                        : 'border-gray-700 bg-gray-800/70 text-gray-300 hover:border-brand-cyan/50 hover:bg-gray-800'
+                    disabled={isLoadingProductDiscovery && selectedFeaturedList === item.listingUrl}
+                    className={`surface-soft rounded-2xl px-4 py-4 text-left transition-all hover:-translate-y-0.5 ${
+                      selectedFeaturedList === item.listingUrl ? 'border-accent' : ''
                     }`}
                   >
-                    {item.label}
+                    <p className="text-sm font-semibold">{item.label}</p>
+                    <p className="mt-1 text-xs text-muted break-all">{item.listingUrl}</p>
                   </button>
-                );
-              })}
+                ))}
+                {featuredGroupItems.length === 0 && (
+                  <div className="surface-soft rounded-2xl px-4 py-6 text-sm text-muted">
+                    No source feeds match that filter inside {selectedFeaturedGroup}.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+
           {productDiscoveryError && (
-            <p className="mt-4 rounded-md border border-amber-700/60 bg-amber-900/20 px-3 py-2 text-sm text-amber-200">
+            <p className="mt-5 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
               {productDiscoveryError}
             </p>
           )}
@@ -1590,29 +1802,38 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-dark font-sans text-brand-light">
-      <header className="sticky top-0 z-10 bg-brand-blue/20 shadow-lg backdrop-blur-sm">
+    <div className="min-h-screen font-sans">
+      <header className="sticky top-0 z-10 border-b border-subtle bg-[color:var(--bg-elevated)]/90 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
             <img
               src="/6671601.png"
               alt="Takealot Seller Product Finder"
-              className="h-12 w-12 rounded-xl border border-brand-cyan/30 object-cover sm:h-14 sm:w-14"
+              className="h-12 w-12 rounded-2xl border border-accent object-cover sm:h-14 sm:w-14"
             />
             <div>
-              <h1 className="text-2xl font-bold tracking-wider text-brand-cyan sm:text-3xl">
+              <h1 className="text-2xl font-bold tracking-tight text-accent sm:text-3xl">
                 Takealot Seller Product Finder
               </h1>
-              <p className="mt-1 text-sm text-gray-400">
+              <p className="mt-1 text-sm text-muted">
                 Search Takealot directly by seller ID or describe a product to surface the best offers.
               </p>
             </div>
+          </div>
+            <button
+              type="button"
+              onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+              className="button-ghost inline-flex items-center rounded-2xl px-4 py-2 text-sm font-semibold"
+            >
+              {theme === 'dark' ? 'Light theme' : 'Dark theme'}
+            </button>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-6xl">
           <SearchForm
             mode={searchMode}
             onModeChange={setSearchMode}
@@ -1630,22 +1851,22 @@ const App: React.FC = () => {
             type="button"
             aria-label="Close product breakdown"
             onClick={() => setIsProductModalOpen(false)}
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
           <div className="absolute inset-0 overflow-y-auto p-3 sm:p-6 lg:p-10">
             <div className="mx-auto max-w-6xl">
-              <div className="rounded-2xl border border-gray-700 bg-brand-dark shadow-2xl">
-                <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-gray-700 bg-brand-dark/95 px-4 py-4 backdrop-blur sm:px-5">
+              <div className="surface-card rounded-[32px]">
+                <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-subtle bg-[color:var(--bg-elevated)]/95 px-4 py-4 backdrop-blur sm:px-5">
                   <div className="min-w-0">
-                    <p className="text-xs uppercase tracking-wide text-gray-500">Product Analysis</p>
-                    <h2 className="break-words text-base font-semibold text-brand-light sm:text-lg">
+                    <p className="text-xs uppercase tracking-wide text-faint">Product Analysis</p>
+                    <h2 className="break-words text-base font-semibold sm:text-lg">
                       {productOffers?.product.name ?? (selectedProductId ? `Selected: ${selectedProductId}` : 'Loading')}
                     </h2>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsProductModalOpen(false)}
-                    className="inline-flex items-center justify-center rounded-full border border-gray-600 p-2 text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                    className="button-ghost inline-flex items-center justify-center rounded-full p-2 transition-colors"
                   >
                     <CloseIcon className="h-5 w-5" />
                   </button>
@@ -1653,12 +1874,12 @@ const App: React.FC = () => {
 
                 <div className="p-4 sm:p-6">
                   {isLoadingSelectedProduct && (
-                    <div className="rounded-lg border border-gray-700 bg-gray-800/60 p-5 sm:p-8">
-                      <div className="flex flex-col gap-3 text-brand-light sm:flex-row sm:items-center">
+                    <div className="surface-muted rounded-[24px] p-5 sm:p-8">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                         <Spinner />
                         <div>
                           <p className="font-semibold">Loading product analysis</p>
-                          <p className="mt-1 text-sm text-gray-400">
+                          <p className="mt-1 text-sm text-muted">
                             Pulling buybox, delivery, seller, product-quality, and sourcing signals for the selected listing.
                           </p>
                         </div>
@@ -1681,9 +1902,9 @@ const App: React.FC = () => {
                   )}
 
                   {productOffers && productOffers.offers.length === 0 && !isLoadingSelectedProduct && (
-                    <div className="mx-auto max-w-xl py-10 text-center text-gray-300">
+                    <div className="mx-auto max-w-xl py-10 text-center">
                       <h2 className="text-xl font-semibold">No highlighted offers were found.</h2>
-                      <p className="mt-2 text-sm text-gray-400">
+                      <p className="mt-2 text-sm text-muted">
                         This product resolved correctly, but Takealot did not expose Best Price or Fastest
                         Delivery cards for it.
                       </p>

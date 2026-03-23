@@ -40,8 +40,8 @@ const ProductComparisonLinks: React.FC<ProductComparisonLinksProps> = ({
   }, [productName]);
 
   return (
-    <div className="space-y-2 bg-gray-900/60 border border-gray-700 rounded-md p-3">
-      <p className="text-xs text-gray-400">Search this product on:</p>
+    <div className="surface-muted space-y-2 rounded-2xl p-3">
+      <p className="text-xs text-muted">Search this product on:</p>
       <div className={expanded ? 'grid gap-2 sm:grid-cols-2 lg:grid-cols-3' : 'grid gap-2'}>
         {comparisonLinks.map((link) => (
           <a
@@ -49,7 +49,7 @@ const ProductComparisonLinks: React.FC<ProductComparisonLinksProps> = ({
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full text-center bg-brand-cyan/20 hover:bg-brand-cyan/40 text-brand-light text-sm font-medium py-2 rounded-md transition-colors duration-300"
+            className="button-secondary block w-full rounded-xl py-2 text-center text-sm font-medium transition-colors duration-300"
           >
             {link.label}
           </a>

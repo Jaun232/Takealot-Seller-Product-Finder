@@ -2,8 +2,8 @@ import React from 'react';
 
 const SearchGuide: React.FC = () => {
   return (
-    <div className="mt-12 mx-auto max-w-lg rounded-lg border border-gray-700 bg-gray-800/50 p-5 text-gray-300 sm:p-6">
-      <h3 className="mb-4 text-xl font-bold text-brand-cyan">How To Use Seller Lookup</h3>
+    <div className="surface-card mx-auto mt-12 max-w-lg rounded-[28px] p-5 sm:p-6">
+      <h3 className="mb-4 text-xl font-bold text-accent">How To Use Seller Lookup</h3>
       <p className="mb-4">Use seller mode when you want to inspect one seller's full Takealot catalogue.</p>
       <ol className="list-decimal list-inside space-y-3">
         <li>

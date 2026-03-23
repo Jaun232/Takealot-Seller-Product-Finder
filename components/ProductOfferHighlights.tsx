@@ -17,26 +17,26 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
   const sourcingAssessment = buildSourcingAssessment(summary);
 
   return (
-    <section className="rounded-lg border border-gray-700 bg-gray-800/70 p-4 shadow-lg sm:p-6">
+    <section className="surface-card rounded-[28px] p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex min-w-0 items-start gap-4">
           {product.imageUrl && (
             <img
               src={product.imageUrl.replace('{size}', '400')}
               alt={product.name}
-              className="h-16 w-16 shrink-0 rounded-lg border border-gray-700 object-cover sm:h-20 sm:w-20"
+              className="h-16 w-16 shrink-0 rounded-lg border border-subtle object-cover sm:h-20 sm:w-20"
               loading="lazy"
             />
           )}
           <div className="min-w-0">
-            <p className="text-sm uppercase tracking-wide text-gray-400">Matched product</p>
-            <h2 className="break-words text-lg font-semibold text-brand-light sm:text-xl">{product.name}</h2>
+            <p className="text-sm uppercase tracking-wide text-muted">Matched product</p>
+            <h2 className="break-words text-lg font-semibold sm:text-xl">{product.name}</h2>
             {product.subtitle && (
-              <p className="mt-1 max-w-2xl break-words text-sm text-gray-400">{product.subtitle}</p>
+              <p className="text-muted mt-1 max-w-2xl break-words text-sm">{product.subtitle}</p>
             )}
-            <p className="mt-1 break-words text-xs text-gray-500">Query: "{meta.query}"</p>
+            <p className="text-faint mt-1 break-words text-xs">Query: "{meta.query}"</p>
             {(product.brand || typeof product.starRating === 'number' || typeof product.reviewCount === 'number') && (
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-muted mt-1 text-xs">
                 {product.brand ? `Brand: ${product.brand}` : 'Brand unavailable'}
                 {(typeof product.starRating === 'number' || typeof product.reviewCount === 'number') && ' | '}
                 {typeof product.starRating === 'number'
@@ -48,7 +48,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
               </p>
             )}
             {product.sellerName && (
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-muted mt-1 text-xs">
                 Sold by{' '}
                 {product.sellerLink ? (
                   <a
@@ -65,7 +65,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
               </p>
             )}
             {(typeof product.sellerRating === 'number' || typeof product.sellerReviewCount === 'number') && (
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-muted mt-1 text-xs">
                 Seller signal:{' '}
                 {typeof product.sellerRating === 'number'
                   ? `${product.sellerRating.toFixed(1)} stars`
@@ -82,7 +82,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
             href={product.productUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-md border border-brand-cyan/60 px-4 py-2 text-sm font-medium text-brand-light whitespace-nowrap transition-colors hover:bg-brand-cyan/20"
+            className="button-secondary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors"
           >
             View on Takealot
           </a>
@@ -90,7 +90,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
             href={meta.searchUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-gray-300 whitespace-nowrap transition-colors hover:bg-gray-700"
+            className="button-ghost inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors"
           >
             View search page
           </a>
@@ -98,19 +98,19 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
       </div>
 
       {message && (
-        <p className="mt-4 text-sm text-yellow-300/90 bg-yellow-900/20 border border-yellow-700/60 rounded-md px-3 py-2">
+        <p className="mt-4 rounded-xl border border-yellow-500/40 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-300/90">
           {message}
         </p>
       )}
 
-      <div className="mt-6 bg-gray-900/50 border border-gray-700 rounded-lg p-5">
+      <div className="surface-muted mt-6 rounded-[24px] p-5">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-wide text-gray-400">Sourcing Assessment</p>
-            <h3 className="text-xl font-semibold text-brand-light mt-1">
+            <p className="text-xs uppercase tracking-wide text-muted">Sourcing Assessment</p>
+            <h3 className="mt-1 text-xl font-semibold">
               {sourcingAssessment.opportunityLabel}
             </h3>
-            <p className="text-sm text-gray-400 mt-2 max-w-3xl">
+            <p className="text-muted mt-2 max-w-3xl text-sm">
               {sourcingAssessment.summary}
             </p>
           </div>
@@ -144,17 +144,17 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
         </div>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
-          <div className="rounded-md border border-gray-700 bg-gray-950/40 p-4">
-            <p className="text-sm font-semibold text-brand-light">Why This Looks {sourcingAssessment.opportunityLabel}</p>
-            <ul className="mt-3 text-sm text-gray-300 list-disc list-inside space-y-2">
+          <div className="surface-soft rounded-2xl p-4">
+            <p className="text-sm font-semibold">Why This Looks {sourcingAssessment.opportunityLabel}</p>
+            <ul className="mt-3 list-inside list-disc space-y-2 text-sm">
               {sourcingAssessment.reasons.map((reason) => (
                 <li key={reason}>{reason}</li>
               ))}
             </ul>
           </div>
-          <div className="rounded-md border border-gray-700 bg-gray-950/40 p-4">
-            <p className="text-sm font-semibold text-brand-light">Missing or Limited Signals</p>
-            <ul className="mt-3 text-sm text-gray-300 list-disc list-inside space-y-2">
+          <div className="surface-soft rounded-2xl p-4">
+            <p className="text-sm font-semibold">Missing or Limited Signals</p>
+            <ul className="mt-3 list-inside list-disc space-y-2 text-sm">
               {sourcingAssessment.caveats.map((reason) => (
                 <li key={reason}>{reason}</li>
               ))}
@@ -164,13 +164,13 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
       </div>
 
       {product.bulletHighlights.length > 0 && (
-        <div className="mt-6 bg-gray-900/40 border border-gray-700 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-brand-light mb-3">Seller-Relevant Highlights</h3>
+        <div className="surface-muted mt-6 rounded-2xl p-4">
+          <h3 className="mb-3 text-sm font-semibold">Seller-Relevant Highlights</h3>
           <div className="flex flex-wrap gap-2">
             {product.bulletHighlights.map((item) => (
               <span
                 key={item}
-                className="px-3 py-1 text-xs rounded-full border border-brand-cyan/40 text-brand-cyan bg-brand-cyan/10"
+                className="rounded-full border border-accent bg-[var(--accent-soft)] px-3 py-1 text-xs text-accent"
               >
                 {item}
               </span>
@@ -180,14 +180,14 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
       )}
 
       {product.variants.length > 0 && (
-        <div className="mt-6 rounded-lg border border-gray-700 bg-gray-900/40 p-4">
-          <h3 className="mb-3 text-sm font-semibold text-brand-light">Variations</h3>
+        <div className="surface-muted mt-6 rounded-2xl p-4">
+          <h3 className="mb-3 text-sm font-semibold">Variations</h3>
           <div className="space-y-4">
             {product.variants.map((variant) => (
               <div key={`${variant.type}-${variant.label}`}>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm font-medium text-brand-light">{variant.label}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-medium">{variant.label}</p>
+                  <p className="text-xs text-muted">
                     {variant.selected ? `Selected: ${variant.selected}` : 'No option selected in this URL'}
                   </p>
                 </div>
@@ -209,10 +209,10 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
 
                     const className = `inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
                       option.isSelected
-                        ? 'border-brand-cyan bg-brand-cyan/20 text-brand-light'
+                        ? 'border-brand-cyan bg-brand-cyan/20'
                         : option.isEnabled
-                          ? 'border-gray-600 bg-gray-800/80 text-gray-300 hover:border-brand-cyan/60'
-                          : 'border-gray-700 bg-gray-900 text-gray-500'
+                          ? 'border-[var(--border)] bg-[var(--bg-soft)] text-[var(--text)] hover:border-brand-cyan/60'
+                          : 'border-[var(--border)] bg-[var(--bg-muted)] text-[var(--text-faint)]'
                     }`;
 
                     if (option.productUrl && option.isEnabled && onSelectVariant) {
@@ -257,7 +257,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
             ))}
           </div>
           {onSelectVariant && (
-            <p className="mt-3 text-xs text-gray-400">
+            <p className="text-muted mt-3 text-xs">
               Click a variation to load its own buybox, seller, pricing, and sourcing analysis.
             </p>
           )}
@@ -265,16 +265,16 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
       )}
 
       {product.insights.length > 0 && (
-        <div className="mt-6 bg-gray-900/40 border border-gray-700 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-brand-light mb-3">Key Product Information</h3>
+        <div className="surface-muted mt-6 rounded-2xl p-4">
+          <h3 className="mb-3 text-sm font-semibold">Key Product Information</h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {product.insights.map((item) => (
               <div
                 key={`${item.label}-${item.value}`}
-                className="rounded-md border border-gray-700 bg-gray-950/40 p-3"
+                className="surface-soft rounded-2xl p-3"
               >
-                <p className="text-[11px] uppercase tracking-wide text-gray-500">{item.label}</p>
-                <p className="text-sm text-gray-200 mt-1">{item.value}</p>
+                <p className="text-faint text-[11px] uppercase tracking-wide">{item.label}</p>
+                <p className="mt-1 text-sm">{item.value}</p>
               </div>
             ))}
           </div>
@@ -320,23 +320,23 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
   };
 
   return (
-    <article className="border border-gray-700 rounded-lg p-4 bg-gray-900/40">
+    <article className="surface-soft rounded-2xl p-4">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs uppercase tracking-wide text-brand-cyan/80">{offer.label}</span>
-        <span className="text-[10px] text-gray-500">Takealot widget</span>
+        <span className="text-xs uppercase tracking-wide text-accent">{offer.label}</span>
+        <span className="text-faint text-[10px]">Takealot widget</span>
       </div>
-      <p className="text-2xl font-bold text-brand-light">{formatPrice() ?? 'N/A'}</p>
+      <p className="text-2xl font-bold">{formatPrice() ?? 'N/A'}</p>
       {offer.listPrice && offer.listPrice !== offer.price && (
-        <p className="text-sm text-gray-500 line-through">{formatListPrice()}</p>
+        <p className="text-faint text-sm line-through">{formatListPrice()}</p>
       )}
       {offer.deliveryPromise && (
-        <p className="mt-3 text-sm text-gray-300">{offer.deliveryPromise}</p>
+        <p className="mt-3 text-sm">{offer.deliveryPromise}</p>
       )}
       {offer.availabilityStatus && offer.availabilityStatus !== offer.deliveryPromise && (
-        <p className="mt-2 text-xs text-gray-400">{offer.availabilityStatus}</p>
+        <p className="text-muted mt-2 text-xs">{offer.availabilityStatus}</p>
       )}
       {offer.sellerName && (
-        <p className="mt-3 text-sm text-gray-300">
+        <p className="mt-3 text-sm">
           Sold by{' '}
           {offer.sellerLink ? (
             <a
@@ -353,7 +353,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
         </p>
       )}
       {(typeof offer.sellerRating === 'number' || typeof offer.sellerReviewCount === 'number') && (
-        <p className="mt-2 text-xs text-gray-400">
+        <p className="text-muted mt-2 text-xs">
           Seller signal:{' '}
           {typeof offer.sellerRating === 'number'
             ? `${offer.sellerRating.toFixed(1)} stars`
@@ -376,7 +376,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
         </div>
       )}
       {offer.locationDetails.length > 0 && (
-        <ul className="mt-3 text-xs text-gray-400 list-disc list-inside space-y-1">
+        <ul className="text-muted mt-3 list-inside list-disc space-y-1 text-xs">
           {offer.locationDetails.map((detail, index) => (
             <li key={`${detail}-${index}`}>{detail}</li>
           ))}

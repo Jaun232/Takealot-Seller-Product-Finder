@@ -4,13 +4,187 @@
 
 :root {
   color-scheme: dark;
+  --bg: #07111d;
+  --bg-elevated: rgba(8, 20, 34, 0.88);
+  --bg-soft: rgba(16, 30, 46, 0.72);
+  --bg-muted: rgba(15, 23, 42, 0.64);
+  --text: #eef5ff;
+  --text-muted: #9cb0c7;
+  --text-faint: #6e8398;
+  --border: rgba(129, 156, 185, 0.22);
+  --border-strong: rgba(1, 186, 239, 0.28);
+  --accent: #01baef;
+  --accent-strong: #0b4f6c;
+  --accent-soft: rgba(1, 186, 239, 0.16);
+  --success-soft: rgba(16, 185, 129, 0.14);
+  --shadow: 0 24px 80px rgba(3, 8, 18, 0.28);
+  --backdrop: linear-gradient(180deg, #07111d 0%, #0a1624 55%, #0d1927 100%);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f2f6fb;
+  --bg-elevated: rgba(255, 255, 255, 0.9);
+  --bg-soft: rgba(255, 255, 255, 0.82);
+  --bg-muted: rgba(236, 243, 250, 0.95);
+  --text: #102132;
+  --text-muted: #5c6f83;
+  --text-faint: #7c8c9c;
+  --border: rgba(16, 33, 50, 0.12);
+  --border-strong: rgba(1, 186, 239, 0.24);
+  --accent: #007ba3;
+  --accent-strong: #0d4d67;
+  --accent-soft: rgba(0, 123, 163, 0.1);
+  --success-soft: rgba(22, 163, 74, 0.1);
+  --shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  --backdrop: linear-gradient(180deg, #f3f7fb 0%, #eef4f9 55%, #e8eff6 100%);
 }
 
 body {
-  @apply bg-brand-dark text-brand-light min-h-screen;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  background: var(--backdrop);
+  color: var(--text);
+  font-family: 'Segoe UI', 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 a {
-  @apply text-brand-cyan;
+  color: var(--accent);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.surface-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.surface-soft {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+}
+
+.surface-muted {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-faint {
+  color: var(--text-faint);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.border-subtle {
+  border-color: var(--border);
+}
+
+.border-accent {
+  border-color: var(--border-strong);
+}
+
+.input-shell {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.input-shell::placeholder {
+  color: var(--text-faint);
+}
+
+.input-shell:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(1, 186, 239, 0.16);
+}
+
+.button-primary {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: white;
+}
+
+.button-primary:hover {
+  filter: brightness(1.04);
+}
+
+.button-secondary {
+  background: var(--accent-soft);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+
+.button-secondary:hover {
+  background: rgba(1, 186, 239, 0.22);
+}
+
+.button-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.button-ghost:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--accent-soft);
+}
+
+.metric-pill {
+  background: var(--success-soft);
+  color: var(--text);
+  border: 1px solid rgba(16, 185, 129, 0.24);
+}
+
+.segmented-shell {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+}
+
+.segmented-option {
+  color: var(--text-muted);
+}
+
+.segmented-option-active {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.source-chip {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.source-chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.source-chip-active {
+  background: var(--accent-soft);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.app-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .app-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
+    align-items: start;
+  }
 }
