@@ -33,13 +33,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>
-      <div className="flex flex-col gap-3 p-4">
+      <div className="flex flex-col gap-3 p-3.5 sm:p-4">
         <div className="flex-1">
           {product.brand && (
             <p className="mb-1 text-xs uppercase tracking-wide text-accent">{product.brand}</p>
           )}
           {typeof product.opportunityScore === 'number' && (
-            <p className="mb-2 inline-flex rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-400">
+            <p className="mb-2 inline-flex rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-400 sm:text-[11px]">
               Opportunity Score {product.opportunityScore}/100
             </p>
           )}
@@ -57,7 +57,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={() => onInspect(product)}
-              className="button-primary mt-3 block w-full rounded-xl py-2.5 text-center font-semibold whitespace-nowrap transition-colors duration-300"
+            className="button-primary mt-3 block w-full rounded-xl py-2.5 text-center text-sm font-semibold whitespace-nowrap transition-colors duration-300"
             >
               {inspectLabel}
             </button>
@@ -66,7 +66,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             href={product.productUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`button-secondary block w-full rounded-xl py-2.5 text-center font-semibold whitespace-nowrap transition-colors duration-300 ${
+            className={`button-secondary block w-full rounded-xl py-2.5 text-center text-sm font-semibold whitespace-nowrap transition-colors duration-300 ${
               onInspect ? 'mt-2' : 'mt-3'
             }`}
           >
@@ -75,7 +75,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <button
             type="button"
             onClick={() => setShowComparisons((prev) => !prev)}
-            className="button-ghost mt-2 w-full rounded-xl py-2.5 text-center font-semibold whitespace-nowrap transition-colors duration-300"
+            className="button-ghost mt-2 w-full rounded-xl py-2.5 text-center text-sm font-semibold whitespace-nowrap transition-colors duration-300"
           >
             {showComparisons ? 'Hide price comparison' : 'Compare prices'}
           </button>

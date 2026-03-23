@@ -1727,13 +1727,13 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
+              <div className="mt-5 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {featuredGroups.map((item) => (
                   <button
                     key={item.group}
                     type="button"
                     onClick={() => setSelectedFeaturedGroup(item.group)}
-                    className={`source-chip whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold ${
+                    className={`source-chip whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold sm:text-sm ${
                       item.group === selectedFeaturedGroup ? 'source-chip-active' : ''
                     }`}
                   >
@@ -1762,7 +1762,7 @@ const App: React.FC = () => {
                 <p className="mt-1 text-sm text-muted">{activeGroupMeta?.description}</p>
               </div>
 
-              <div className="mt-5 grid gap-3 max-h-[24rem] overflow-y-auto pr-1 sm:max-h-[28rem]">
+              <div className="mt-5 grid gap-3 max-h-[22rem] overflow-y-auto pr-1 sm:max-h-[28rem]">
                 {featuredGroupItems.map((item) => (
                   <button
                     key={item.listingUrl}
@@ -1774,7 +1774,7 @@ const App: React.FC = () => {
                     }`}
                   >
                     <p className="text-sm font-semibold">{item.label}</p>
-                    <p className="mt-1 text-xs text-muted break-all">{item.listingUrl}</p>
+                    <p className="mt-1 hidden break-all text-xs text-muted sm:block">{item.listingUrl}</p>
                   </button>
                 ))}
                 {featuredGroupItems.length === 0 && (
@@ -1869,9 +1869,9 @@ const App: React.FC = () => {
             onClick={() => setIsProductModalOpen(false)}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
-          <div className="absolute inset-0 overflow-y-auto p-3 sm:p-6 lg:p-10">
+          <div className="absolute inset-0 overflow-y-auto p-0 sm:p-6 lg:p-10">
             <div className="mx-auto max-w-6xl">
-              <div className="surface-card rounded-[24px] sm:rounded-[32px]">
+              <div className="surface-card min-h-screen rounded-none sm:min-h-0 sm:rounded-[32px]">
                 <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-subtle bg-[color:var(--bg-elevated)]/95 px-4 py-4 backdrop-blur sm:px-5">
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-wide text-faint">Product Analysis</p>
@@ -1888,7 +1888,7 @@ const App: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="p-4 sm:p-6">
+                <div className="p-4 pb-8 sm:p-6">
                   {isLoadingSelectedProduct && (
                     <div className="surface-muted rounded-[24px] p-5 sm:p-8">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

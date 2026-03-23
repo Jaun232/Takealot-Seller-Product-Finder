@@ -53,7 +53,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
         <button
           type="button"
           onClick={() => onModeChange('seller')}
-          className={`px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors rounded-xl ${
+          className={`px-2 py-2.5 text-xs font-semibold whitespace-nowrap transition-colors rounded-xl sm:px-3 sm:text-sm ${
             isSellerMode ? 'segmented-option-active' : 'segmented-option'
           }`}
         >
@@ -62,7 +62,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
         <button
           type="button"
           onClick={() => onModeChange('product')}
-          className={`px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors rounded-xl ${
+          className={`px-2 py-2.5 text-xs font-semibold whitespace-nowrap transition-colors rounded-xl sm:px-3 sm:text-sm ${
             !isSellerMode ? 'segmented-option-active' : 'segmented-option'
           }`}
         >
@@ -90,7 +90,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
         <button
           type="submit"
           disabled={disableSubmit}
-          className="button-primary inline-flex w-full shrink-0 items-center justify-center rounded-2xl px-4 py-3 font-bold whitespace-nowrap transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[11.5rem]"
+          className="button-primary inline-flex w-full shrink-0 items-center justify-center rounded-2xl px-4 py-3 text-sm font-bold whitespace-nowrap transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[11.5rem] sm:text-base"
         >
           {isLoading ? (
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent border-white" />

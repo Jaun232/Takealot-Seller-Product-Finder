@@ -17,7 +17,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
   const sourcingAssessment = buildSourcingAssessment(summary);
 
   return (
-    <section className="surface-card rounded-[28px] p-4 sm:p-6">
+    <section className="surface-card rounded-[24px] p-4 sm:rounded-[28px] sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-start gap-3 sm:gap-4">
           {product.imageUrl && (
@@ -30,7 +30,7 @@ const ProductOfferHighlights: React.FC<ProductOfferHighlightsProps> = ({
           )}
           <div className="min-w-0">
             <p className="text-sm uppercase tracking-wide text-muted">Matched product</p>
-            <h2 className="break-words text-lg font-semibold sm:text-xl">{product.name}</h2>
+            <h2 className="break-words text-base font-semibold sm:text-xl">{product.name}</h2>
             {product.subtitle && (
               <p className="text-muted mt-1 max-w-2xl break-words text-sm">{product.subtitle}</p>
             )}
