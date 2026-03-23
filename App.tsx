@@ -615,6 +615,382 @@ const FEATURED_LISTS = [
     label: 'Best Selling Floor Cleaners',
     listingUrl: 'https://www.takealot.com/home-kitchen/floor-cleaners-28719?filter=Available:true&sort=BestSelling%20Descending',
   },
+  {
+    label: 'New To Takealot Health',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-health&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'The Wellness Store',
+    listingUrl: 'https://www.takealot.com/health/thewellnessstore',
+  },
+  {
+    label: 'Sports Nutrition',
+    listingUrl: 'https://www.takealot.com/health/sportsnutrition',
+  },
+  {
+    label: 'Health',
+    listingUrl: 'https://www.takealot.com/health',
+  },
+  {
+    label: 'Top Rated Vitamins and Supplements',
+    listingUrl: 'https://www.takealot.com/health/vitamins-and-supplements-27052?filter=Available:true&sort=Rating%20Descending',
+  },
+  {
+    label: 'Top Rated Health Food',
+    listingUrl: 'https://www.takealot.com/health/health-food-25223?filter=Available:true&sort=Rating%20Descending',
+  },
+  {
+    label: 'Best Selling First Aid',
+    listingUrl: 'https://www.takealot.com/health/first-aid-25220?filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Health Equipment',
+    listingUrl: 'https://www.takealot.com/health/health-equipment-25225?sort=Relevance',
+  },
+  {
+    label: 'Medicine and Treatments',
+    listingUrl: 'https://www.takealot.com/health/medicine-and-treatments-25229',
+  },
+  {
+    label: 'Sexual Health',
+    listingUrl: 'https://www.takealot.com/health/sexualhealth',
+  },
+  {
+    label: 'Personal Care',
+    listingUrl: 'https://www.takealot.com/health/personalcare',
+  },
+  {
+    label: 'Sun Protection and Care',
+    listingUrl: 'https://www.takealot.com/health/sun-protection-and-care-27080?sort=Relevance',
+  },
+  {
+    label: 'Deodorant',
+    listingUrl: 'https://www.takealot.com/health/deodorant-27079?sort=Relevance',
+  },
+  {
+    label: 'Lip and Skin Care',
+    listingUrl: 'https://www.takealot.com/health/lip-and-skin-care-27074?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'New To Takealot Homeware',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-homeware&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Home and Kitchen',
+    listingUrl: 'https://www.takealot.com/home-kitchen',
+  },
+  {
+    label: 'Cookware',
+    listingUrl: 'https://www.takealot.com/home-kitchen/cookware_',
+  },
+  {
+    label: 'Kitchen Tools',
+    listingUrl: 'https://www.takealot.com/kitchen-tools',
+  },
+  {
+    label: 'Cutlery',
+    listingUrl: 'https://www.takealot.com/cutlery',
+  },
+  {
+    label: 'Drinkware',
+    listingUrl: 'https://www.takealot.com/drinkware',
+  },
+  {
+    label: 'Kitchen Storage',
+    listingUrl: 'https://www.takealot.com/home-kitchen/kitchen-storage-26156?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Home Decor',
+    listingUrl: 'https://www.takealot.com/home-decor',
+  },
+  {
+    label: 'Linen and Sheets',
+    listingUrl: 'https://www.takealot.com/home-kitchen/linen-and-sheets-26027?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Bathroom Accessories',
+    listingUrl: 'https://www.takealot.com/bathroom-accessories',
+  },
+  {
+    label: 'Furniture',
+    listingUrl: 'https://www.takealot.com/furniture',
+  },
+  {
+    label: 'Living Room Furniture',
+    listingUrl: 'https://www.takealot.com/home-kitchen/living-room-furniture-26984?sort=Relevance',
+  },
+  {
+    label: 'Dining Room Furniture',
+    listingUrl: 'https://www.takealot.com/home-kitchen/dining-room-furniture-26964?sort=Relevance',
+  },
+  {
+    label: 'Bedroom Furniture',
+    listingUrl: 'https://www.takealot.com/home-kitchen/bedroom-furniture-26940?sort=Relevance',
+  },
+  {
+    label: 'Study and Home Office Furniture',
+    listingUrl: 'https://www.takealot.com/home-kitchen/study-and-home-office-furniture-26996?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Installation Services Vouchers',
+    listingUrl: 'https://www.takealot.com/pool-garden/installation-services-vouchers-33375',
+  },
+  {
+    label: 'New To Takealot Liquor',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-liquor&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Liquor',
+    listingUrl: 'https://www.takealot.com/home-kitchen/liquor',
+  },
+  {
+    label: 'Wine',
+    listingUrl: 'https://www.takealot.com/home-kitchen/wine',
+  },
+  {
+    label: 'Beer',
+    listingUrl: 'https://www.takealot.com/home-kitchen/beer',
+  },
+  {
+    label: 'Whisky',
+    listingUrl: 'https://www.takealot.com/home-kitchen/whisky',
+  },
+  {
+    label: 'Cognac',
+    listingUrl: 'https://www.takealot.com/home-kitchen/cognac-25193?sort=Relevance',
+  },
+  {
+    label: 'Brandy',
+    listingUrl: 'https://www.takealot.com/home-kitchen/brandy-25191?sort=Relevance',
+  },
+  {
+    label: 'Best Selling Gin',
+    listingUrl: 'https://www.takealot.com/home-kitchen/gin-25194?filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Vodka',
+    listingUrl: 'https://www.takealot.com/home-kitchen/vodka-25199?sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Top Rated Tequila',
+    listingUrl: 'https://www.takealot.com/home-kitchen/tequila-25198?sort=Rating%20Descending',
+  },
+  {
+    label: 'Liqueurs and Aperitifs',
+    listingUrl: 'https://www.takealot.com/home-kitchen/liqueurs-and-aperitifs-25196',
+  },
+  {
+    label: 'Non Alcoholic',
+    listingUrl: 'https://www.takealot.com/home-kitchen/non-alcoholic-25183?sort=Relevance',
+  },
+  {
+    label: 'New To Takealot Stationery and Office',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-stationery-and-office&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Office',
+    listingUrl: 'https://www.takealot.com/office-stationery/office',
+  },
+  {
+    label: 'Office Furniture',
+    listingUrl: 'https://www.takealot.com/office-stationery/office-furniture-26363',
+  },
+  {
+    label: 'Office Consumables',
+    listingUrl: 'https://www.takealot.com/office-stationery/office-consumables-26324',
+  },
+  {
+    label: 'Printing',
+    listingUrl: 'https://www.takealot.com/computers/printing',
+  },
+  {
+    label: 'Office Supplies',
+    listingUrl: 'https://www.takealot.com/office-stationery/office-supplies-26579',
+  },
+  {
+    label: 'Student',
+    listingUrl: 'https://www.takealot.com/office-stationery/student',
+  },
+  {
+    label: 'Arts and Crafts',
+    listingUrl: 'https://www.takealot.com/office-stationery/arts_crafts',
+  },
+  {
+    label: 'Top Rated Paper',
+    listingUrl: 'https://www.takealot.com/office-stationery/paper-26590?sort=Rating%20Descending',
+  },
+  {
+    label: 'Pens and Refills',
+    listingUrl: 'https://www.takealot.com/office-stationery/pens-and-refills-26637',
+  },
+  {
+    label: 'Top Rated Colouring',
+    listingUrl: 'https://www.takealot.com/office-stationery/colouring-26643?filter=Available:true&sort=Rating%20Descending',
+  },
+  {
+    label: 'Fine Writing',
+    listingUrl: 'https://www.takealot.com/office-stationery/fine-writing-26642?filter=Available:true&sort=Price%20Descending',
+  },
+  {
+    label: 'Top Rated Technical Instruments',
+    listingUrl: 'https://www.takealot.com/office-stationery/technical-instruments-26608?sort=Rating%20Descending',
+  },
+  {
+    label: 'New To Takealot Pets',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-pets&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Pets Character Shop',
+    listingUrl: 'https://www.takealot.com/all?custom=pets-character-shop',
+  },
+  {
+    label: 'Vet Store',
+    listingUrl: 'https://www.takealot.com/promotion/vetstore',
+  },
+  {
+    label: 'Pets',
+    listingUrl: 'https://www.takealot.com/pets',
+  },
+  {
+    label: 'Dog Supplies',
+    listingUrl: 'https://www.takealot.com/pets/dogsupplies',
+  },
+  {
+    label: 'Cat Supplies',
+    listingUrl: 'https://www.takealot.com/pets/catsupplies',
+  },
+  {
+    label: 'Fish',
+    listingUrl: 'https://www.takealot.com/pets/all?filter=AnimalType:Fish&filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Hamster Rat and Guinea Pig',
+    listingUrl: 'https://www.takealot.com/pets/all?filter=AnimalType:Hamster|Rat|Guinea%20Pig&filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Rabbit',
+    listingUrl: 'https://www.takealot.com/pets/all?filter=AnimalType:Rabbit&filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Reptile',
+    listingUrl: 'https://www.takealot.com/pets/all?filter=AnimalType:Reptile&filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Goats Sheep and Cattle',
+    listingUrl: 'https://www.takealot.com/pets/all?filter=AnimalType:Goats|Sheep|Cattle&filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Horse',
+    listingUrl: 'https://www.takealot.com/pets/all?filter=AnimalType:Horse&filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Bird',
+    listingUrl: 'https://www.takealot.com/pets/all?filter=AnimalType:Bird&filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'New To Takealot Sport',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-sport&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'SuperSport Schools',
+    listingUrl: 'https://www.takealot.com/sport/supersport-schools',
+  },
+  {
+    label: 'PSL',
+    listingUrl: 'https://www.takealot.com/psl',
+  },
+  {
+    label: 'New Clearance Store',
+    listingUrl: 'https://www.takealot.com/sport/newclearancestore',
+  },
+  {
+    label: 'Sport',
+    listingUrl: 'https://www.takealot.com/sport',
+  },
+  {
+    label: 'Sports Clothing',
+    listingUrl: 'https://www.takealot.com/sport/sports-clothing',
+  },
+  {
+    label: 'Sports Footwear',
+    listingUrl: 'https://www.takealot.com/sport/sports-footwear',
+  },
+  {
+    label: 'Team Sports',
+    listingUrl: 'https://www.takealot.com/sport/teamsports',
+  },
+  {
+    label: 'Runners Checklist',
+    listingUrl: 'https://www.takealot.com/sport/runnerschecklist',
+  },
+  {
+    label: 'Cycling Store',
+    listingUrl: 'https://www.takealot.com/sport/cyclingstore',
+  },
+  {
+    label: 'Beach and Outdoor Games',
+    listingUrl: 'https://www.takealot.com/sport/beach-outdoor-games',
+  },
+  {
+    label: 'Exercise',
+    listingUrl: 'https://www.takealot.com/sport/newexercise',
+  },
+  {
+    label: 'Tennis',
+    listingUrl: 'https://www.takealot.com/sport/tennis',
+  },
+  {
+    label: 'Cricket',
+    listingUrl: 'https://www.takealot.com/sport/cricket',
+  },
+  {
+    label: 'Takealot Fan Gear',
+    listingUrl: 'https://www.takealot.com/sport/takealot-fan-gear',
+  },
+  {
+    label: 'Hockey',
+    listingUrl: 'https://www.takealot.com/sport/hockey',
+  },
+  {
+    label: 'New To Takealot Toys',
+    listingUrl: 'https://www.takealot.com/all?custom=new-to-tal-toys&sort=ReleaseDate%20Descending',
+  },
+  {
+    label: 'Toys',
+    listingUrl: 'https://www.takealot.com/toys',
+  },
+  {
+    label: 'Action Figures',
+    listingUrl: 'https://www.takealot.com/toys/actionfigures',
+  },
+  {
+    label: 'Board Games',
+    listingUrl: 'https://www.takealot.com/toys/boardgames',
+  },
+  {
+    label: 'Card Games',
+    listingUrl: 'https://www.takealot.com/toys/card-games-25354?filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Indoor Play',
+    listingUrl: 'https://www.takealot.com/toys/indoor-play-25402?filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Kids Party Supplies',
+    listingUrl: 'https://www.takealot.com/toys/kids-party-supplies-25480?filter=Available:true&sort=BestSelling%20Descending',
+  },
+  {
+    label: 'Top Rated Outdoor Play',
+    listingUrl: 'https://www.takealot.com/toys/outdoor-play-25380?sort=Rating%20Descending',
+  },
+  {
+    label: 'Puzzles',
+    listingUrl: 'https://www.takealot.com/toys/puzzles',
+  },
+  {
+    label: 'Smart and Interactive Toys',
+    listingUrl: 'https://www.takealot.com/toys/smart-and-interactive-toys-25363?sort=ReleaseDate%20Descending',
+  },
 ] as const;
 
 function buildProductOfferParams(value: string): {
