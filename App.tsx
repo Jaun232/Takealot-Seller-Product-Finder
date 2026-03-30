@@ -1750,19 +1750,19 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-5 max-w-full overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <div className="flex min-w-max gap-2">
+              <div className="mt-5">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {featuredGroups.map((item) => (
                   <button
                     key={item.group}
                     type="button"
                     onClick={() => setSelectedFeaturedGroup(item.group)}
-                    className={`source-chip whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold sm:text-sm ${
+                    className={`source-chip flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-xs font-semibold sm:text-sm ${
                       item.group === selectedFeaturedGroup ? 'source-chip-active' : ''
                     }`}
                   >
-                    {item.group}
-                    <span className="ml-2 text-xs opacity-70">{item.count}</span>
+                    <span className="min-w-0">{item.group}</span>
+                    <span className="shrink-0 text-xs opacity-70">{item.count}</span>
                   </button>
                 ))}
                 </div>
